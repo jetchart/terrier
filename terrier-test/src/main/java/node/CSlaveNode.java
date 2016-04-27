@@ -34,8 +34,6 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				Collection<String> col = new ArrayList<String>();
 				col.add(array[1]);
 				this.setColCorpus(col);
-				/* Indexo */
-				this.createIndex("S", "nombreIndice");
 				break;
 			case "createIndex":
 				this.createIndex("S", "nombreIndice");

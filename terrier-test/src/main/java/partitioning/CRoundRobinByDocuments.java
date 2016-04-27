@@ -60,7 +60,7 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
         		}
         		/* Escribo contenido del archivo en el corpus con formato TREC */
                 pw.println("<DOC>");
-                pw.println("<DOCNO>"+ docno +"</DOCNO>");
+                pw.println("<DOCNO>"+ docno++ +"</DOCNO>");
                 /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
                 pw.println("<DOCPATH>" + filePath + "</DOCPATH>");
                 pw.println("<TEXT>");

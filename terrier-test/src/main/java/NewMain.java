@@ -31,10 +31,8 @@ public class NewMain {
 	
 	private static void createClient(){
 		try {
-		/* Creo Cliente */
-		Client client = new Client();
 		/* Creo Nodo Master */
-		IMasterNode nodo = new CMasterNode(client);
+		IMasterNode nodo = new CMasterNode();
 		/* Pido cantidad de corpus y query */
 		Scanner scanner = new Scanner(System.in);
 		String recrearCorpus = "";
@@ -56,7 +54,7 @@ public class NewMain {
 			/* Instancio el metodo de particionamiento */
 			nodo.setPartitionMethod(CFactoryPartitionMethod.getInstance(metodoId));
 			/* Cantidad de corpus a crear */
-			System.out.print("Ingrese la cantidad de corpus a crear: ");
+			System.out.print("Ingrese la cantidad de nodos: ");
 			cantidadCorpus = Integer.valueOf(scanner.nextLine());
 			nodo.setCantidadCorpus(cantidadCorpus);
 			nodo.createSlaveNodes(nodo.getCantidadCorpus());
@@ -70,12 +68,11 @@ public class NewMain {
 			nodo.createCorpus();
 		   	/* Agrego todos los corpus al archivo /etc/collection.spec/ para que se tengan en cuenta en la Indexacion */
 			/* Cuando se tengan Slave nodes se dividirán los Corpus */
-//		   	nodo.setColCorpus(nodo.getColCorpusTotal());	
-			nodo.setCorpusToNodes();
+			nodo.sendCorpusToNodes();
 
 		}
 		/* Creo Index */
-		nodo.createIndex(recrearCorpus, nodo.getPartitionMethod().getClass().getName());
+		nodo.sendOrderToIndex(recrearCorpus, nodo.getPartitionMethod().getClass().getName());
 		ResultSet rs = nodo.retrieval(query);
 		CUtil.mostrarResultados(rs, nodo.getIndex(), query);
 	} catch (Exception e) {

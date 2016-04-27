@@ -2,10 +2,7 @@ package node;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.terrier.matching.ResultSet;
 
@@ -22,24 +19,17 @@ public class CMasterNode extends CNode implements IMasterNode {
 	/* Coleccion de todos los Corpus */
 	private Collection<String> colCorpusTotal;
 	/* Nodos que posee, incluyéndose a él mismo */
-	private Map<Integer,String> nodes;
+	private Collection<Client> nodes;
 	/* Metodo de particionamiento del corpus */
 	private IPartitionMethod partitionMethod;
 	/* Cantidad de corpus (para repartir entre nodos) */
 	private int cantidadCorpus;
-	/* Guardo el Cliente para conectar con los Servidores */
-	Client client;
 	/* TODO esto es temporal!!!!!!!!*/
 	String nodesHost = "localhost";
 	int fromPort = 1234;
 	
-	public CMasterNode(Client client) {
+	public CMasterNode() {
 		super();
-		this.client = client;
-//		/* Se agrega como nodo */
-//		nodes = new ArrayList<INode>();
-//		nodes.add(this);
-		
 	}
 	
 	public void createCorpus() {
@@ -60,21 +50,21 @@ public class CMasterNode extends CNode implements IMasterNode {
 		System.out.println("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
 	}
 	
-	public Map<Integer, String> getNodes() {
+	public Collection<Client> getNodes() {
 		return this.nodes;
 	}
 
-	public void sendCorpus(Collection<INode> nodes) {
-		for (INode node : nodes){
-			node.setColCorpus(null);
+	public void sendOrderToIndex(String recrearCorpus, String methodPartitionName) {
+		Long inicioIndexacion = System.currentTimeMillis();
+		/* Envio indicacion para indexar a cada nodo */
+		for (Client cliente : nodes){
+			cliente.enviar("createIndex");
+			cliente.recibir();
 		}
-
-	}
-
-	public void sendOrderToIndex(Collection<INode> nodes) {
-		for (INode node : nodes){
-			//node.createIndex();
-		}
+		/* Indexo yo mismo */
+		createIndex(recrearCorpus, methodPartitionName);
+		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
+		System.out.println("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
 	}
 
 	public Collection<ResultSet> sendOrderToRetrieval(Collection<INode> nodes, String query) {
@@ -110,16 +100,17 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 	
 	public void createSlaveNodes(int cantidad){
-		nodes = new HashMap<Integer, String>();
+		nodes = new ArrayList<Client>();
 		int i;
 		int port = 1234;
-		// Arranaco desde 1, porque el 0 será este NODO
-		for (i=1;i<cantidad;i++){
-			nodes.put(i, "localhost:" + (port+i));
+		for (i=0;i<cantidad-1;i++){
+			Client cliente = new Client("localhost", port+i);
+			nodes.add(cliente);
 		}
 	}
 
-	public void setCorpusToNodes() {
+	public void sendCorpusToNodes() {
+		Long inicioSetCorpusToNodes = System.currentTimeMillis();
 		/* Agrego corpus al master node */
 		Iterator<String> iterator = this.getColCorpusTotal().iterator();
 		String corpusMasterNode = (String) iterator.next();
@@ -127,10 +118,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 		colCorpusMasterNode.add(corpusMasterNode);
 		this.setColCorpus(colCorpusMasterNode);
 		/* Agrego corpus a cada slave node */
-		for (Entry<Integer, String> entry : this.getNodes().entrySet()){
-			client.enviar("setId" + CUtil.separator + entry.getKey());
-			client.enviar("setColCorpus" + CUtil.separator + (String) iterator.next());
+		for (Client cliente : nodes){
+			cliente.enviar("setId" + CUtil.separator + cliente.getPort());
+			cliente.enviar("setColCorpus" + CUtil.separator + (String) iterator.next());
+			cliente.recibir();
 		}
+		Long finSetCorpusToNodes = System.currentTimeMillis() - inicioSetCorpusToNodes;
+		System.out.println("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
 	}
 
 }

@@ -1,25 +1,24 @@
 package node;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.terrier.matching.ResultSet;
 
 import partitioning.IPartitionMethod;
+import connections.Client;
 
 
 public interface IMasterNode extends INode, IClient {
 	
-	Map<Integer, String> getNodes();
-	
-	/* */
+	Collection<Client> getNodes();
+
 	void createCorpus();
 	
 	Collection<String> getColCorpusTotal();
 	
-	void sendCorpus(Collection<INode> nodes);
+	void sendCorpusToNodes();
 	
-	void sendOrderToIndex(Collection<INode> nodes);
+	void sendOrderToIndex(String recrearCorpus, String methodPartitionName);
 	
 	Collection<ResultSet> sendOrderToRetrieval(Collection<INode> nodes, String query);
 	
@@ -32,6 +31,5 @@ public interface IMasterNode extends INode, IClient {
 	void setCantidadCorpus(int cantidadCorpus);
 	
 	void createSlaveNodes(int cantidad);
-	
-	void setCorpusToNodes();
+
 }

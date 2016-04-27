@@ -40,7 +40,12 @@ public class Server {
 		 recibir();
 		 /* Enviar */
 		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-		 enviar("mensajeDesdeServidor");
+		 enviar("Nodo " + slaveNode.getId() + " recibio datos requeridos para indexar");
+		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+		 recibir();
+		 /* Enviar */
+		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+		 enviar("Nodo " + slaveNode.getId() + " indexó la colección");
 		 cerrar();
 		 } catch( IOException e ) {
 			 System.out.println( e );

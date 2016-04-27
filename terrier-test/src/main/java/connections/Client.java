@@ -11,14 +11,16 @@ public class Client {
 	DataInputStream flujoEntrada;
 	Socket miCliente;
 	
-	public static String host = "localhost";
-	public static int port = 1234;
+	private String host;
+	private Integer port;
 	
-	public Client(){
+	public Client(String host, Integer port){
 		 try {
-		 miCliente = new Socket( host,port );
-		 flujoSalida= new DataOutputStream(miCliente.getOutputStream());
-		 flujoEntrada= new DataInputStream( miCliente.getInputStream());
+			 this.host = host;
+			 this.port = port;
+			 miCliente = new Socket( host,port );
+			 flujoSalida= new DataOutputStream(miCliente.getOutputStream());
+			 flujoEntrada= new DataInputStream( miCliente.getInputStream());
 		 } catch( IOException e ) {
 			 System.out.println( e );
 		 }
@@ -53,7 +55,7 @@ public class Client {
 	public void enviar(String mensaje){
 		 try {
 		 flujoSalida.writeUTF(mensaje);
-		 System.out.println("El Cliente envió " + mensaje);
+		 System.out.println("El Cliente envió al Nodo " + this.port + " el mensaje: " + mensaje);
 		 } catch( IOException e ) {
 		 System.out.println( e );
 		 }
@@ -70,5 +72,29 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public Socket getSocket(){
+		return miCliente;
+	}
+	
+	public void aetSocket(Socket miCliente){
+		this.miCliente = miCliente;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public Integer getPort() {
+		return port;
+	}
+
+	public void setPort(Integer port) {
+		this.port = port;
 	}
 }
