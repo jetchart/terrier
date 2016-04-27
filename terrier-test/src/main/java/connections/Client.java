@@ -5,7 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Client {
+import util.CUtil;
+
+public class Client{
 
 	DataOutputStream flujoSalida;
 	DataInputStream flujoEntrada;
@@ -13,6 +15,9 @@ public class Client {
 	
 	private String host;
 	private Integer port;
+	private String tarea;
+	private String nodoColCorpus;
+	
 	
 	public Client(String host, Integer port){
 		 try {
@@ -96,5 +101,48 @@ public class Client {
 
 	public void setPort(Integer port) {
 		this.port = port;
+	}
+
+//	@Override
+//	public void run() {
+//		if ("Inicializar".equals(getTarea())){
+//			this.enviar("setId" + CUtil.separator + getPort());
+//			this.enviar("setColCorpus" + CUtil.separator + getNodoColCorpus());
+//			this.recibir();
+//			this.cerrar();
+//		}else if ("Indexar".equals(getTarea())){
+//			this.enviar("createIndex");
+//			this.recibir();
+//			this.cerrar();
+//		}
+//	}
+
+	public void run() {
+		if ("Inicializar".equals(getTarea())){
+			this.enviar("setId" + CUtil.separator + getPort());
+			this.enviar("setColCorpus" + CUtil.separator + getNodoColCorpus());
+			this.recibir();
+			this.cerrar();
+		}else if ("Indexar".equals(getTarea())){
+			this.enviar("createIndex");
+			this.recibir();
+			this.cerrar();
+		}
+	}
+	
+	public String getTarea() {
+		return tarea;
+	}
+
+	public void setTarea(String tarea) {
+		this.tarea = tarea;
+	}
+
+	public String getNodoColCorpus() {
+		return nodoColCorpus;
+	}
+
+	public void setNodoColCorpus(String nodoColCorpus) {
+		this.nodoColCorpus = nodoColCorpus;
 	}
 }

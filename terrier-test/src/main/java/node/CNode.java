@@ -2,6 +2,7 @@ package node;
 
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.terrier.indexing.TRECCollection;
 import org.terrier.matching.ResultSet;
 import org.terrier.querying.Manager;
@@ -16,7 +17,8 @@ import util.CUtil;
 
 
 public abstract class CNode implements INode {
-
+	Logger logger = Logger.getLogger(CNode.class);
+	
 	/* Index */
 	Index index;
 	/* Corpus */
@@ -51,6 +53,9 @@ public abstract class CNode implements INode {
 	}
 
 	public ResultSet retrieval(String query) {
+		System.out.println("------------------------------------");
+		System.out.println("COMIENZA RECUPERACION");
+		System.out.println("------------------------------------");
 		Long inicioRecuperacion = System.currentTimeMillis();
 		/* Instancio Manager con el indice creado */
 		Manager m = new Manager(this.index);
@@ -79,7 +84,7 @@ public abstract class CNode implements INode {
     	/* Creo una nueva coleccion */
 		coleccion = new TRECCollection();
 		/* Instancio Indexador */
-		Indexer indexador = new BasicIndexer(configuration.getTerrierHome() +"var/index/", INodeConfiguration.indexName + methodPartitionName);
+		Indexer indexador = new BasicIndexer(configuration.getTerrierHome() +"var/index/", INodeConfiguration.indexName + "_" + id + methodPartitionName);
 		/* Indico las colecciones a indexar */
 		org.terrier.indexing.Collection[] col = new org.terrier.indexing.Collection[1];
 		col[0] = coleccion;
@@ -90,7 +95,7 @@ public abstract class CNode implements INode {
 		/* Cierro Coleccion */
 		coleccion.close();
     	/* Devuelvo el indice creado */
-		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", INodeConfiguration.indexName + methodPartitionName);		
+		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", INodeConfiguration.indexName + "_" + id + methodPartitionName);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
 		System.out.println("Indexación tardó " + finIndexacion + " milisegundos");	
 	}

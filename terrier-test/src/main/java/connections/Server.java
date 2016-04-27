@@ -35,7 +35,7 @@ public class Server {
 		 socketServicio = miServicio.accept();
 		 /* Recibir*/
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-		 recibir();
+		 String mensaje = recibir();
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 recibir();
 		 /* Enviar */
@@ -51,7 +51,6 @@ public class Server {
 			 System.out.println( e );
 		 }
 	}
-	
 	private void test(){
 		 socketServicio = null;
 		 try {

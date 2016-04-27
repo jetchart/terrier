@@ -98,6 +98,9 @@ public class CUtil {
     }
 	
     public static void mostrarResultados(ResultSet rs, Index index, String query) throws Exception{
+		System.out.println("------------------------------------");
+		System.out.println("RESULTADOS");
+		System.out.println("------------------------------------");
 		 int[] docIds = rs.getDocids();
 		 double[] scores = rs.getScores();
 		 int posicion = 0;

@@ -9,7 +9,6 @@ import org.terrier.matching.ResultSet;
 import partitioning.CRoundRobinByDocuments;
 import partitioning.IPartitionByTerms;
 import partitioning.IPartitionMethod;
-import util.CUtil;
 import configuration.INodeConfiguration;
 import connections.Client;
 
@@ -33,6 +32,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 	
 	public void createCorpus() {
+		System.out.println("------------------------------------");
+		System.out.println("COMIENZA CREACION DE CORPUS");
+		System.out.println("------------------------------------");
 		Long inicioCreacionCorpus = System.currentTimeMillis();
 		/* Si el metodo de particion es por terminos, necesitamos primero
 		 * tener el indice, para obtener los terminos y dividirlos */
@@ -55,14 +57,22 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 
 	public void sendOrderToIndex(String recrearCorpus, String methodPartitionName) {
+		System.out.println("------------------------------------");
+		System.out.println("COMIENZA INDEXACION");
+		System.out.println("------------------------------------");
 		Long inicioIndexacion = System.currentTimeMillis();
 		/* Envio indicacion para indexar a cada nodo */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (Client cliente : nodes){
-			cliente.enviar("createIndex");
-			cliente.recibir();
+			cliente.setTarea("Indexar");
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
 		}
 		/* Indexo yo mismo */
 		createIndex(recrearCorpus, methodPartitionName);
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
 		System.out.println("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
 	}
@@ -110,6 +120,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 
 	public void sendCorpusToNodes() {
+		System.out.println("------------------------------------");
+		System.out.println("COMIENZA ENVIO DE CORPUS A NODOS");
+		System.out.println("------------------------------------");
 		Long inicioSetCorpusToNodes = System.currentTimeMillis();
 		/* Agrego corpus al master node */
 		Iterator<String> iterator = this.getColCorpusTotal().iterator();
@@ -118,13 +131,33 @@ public class CMasterNode extends CNode implements IMasterNode {
 		colCorpusMasterNode.add(corpusMasterNode);
 		this.setColCorpus(colCorpusMasterNode);
 		/* Agrego corpus a cada slave node */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (Client cliente : nodes){
-			cliente.enviar("setId" + CUtil.separator + cliente.getPort());
-			cliente.enviar("setColCorpus" + CUtil.separator + (String) iterator.next());
-			cliente.recibir();
+			cliente.setTarea("Inicializar");
+			cliente.setNodoColCorpus((String) iterator.next());
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
 		}
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
 		Long finSetCorpusToNodes = System.currentTimeMillis() - inicioSetCorpusToNodes;
 		System.out.println("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
 	}
 
+	/**
+	 * El metodo esperar debe aguardar a que todos los hilos de la coleccion que recibe, 
+	 * terminen su ejecución.
+	 * @param hilos
+	 */
+	public void esperar(Collection<Hilo> hilos){
+		Boolean continuar = true;
+		while (continuar){
+			continuar = false;
+			for (Hilo hilo: hilos){
+				if (hilo.isAlive())
+					continuar = true;
+			}
+		}
+	}
 }
