@@ -1,5 +1,7 @@
 package configuration;
 
+import java.util.Collection;
+
 public interface INodeConfiguration {
 
 //	public static String defaultConfigurationFilePath = "/home/javier/terrier-4.0/configuration.properties";
@@ -10,7 +12,7 @@ public interface INodeConfiguration {
 	
 	String getIdMasterNode();
 	
-	String getIdSlaveNode();
+	Collection<String> getSlavesNodes();
 	
 	String getTerrierHome();
 	

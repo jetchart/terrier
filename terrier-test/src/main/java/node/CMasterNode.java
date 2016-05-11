@@ -23,68 +23,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 	private IPartitionMethod partitionMethod;
 	/* Cantidad de corpus (para repartir entre nodos) */
 	private int cantidadCorpus;
-	/* TODO esto es temporal!!!!!!!!*/
-	String nodesHost = "localhost";
-	int fromPort = 1234;
+	/* Indica si el Master indexa o no */
+	private Boolean indexa;
 	
 	public CMasterNode() {
 		super();
 	}
 	
-	public void createCorpus() {
-		System.out.println("------------------------------------");
-		System.out.println("COMIENZA CREACION DE CORPUS");
-		System.out.println("------------------------------------");
-		Long inicioCreacionCorpus = System.currentTimeMillis();
-		/* Si el metodo de particion es por terminos, necesitamos primero
-		 * tener el indice, para obtener los terminos y dividirlos */
-		if (partitionMethod instanceof IPartitionByTerms){
-			/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
-			/* TODO se puede mejorar esto */
-			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, null);
-			this.createIndex("S", CRoundRobinByDocuments.class.getName());
-			colCorpusTotal.clear();
-		}else{
-			this.index = null;
-		}
-		colCorpusTotal = partitionMethod.createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, this.index);
-		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
-		System.out.println("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
-	}
-	
-	public Collection<Client> getNodes() {
-		return this.nodes;
-	}
-
-	public void sendOrderToIndex(String recrearCorpus, String methodPartitionName) {
-		System.out.println("------------------------------------");
-		System.out.println("COMIENZA INDEXACION");
-		System.out.println("------------------------------------");
-		Long inicioIndexacion = System.currentTimeMillis();
-		/* Envio indicacion para indexar a cada nodo */
-		Collection<Hilo> hilos = new ArrayList<Hilo>();
-		for (Client cliente : nodes){
-			cliente.setTarea("Indexar");
-			Hilo hilo = new Hilo(cliente);
-			hilo.start();
-			hilos.add(hilo);
-		}
-		/* Indexo yo mismo */
-		createIndex(recrearCorpus, methodPartitionName);
-		/* Espero a que todos los nodos terminen */
-		esperar(hilos);
-		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-		System.out.println("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
-	}
-
-	public Collection<ResultSet> sendOrderToRetrieval(Collection<INode> nodes, String query) {
-		Collection<ResultSet> colResultSet = new ArrayList<ResultSet>();
-		for (INode node : nodes){
-			colResultSet.add(node.retrieval(query));
-		}
-		return colResultSet;
-	}
-
 	public Collection<String> getColCorpusTotal() {
 		return this.colCorpusTotal;
 	}
@@ -109,27 +54,72 @@ public class CMasterNode extends CNode implements IMasterNode {
 		this.cantidadCorpus = cantidadCorpus;
 	}
 	
+	public Boolean getIndexa() {
+		return indexa;
+	}
+
+	public void setIndexa(Boolean indexa) {
+		this.indexa = indexa;
+	}
+	
+	public Collection<Client> getNodes() {
+		return this.nodes;
+	}
+	
+
 	public void createSlaveNodes(int cantidad){
 		nodes = new ArrayList<Client>();
-		int i;
-		int port = 1234;
-		for (i=0;i<cantidad-1;i++){
-			Client cliente = new Client("localhost", port+i);
+		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */
+		if (indexa){
+			cantidad--;
+		}
+		int i = 0;
+		for (String nodo : configuration.getSlavesNodes()){
+			i++;
+			if (i > cantidad)
+				break;
+			String host = nodo.split(":")[0];
+			Integer port = Integer.valueOf(nodo.split(":")[1]);
+			Client cliente = new Client(host, port);
 			nodes.add(cliente);
 		}
 	}
+	
+	public void createCorpus() {
+		System.out.println("------------------------------------");
+		System.out.println("COMIENZA CREACION DE CORPUS");
+		System.out.println("------------------------------------");
+		Long inicioCreacionCorpus = System.currentTimeMillis();
+		/* Si el metodo de particion es por terminos, necesitamos primero
+		 * tener el indice, para obtener los terminos y dividirlos */
+		if (partitionMethod instanceof IPartitionByTerms){
+			/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
+			/* TODO se puede mejorar esto */
+			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, null);
+			this.createIndex("S", CRoundRobinByDocuments.class.getName());
+			colCorpusTotal.clear();
+		}else{
+			this.index = null;
+		}
+		colCorpusTotal = partitionMethod.createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, this.index);
+		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
+		System.out.println("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
+	}
+	
 
 	public void sendCorpusToNodes() {
 		System.out.println("------------------------------------");
 		System.out.println("COMIENZA ENVIO DE CORPUS A NODOS");
 		System.out.println("------------------------------------");
 		Long inicioSetCorpusToNodes = System.currentTimeMillis();
-		/* Agrego corpus al master node */
+		/* Agrego corpus al master node solo si indexa */
 		Iterator<String> iterator = this.getColCorpusTotal().iterator();
-		String corpusMasterNode = (String) iterator.next();
-		Collection<String> colCorpusMasterNode = new ArrayList<String>();
-		colCorpusMasterNode.add(corpusMasterNode);
-		this.setColCorpus(colCorpusMasterNode);
+		if (indexa){
+			String corpusMasterNode = (String) iterator.next();
+			Collection<String> colCorpusMasterNode = new ArrayList<String>();
+			colCorpusMasterNode.add(corpusMasterNode);
+			this.setColCorpus(colCorpusMasterNode);
+		}
 		/* Agrego corpus a cada slave node */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (Client cliente : nodes){
@@ -144,7 +134,57 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Long finSetCorpusToNodes = System.currentTimeMillis() - inicioSetCorpusToNodes;
 		System.out.println("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
 	}
+	
+	public void sendOrderToIndex(String recrearCorpus, String methodPartitionName) {
+		System.out.println("------------------------------------");
+		System.out.println("COMIENZA INDEXACION");
+		System.out.println("------------------------------------");
+		Long inicioIndexacion = System.currentTimeMillis();
+		/* Envio indicacion para indexar a cada nodo */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
+		for (Client cliente : nodes){
+			cliente.setTarea("Indexar");
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
+		}
+		/* Indexo yo mismo si así se indica */
+		if (indexa){
+			createIndex(recrearCorpus, "masterNode");
+		}
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
+		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
+		System.out.println("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
+	}
 
+	public Collection<ResultSet> sendOrderToRetrieval(String query) throws Exception {
+		System.out.println("------------------------------------");
+		System.out.println("COMIENZA RECUPERACION");
+		System.out.println("------------------------------------");
+		Long inicioRecuperacion = System.currentTimeMillis();
+		/* Envio indicacion para indexar a cada nodo */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
+		for (Client cliente : nodes){
+			cliente.setTarea("Recuperar");
+			cliente.setQuery(query);
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
+		}
+		/* Recupero yo mismo si tuve que indexar */
+		if (indexa){
+			retrieval(query);
+		}
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
+		Long finRecuperacion = System.currentTimeMillis() - inicioRecuperacion;
+		System.out.println("Recuperacion TOTAL tardó " + finRecuperacion + " milisegundos");
+
+		return null;
+
+	}
+	
 	/**
 	 * El metodo esperar debe aguardar a que todos los hilos de la coleccion que recibe, 
 	 * terminen su ejecución.

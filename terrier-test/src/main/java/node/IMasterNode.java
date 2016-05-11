@@ -20,7 +20,7 @@ public interface IMasterNode extends INode, IClient {
 	
 	void sendOrderToIndex(String recrearCorpus, String methodPartitionName);
 	
-	Collection<ResultSet> sendOrderToRetrieval(Collection<INode> nodes, String query);
+	Collection<ResultSet> sendOrderToRetrieval(String query) throws Exception;
 	
 	IPartitionMethod getPartitionMethod();
 	
@@ -31,5 +31,9 @@ public interface IMasterNode extends INode, IClient {
 	void setCantidadCorpus(int cantidadCorpus);
 	
 	void createSlaveNodes(int cantidad);
+	
+	void setIndexa(Boolean indexa);
+	
+	Boolean getIndexa();
 
 }

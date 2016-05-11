@@ -33,7 +33,7 @@ public class Server {
 		 socketServicio = null;
 		 try {
 		 socketServicio = miServicio.accept();
-		 /* Recibir*/
+		 /* Recibir */
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 String mensaje = recibir();
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
@@ -46,6 +46,12 @@ public class Server {
 		 /* Enviar */
 		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
 		 enviar("Nodo " + slaveNode.getId() + " indexó la colección");
+		 /* Recibir*/
+		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+		 mensaje = recibir();
+		 /* Enviar */
+		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+		 enviar("Nodo " + slaveNode.getId() + " recuperó en base a la query ");		 
 		 cerrar();
 		 } catch( IOException e ) {
 			 System.out.println( e );

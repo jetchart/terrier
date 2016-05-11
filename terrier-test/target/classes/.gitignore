@@ -1,4 +1,5 @@
 /META-INF
-/connections
 /node
-/util
+/partitioning
+/configuration
+/connections

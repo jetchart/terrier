@@ -36,7 +36,14 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				this.setColCorpus(col);
 				break;
 			case "createIndex":
-				this.createIndex("S", "nombreIndice");
+				this.createIndex("S", "slaveNode_"+this.getId());
+		        break;
+			case "retrieval":
+				try {
+					this.retrieval(array[1]);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 		        break;
 		}
 	}

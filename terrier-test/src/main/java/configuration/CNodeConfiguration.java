@@ -3,6 +3,8 @@ package configuration;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 
 public class CNodeConfiguration implements INodeConfiguration {
@@ -11,7 +13,8 @@ public class CNodeConfiguration implements INodeConfiguration {
 	String folderPath;
 	String destinationFolderPath;
 	String idMasterNode;
-	String idSlaveNode;
+	Collection<String> slavesNodes = new ArrayList<String>();
+	Integer nodesAmount;
 
 	public CNodeConfiguration() {
 		this.readFileConfiguration(INodeConfiguration.defaultConfigurationFilePath);
@@ -33,7 +36,10 @@ public class CNodeConfiguration implements INodeConfiguration {
 			this.folderPath = propiedades.getProperty("folderPath");
 			this.destinationFolderPath = propiedades.getProperty("destinationFolderPath");
 			this.idMasterNode = propiedades.getProperty("idMasterNode");
-			this.idSlaveNode = propiedades.getProperty("idSlaveNode");
+			this.nodesAmount = Integer.valueOf(propiedades.getProperty("nodesAmount"));
+			for (int i=1;i<nodesAmount; i++){
+				slavesNodes.add(propiedades.getProperty("idSlaveNode_"+i));
+			}
 		} catch (FileNotFoundException e) {
 			System.out.println("Error, El archivo no existe");
 		} catch (IOException e) {
@@ -59,8 +65,8 @@ public class CNodeConfiguration implements INodeConfiguration {
 		return this.idMasterNode;
 	}
 	
-	public String getIdSlaveNode() {
-		return this.idSlaveNode;
+	public Collection<String> getSlavesNodes() {
+		return this.slavesNodes;
 	}
 
 }

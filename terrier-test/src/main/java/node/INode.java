@@ -22,7 +22,7 @@ public interface INode extends Remote {
 	/* Guarda la coleccion de Corpus que se le fue asignada y la vuelca en el archivo collection.spec */
 	void setColCorpus(Collection<String> colCorpus);
 	
-	ResultSet retrieval(String query);
+	ResultSet retrieval(String query) throws Exception;
 	
 	int getId();
 	

@@ -19,6 +19,9 @@ public class Hilo extends Thread{
 		}else if ("Indexar".equals(cliente.getTarea())){
 			cliente.enviar("createIndex");
 			cliente.recibir();
+		}else if ("Recuperar".equals(cliente.getTarea())){
+			cliente.enviar("retrieval" + CUtil.separator + cliente.getQuery());
+			cliente.recibir();
 		}
 	}
 }

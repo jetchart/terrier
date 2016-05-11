@@ -4,18 +4,13 @@ import node.CMasterNode;
 import node.CSlaveNode;
 import node.IMasterNode;
 import node.ISlaveNode;
-
-import org.terrier.matching.ResultSet;
-
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
-import connections.Client;
 import connections.Server;
 
 public class NewMain {
 
 	public static void main(String[] args) {
-		
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Escriba 'cliente' o 'servidor' - puerto. Ejemplo: servidor-1234 ");
 		String[] obj = scanner.next().split("-");
@@ -27,6 +22,7 @@ public class NewMain {
 			createServer(port);
 		}else
 			System.out.println("Parámetro incorrecto");
+		scanner.close();
 	}
 	
 	private static void createClient(){
@@ -36,6 +32,10 @@ public class NewMain {
 		/* Pido cantidad de corpus y query */
 		Scanner scanner = new Scanner(System.in);
 		String recrearCorpus = "";
+		/* Indica si el Master debe indexar o no */
+		System.out.print("El master debe indexar? S/N: ");
+		String indexa = scanner.nextLine().toUpperCase();
+		nodo.setIndexa("S".equals(indexa)?Boolean.TRUE:Boolean.FALSE);
 		System.out.print("Desea recrear el corpus? S/N: ");
 		while (!recrearCorpus.equals("S") && !recrearCorpus.equals("N") && !recrearCorpus.equals("s") && !recrearCorpus.equals("s"))
 			recrearCorpus = CUtil.parseString(scanner.nextLine());
@@ -73,11 +73,11 @@ public class NewMain {
 		}
 		/* Creo Index */
 		nodo.sendOrderToIndex(recrearCorpus, nodo.getPartitionMethod().getClass().getName());
-		ResultSet rs = nodo.retrieval(query);
-		CUtil.mostrarResultados(rs, nodo.getIndex(), query);
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
+		/* Recupero */
+		nodo.sendOrderToRetrieval(query);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void createServer(int port){

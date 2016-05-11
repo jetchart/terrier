@@ -49,7 +49,7 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			int contador = cantidadCorpus;
 			for (Entry<String, LexiconEntry> lexicon : mapLexicon){
 				int nodeId = contador++ % cantidadCorpus;
-	//		    System.out.println("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
+//			    System.out.println("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
 			    PostingIndex<?> postingIndex = index.getInvertedIndex();
 			        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
 			        while (!iterablePosting.endOfPostings()){

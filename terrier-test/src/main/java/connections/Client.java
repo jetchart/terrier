@@ -17,7 +17,7 @@ public class Client{
 	private Integer port;
 	private String tarea;
 	private String nodoColCorpus;
-	
+	private String query;
 	
 	public Client(String host, Integer port){
 		 try {
@@ -144,5 +144,13 @@ public class Client{
 
 	public void setNodoColCorpus(String nodoColCorpus) {
 		this.nodoColCorpus = nodoColCorpus;
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
 	}
 }
