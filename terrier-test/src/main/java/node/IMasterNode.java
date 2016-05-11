@@ -28,9 +28,9 @@ public interface IMasterNode extends INode, IClient {
 	
 	int getCantidadCorpus();
 	
-	void setCantidadCorpus(int cantidadCorpus);
+	void setCantidadCorpus(Integer cantidadCorpus);
 	
-	void createSlaveNodes(int cantidad);
+	void createSlaveNodes(Integer cantidad);
 	
 	void setIndexa(Boolean indexa);
 	

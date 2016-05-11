@@ -24,19 +24,25 @@ public class CNodeConfiguration implements INodeConfiguration {
 		this.readFileConfiguration(configurationFilePath);
 	}
 	
-	
+	/**
+	 * Se encarga de leer y setear los atributos del archivo configurationFilePath
+	 * @param configurationFilePath		Ruta del archivo de configuracion
+	 */
 	public void readFileConfiguration(String configurationFilePath) {
 		try {
-			/** Creamos un Objeto de tipo Properties */
+			/* Creamos un Objeto de tipo Properties */
 			Properties propiedades = new Properties();
-			/** Cargamos el archivo desde la ruta especificada */
+			/* Cargamos el archivo desde la ruta especificada */
 			propiedades.load(new FileInputStream(configurationFilePath));
-			/** Obtenemos los parametros definidos en el archivo */
+			/* Obtenemos los parametros definidos en el archivo */
 			this.terrierHome = propiedades.getProperty("terrierHome");
 			this.folderPath = propiedades.getProperty("folderPath");
 			this.destinationFolderPath = propiedades.getProperty("destinationFolderPath");
+			/* TODO Sirve esto?? */
 			this.idMasterNode = propiedades.getProperty("idMasterNode");
+			/* Cantidad de nodos disponibles */
 			this.nodesAmount = Integer.valueOf(propiedades.getProperty("nodesAmount"));
+			/* Nodos */
 			for (int i=1;i<nodesAmount; i++){
 				slavesNodes.add(propiedades.getProperty("idSlaveNode_"+i));
 			}

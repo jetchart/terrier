@@ -22,7 +22,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 	/* Metodo de particionamiento del corpus */
 	private IPartitionMethod partitionMethod;
 	/* Cantidad de corpus (para repartir entre nodos) */
-	private int cantidadCorpus;
+	private Integer cantidadCorpus;
 	/* Indica si el Master indexa o no */
 	private Boolean indexa;
 	
@@ -50,7 +50,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		return cantidadCorpus;
 	}
 
-	public void setCantidadCorpus(int cantidadCorpus) {
+	public void setCantidadCorpus(Integer cantidadCorpus) {
 		this.cantidadCorpus = cantidadCorpus;
 	}
 	
@@ -66,8 +66,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 		return this.nodes;
 	}
 	
-
-	public void createSlaveNodes(int cantidad){
+	/**
+	 * Crea los nodos esclavos en base a la cantidad indicada, seteandole a cada uno su host y port 
+	 * correspondiente (esta informacion la saca de {@link INodeConfiguration} configuration.
+	 * En caso que el Master deba indexar, se creará cantidad-1 de nodos esclavos.
+	 * @param cantidad	Cantidad de nodos esclavos a crear
+	 */
+	public void createSlaveNodes(Integer cantidad){
 		nodes = new ArrayList<Client>();
 		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */
 		if (indexa){
@@ -200,4 +205,5 @@ public class CMasterNode extends CNode implements IMasterNode {
 			}
 		}
 	}
+
 }

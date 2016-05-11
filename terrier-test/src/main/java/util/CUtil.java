@@ -24,7 +24,11 @@ public class CUtil {
 			INodeConfiguration.indexName + "lexicon.fsomaphash",INodeConfiguration.indexName + "lexicon.fsomapid",INodeConfiguration.indexName + "meta.idx",
 			INodeConfiguration.indexName + "meta.zdata",INodeConfiguration.indexName + "properties"};
 	
-	/* En base a un archivo, devuelve su contenido sin tags */
+	/**
+	 * Devuelve el contenido del archivo filePath sin tags
+	 * @param filePath		Ruta del archivo sobre el que se requiere obtener el contenido sin tags
+	 * @return
+	 */
 	public static String leerArchivo(String filePath){
 		StringBuffer retorno = new StringBuffer();
 	    FileReader f;
@@ -72,7 +76,13 @@ public class CUtil {
 	    }
     }
     
-    /* Obtiene todos los archivos a partir de un directorio raiz (si recursive=True navega tambien sobre subdirectorios) */
+	/**
+	 * Obtiene todos los archivos a partir de un directorio raiz (si recursive=True navega tambien sobre subdirectorios)
+	 * @param colFilesPath		Almacena los archivos encontrados (se requiere cuando recursive=TRUE, ya que irá acumulando los archivos)
+	 * @param rootFolder		Ruta desde donde se inicia la búsqueda de archivos
+	 * @param recursive 		Si es TRUE, busca tambien dentro de los subdirectorios
+	 * @return
+	 */
 	public static java.util.Collection<String> getFilesFromFolder(java.util.Collection<String> colFilesPath, String rootFolder, Boolean recursive){
     	File f = new File(rootFolder);
     	File[] ficheros = f.listFiles();
