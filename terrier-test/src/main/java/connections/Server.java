@@ -16,20 +16,30 @@ public class Server {
 	ServerSocket miServicio;
 	ISlaveNode slaveNode;
 	
-	public Server(int port){
+	public Server(Integer port, ISlaveNode slaveNode){
+		this.slaveNode = slaveNode;
 		System.out.println("Bienvenido al Servidor!");
+		System.out.println("Id: " + slaveNode.getNodeConfiguration().getIdNode());
+		System.out.println("Puerto: " + port);
+		iniciarServidor(port);
+	}
+	
+	private void iniciarServidor(Integer port) {
 		 try {
 		 miServicio = new ServerSocket( port );
 		 } catch( IOException e ) {
 			 System.out.println( e );
 		 }
 	}
-	
+
 	public void setSlaveNode(ISlaveNode slaveNode){
 		this.slaveNode = slaveNode;
 	}
 	
 	public void listen(){
+		 System.out.println("------------------------------------");
+		 System.out.println("COMIENZA NUEVO CICLO");
+		 System.out.println("------------------------------------");
 		 socketServicio = null;
 		 try {
 		 socketServicio = miServicio.accept();
@@ -40,19 +50,25 @@ public class Server {
 		 recibir();
 		 /* Enviar */
 		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-		 enviar("Nodo " + slaveNode.getId() + " recibio datos requeridos para indexar");
+		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio datos requeridos para indexar");
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 recibir();
 		 /* Enviar */
 		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-		 enviar("Nodo " + slaveNode.getId() + " indexó la colección");
+		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " indexó la colección");
 		 /* Recibir*/
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 mensaje = recibir();
 		 /* Enviar */
 		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-		 enviar("Nodo " + slaveNode.getId() + " recuperó en base a la query ");		 
+		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
+		 System.out.println("------------------------------------");
+		 System.out.println("TERMINÓ CICLO");
+		 System.out.println("------------------------------------");
 		 cerrar();
+		 /* Inicio el ciclo de nuevo */
+		 iniciarServidor(slaveNode.getNodeConfiguration().getPort());
+		 listen();
 		 } catch( IOException e ) {
 			 System.out.println( e );
 		 }

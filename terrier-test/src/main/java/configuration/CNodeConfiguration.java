@@ -9,6 +9,8 @@ import java.util.Properties;
 
 public class CNodeConfiguration implements INodeConfiguration {
 
+	Integer port;
+	String idNode;
 	String nodeType;
 	String terrierHome;
 	String folderPath;
@@ -39,6 +41,8 @@ public class CNodeConfiguration implements INodeConfiguration {
 			this.terrierHome = propiedades.getProperty("terrierHome");
 			this.folderPath = propiedades.getProperty("folderPath");
 			this.nodeType = propiedades.getProperty("nodeType");
+			this.idNode = propiedades.getProperty("idNode");
+			this.port = Integer.valueOf(propiedades.getProperty("port"));
 			this.destinationFolderPath = propiedades.getProperty("destinationFolderPath");
 			/* TODO Sirve esto?? */
 			this.idMasterNode = propiedades.getProperty("idMasterNode");
@@ -83,5 +87,15 @@ public class CNodeConfiguration implements INodeConfiguration {
 
 	public void setNodeType(String nodeType) {
 		this.nodeType = nodeType;
+	}
+
+	@Override
+	public String getIdNode() {
+		return idNode;
+	}
+
+	@Override
+	public Integer getPort() {
+		return port;
 	}
 }

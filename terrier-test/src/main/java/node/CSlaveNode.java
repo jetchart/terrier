@@ -12,14 +12,13 @@ import connections.Server;
 public class CSlaveNode extends CNode implements ISlaveNode {
 
 	Server server;
-	public CSlaveNode(Server server) {
+
+	public CSlaveNode() {
 		super();
-		this.server = server;
 	}
 
 	public INodeConfiguration getNodeConfiguration() {
-		// TODO Auto-generated method stub
-		return null;
+		return configuration;
 	}
 
 	public void executeMessage(String msg) {
@@ -36,7 +35,7 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				this.setColCorpus(col);
 				break;
 			case "createIndex":
-				this.createIndex("S", "slaveNode_"+this.getId());
+				this.createIndex("S", "slaveNode_"+this.configuration.getIdNode());
 		        break;
 			case "retrieval":
 				try {
@@ -48,4 +47,11 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 		}
 	}
 
+	public Server getServer() {
+		return server;
+	}
+
+	public void setServer(Server server) {
+		this.server = server;
+	}
 }

@@ -18,7 +18,12 @@ public class NewMain {
 		if ("cliente".equals(opcion)){
 			createClient();
 		}else if ("servidor".equals(opcion)){
-			int port = Integer.valueOf(obj[1]);
+			/* TODO creo que habría que sacar esto */
+			/* Si se especificó un puerto lo utilizo, sino lo extraigo de configuration.properties */
+			Integer port = null;
+			if (obj.length > 1){
+				port = Integer.valueOf(obj[1]);
+			}
 			createServer(port);
 		}else
 			System.out.println("Parámetro incorrecto");
@@ -80,12 +85,14 @@ public class NewMain {
 		}
 	}
 
-	private static void createServer(int port){
-		/* Creo Servidor */
-		Server server = new Server(port);
+	private static void createServer(Integer port){
 		/* Creo Nodo Esclavo */
-		ISlaveNode slaveNode = new CSlaveNode(server);
-		server.setSlaveNode(slaveNode);
+		ISlaveNode slaveNode = new CSlaveNode();
+		/* Creo Servidor */
+		if (port == null){
+			port = slaveNode.getNodeConfiguration().getPort();
+		}
+		Server server = new Server(port,slaveNode);
 		server.listen();
 	}
 }
