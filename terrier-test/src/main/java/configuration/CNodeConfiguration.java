@@ -53,9 +53,9 @@ public class CNodeConfiguration implements INodeConfiguration {
 				slavesNodes.add(propiedades.getProperty("idSlaveNode_"+i));
 			}
 		} catch (FileNotFoundException e) {
-			System.out.println("Error, El archivo no existe");
+			System.out.println("Error, no existe el archivo: " + configurationFilePath);
 		} catch (IOException e) {
-			System.out.println("Error, No se puede leer el archivo");
+			System.out.println("Error, no se puede leer el archivo" + configurationFilePath);
 		} catch (Exception e) {
 			System.out.println("Error");
 		}
