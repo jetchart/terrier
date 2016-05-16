@@ -6,23 +6,11 @@ import node.IMasterNode;
 import node.ISlaveNode;
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
-
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.UserInfo;
-
 import connections.Server;
 
 public class NewMain {
 
-    private static final String user = "javier";
-    private static final String host = "localhost";
-    private static final Integer port = 22;
-    private static final String pass = "argento1";
-    
 	public static void main(String[] args) {
-		pruebaSFTP();
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Escriba 'cliente' o 'servidor' - puerto. Ejemplo: servidor-1234 ");
 		String[] obj = scanner.next().split("-");
@@ -108,33 +96,5 @@ public class NewMain {
 		server.listen();
 	}
 	
-    public static void pruebaSFTP(){
-        System.out.println("------------------- INICIO");
-        try {
-	        JSch jsch = new JSch();
-	        Session session = jsch.getSession(user, host, port);
-	        UserInfo ui = new SUserInfo(pass, null);
-	 
-	        session.setUserInfo(ui);
-	        session.setPassword(pass);
-	        
-			session.connect();
-	
-	        ChannelSftp sftp = (ChannelSftp)session.openChannel("sftp");
-	        sftp.connect();
-	 
-	        sftp.cd("/home/javier");
-	        System.out.println("sigerh.jpg");
-	        sftp.put("/home/javier/sigerh.jpg", "sigerhSFTP.jpg");
-	        System.out.println("Archivos subidos.");
-	 
-	        sftp.exit();
-	        sftp.disconnect();
-	        session.disconnect();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        System.out.println("----------------- FIN");
-    }
+   
 }

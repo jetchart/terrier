@@ -18,6 +18,10 @@ public class CNodeConfiguration implements INodeConfiguration {
 	String idMasterNode;
 	Collection<String> slavesNodes = new ArrayList<String>();
 	Integer nodesAmount;
+	private String passwordSFTP;
+	private String userSFTP;
+	private Integer masterSFTPPort;
+	private String masterSFTPHost;
 
 	public CNodeConfiguration() {
 		this.readFileConfiguration(INodeConfiguration.defaultConfigurationFilePath);
@@ -52,6 +56,12 @@ public class CNodeConfiguration implements INodeConfiguration {
 			for (int i=1;i<nodesAmount; i++){
 				slavesNodes.add(propiedades.getProperty("idSlaveNode_"+i));
 			}
+			/* SFTP */
+			this.passwordSFTP = propiedades.getProperty("passwordSFTP");
+			this.userSFTP = propiedades.getProperty("userSFTP");
+			this.masterSFTPPort = Integer.valueOf(propiedades.getProperty("masterSFTPPort"));
+			this.masterSFTPHost =  propiedades.getProperty("masterSFTPHost");
+			
 		} catch (FileNotFoundException e) {
 			System.out.println("Error, no existe el archivo: " + configurationFilePath);
 		} catch (IOException e) {
@@ -97,5 +107,25 @@ public class CNodeConfiguration implements INodeConfiguration {
 	@Override
 	public Integer getPort() {
 		return port;
+	}
+
+	@Override
+	public String getMasterSFTPHost() {
+		return masterSFTPHost;
+	}
+
+	@Override
+	public Integer getMasterSFTPPort() {
+		return masterSFTPPort;
+	}
+
+	@Override
+	public String getUserSFTP() {
+		return userSFTP;
+	}
+
+	@Override
+	public String getPasswordSFTP() {
+		return passwordSFTP;
 	}
 }

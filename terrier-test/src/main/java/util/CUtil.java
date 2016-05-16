@@ -14,6 +14,11 @@ import org.terrier.matching.ResultSet;
 import org.terrier.structures.Index;
 import org.terrier.structures.MetaIndex;
 
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UserInfo;
+
 import configuration.INodeConfiguration;
 
 
@@ -135,5 +140,40 @@ public class CUtil {
     public static Boolean existeIndice(String indexPath){
     	File fichero = new File(indexPath);
     	return fichero.exists();
+    }
+    
+    public static void copyFileSFTP(String source, String target, String user, String pass, String host, Integer port){
+		System.out.println("------------------------------------");
+		System.out.println("INICIO COPIA DE CORPUS DESDE MASTER A SLAVE");
+		System.out.println("------------------------------------");
+		Long inicioCopiaCorpus = System.currentTimeMillis();
+        try {
+	        JSch jsch = new JSch();
+	        Session session = jsch.getSession(user, host, port);
+	        UserInfo ui = new SUserInfo(pass, null);
+	 
+	        session.setUserInfo(ui);
+	        session.setPassword(pass);
+	        
+			session.connect();
+	
+	        ChannelSftp sftp = (ChannelSftp)session.openChannel("sftp");
+	        sftp.connect();
+
+	        sftp.get(source, target);
+	        System.out.println("Archivo copiado");
+	 
+	        sftp.exit();
+	        sftp.disconnect();
+	        session.disconnect();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Long finCopiaCorpus = System.currentTimeMillis() - inicioCopiaCorpus;
+		System.out.println("Copia del corpus tardó " + finCopiaCorpus + " milisegundos");
+		System.out.println("------------------------------------");
+		System.out.println("FIN COPIA DE CORPUS DESDE MASTER A SLAVE");
+		System.out.println("------------------------------------");
     }
 }

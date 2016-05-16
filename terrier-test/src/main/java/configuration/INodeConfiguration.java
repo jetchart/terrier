@@ -26,4 +26,10 @@ public interface INodeConfiguration {
 	String getIdNode();
 	
 	Integer getPort();
+	
+	/* SFTP */
+	String getMasterSFTPHost();
+	Integer getMasterSFTPPort();
+	String getUserSFTP();
+	String getPasswordSFTP();
 }

@@ -31,7 +31,12 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 			case "setColCorpus":
 				/* Agrego el path de la porcion de corpus que se le asignó */
 				Collection<String> col = new ArrayList<String>();
-				col.add(array[1]);
+				String corpusPathOnMaster = array[1];
+				String corpusPathOnSlave= configuration.getDestinationFolderPath()+"corpus.txt";
+				System.out.println("corpusPathOnMaster: " + corpusPathOnMaster);
+				System.out.println("corpusPathOnSlave: " + corpusPathOnSlave);
+				CUtil.copyFileSFTP(corpusPathOnMaster, corpusPathOnSlave, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
+				col.add(corpusPathOnSlave);
 				this.setColCorpus(col);
 				break;
 			case "createIndex":
