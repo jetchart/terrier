@@ -7,34 +7,32 @@ import node.INode;
 import node.ISlaveNode;
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
-import connections.Server;
+import connections.SServer;
 
 public class NewMain {
 
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
-		System.out.println("Escriba 'cliente' o 'servidor' - puerto. Ejemplo: servidor-1234 ");
-		String[] obj = scanner.next().split("-");
-		String opcion = obj[0];
-		if ("cliente".equals(opcion)){
-			createClient();
-		}else if ("servidor".equals(opcion)){
+		String opcion = args.length>0?args[0]:null;
+		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
+			createMaster();
+		}else if (opcion!=null && INode.ID_SLAVE.equals(opcion.toUpperCase())){
 			/* TODO creo que habría que sacar esto */
 			/* Si se especificó un puerto lo utilizo, sino lo extraigo de configuration.properties */
 			Integer port = null;
-			if (obj.length > 1){
-				port = Integer.valueOf(obj[1]);
-			}
-			createServer(port);
+			createSlave(port);
 		}else
 			System.out.println("Parámetro incorrecto");
+			System.out.println("Parámetros disponibles:");
+			System.out.println("\tmaster");
+			System.out.println("\tslave");
 		scanner.close();
 	}
 	
-	private static void createClient(){
+	private static void createMaster(){
 		try {
 		/* Creo Nodo Master */
-		IMasterNode nodo = new CMasterNode(INode.ID_cliente);
+		IMasterNode nodo = new CMasterNode(INode.ID_MASTER);
 		/* Pido cantidad de corpus y query */
 		Scanner scanner = new Scanner(System.in);
 		String recrearCorpus = "";
@@ -86,14 +84,14 @@ public class NewMain {
 		}
 	}
 
-	private static void createServer(Integer port){
+	private static void createSlave(Integer port){
 		/* Creo Nodo Esclavo */
-		ISlaveNode slaveNode = new CSlaveNode(INode.ID_servidor);
+		ISlaveNode slaveNode = new CSlaveNode(INode.ID_SLAVE);
 		/* Creo Servidor */
 		if (port == null){
 			port = slaveNode.getNodeConfiguration().getPort();
 		}
-		Server server = new Server(port,slaveNode);
+		SServer server = new SServer(port,slaveNode);
 		server.listen();
 	}
 	

@@ -1,13 +1,13 @@
 package node;
 
-import connections.Client;
+import connections.CClient;
 import util.CUtil;
 
 public class Hilo extends Thread{
 
-	Client cliente; 
+	CClient cliente; 
 	
-	public Hilo (Client cliente){
+	public Hilo (CClient cliente){
 		this.cliente = cliente;
 	}
 	@Override

@@ -19,15 +19,20 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
 
-import configuration.INodeConfiguration;
-
 
 public class CUtil {
 	public static String separator = Pattern.quote("*");
-	private static String[] indexFiles = {INodeConfiguration.indexName + ".direct.bf",INodeConfiguration.indexName + "document.fsarrayfile",
-			INodeConfiguration.indexName + "inverted.bf",INodeConfiguration.indexName + "lexicon.fsomapfile",INodeConfiguration.indexName + "lexicon.fsomapfile",
-			INodeConfiguration.indexName + "lexicon.fsomaphash",INodeConfiguration.indexName + "lexicon.fsomapid",INodeConfiguration.indexName + "meta.idx",
-			INodeConfiguration.indexName + "meta.zdata",INodeConfiguration.indexName + "properties"};
+	private static String[] indexFiles = {
+			".direct.bf",
+			".document.fsarrayfile",
+			".inverted.bf",
+			".lexicon.fsomapfile",
+			".lexicon.fsomaphash",
+			".lexicon.fsomapid",
+			".meta.idx",
+			".meta.zdata",
+			".properties"
+		};
 	
 	/**
 	 * Devuelve el contenido del archivo filePath sin tags
@@ -131,10 +136,17 @@ public class CUtil {
     }
     
     public static void deleteIndexFiles(String etcFolder, String prefixName){
+		System.out.println("------------------------------------");
+		System.out.println("INICIO LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
+		System.out.println("------------------------------------");
     	for (String indexFile : indexFiles){
             File fichero = new File(etcFolder + prefixName + indexFile);
-            fichero.delete();
+            if (fichero.delete())
+            	System.out.println("Se eliminó el archivo: " + etcFolder + prefixName + indexFile);
     	}
+		System.out.println("------------------------------------");
+		System.out.println("FIN LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
+		System.out.println("------------------------------------");
     }
     
     public static Boolean existeIndice(String indexPath){

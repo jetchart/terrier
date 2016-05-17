@@ -1,5 +1,6 @@
 package configuration;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -57,13 +58,39 @@ public class CNodeConfiguration implements INodeConfiguration {
 			this.userSFTP = propiedades.getProperty("userSFTP");
 			this.masterSFTPPort = Integer.valueOf(propiedades.getProperty("masterSFTPPort"));
 			this.masterSFTPHost =  propiedades.getProperty("masterSFTPHost");
+			/* Validar path's leidos en la configuracion */
+			validarRutasExistentes();
 			
 		} catch (FileNotFoundException e) {
 			System.out.println("Error, no existe el archivo: " + configurationFilePath);
 		} catch (IOException e) {
 			System.out.println("Error, no se puede leer el archivo" + configurationFilePath);
 		} catch (Exception e) {
-			System.out.println("Error");
+			System.out.println("Han ocurrido los siguientes errores al leer el archivo de configuracion:\n" + e.getMessage());
+		}
+	}
+
+	/**
+	 * El metodo validarRutasExistentes debe validar que los path's extraidos
+	 * desde el archivo de configuracion sean directorios existentes. En caso contrario
+	 * arroja una excepcion indicando cada path incorrecto.
+	 * 
+	 * @throws Exception Lista de path's incorrectos
+	 */
+	private void validarRutasExistentes() throws Exception{
+		String error = "";
+		File f = new File(this.terrierHome);
+		if (!f.exists())
+			error += "No existe la siguiente carpeta para la propiedad 'terrierHome': " + this.terrierHome + "\n";
+		f = new File(this.folderPath);
+		if (!f.exists())
+			error += "No existe la siguiente carpeta para la propiedad 'folderPath': " + this.folderPath + "\n";
+		f = new File(this.destinationFolderPath);
+		if (!f.exists())
+			error += "No existe la siguiente carpeta para la propiedad 'destinationFolderPath': " + this.destinationFolderPath + "\n";
+		f = new File(this.destinationFolderPath);
+		if (!error.isEmpty()){
+			throw new Exception(error);
 		}
 	}
 

@@ -10,7 +10,7 @@ import partitioning.CRoundRobinByDocuments;
 import partitioning.IPartitionByTerms;
 import partitioning.IPartitionMethod;
 import configuration.INodeConfiguration;
-import connections.Client;
+import connections.CClient;
 
 
 public class CMasterNode extends CNode implements IMasterNode {
@@ -18,7 +18,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 	/* Coleccion de todos los Corpus */
 	private Collection<String> colCorpusTotal;
 	/* Nodos que posee, incluyéndose a él mismo */
-	private Collection<Client> nodes;
+	private Collection<CClient> nodes;
 	/* Metodo de particionamiento del corpus */
 	private IPartitionMethod partitionMethod;
 	/* Cantidad de corpus (para repartir entre nodos) */
@@ -62,7 +62,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		this.indexa = indexa;
 	}
 	
-	public Collection<Client> getNodes() {
+	public Collection<CClient> getNodes() {
 		return this.nodes;
 	}
 	
@@ -73,7 +73,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 	 * @param cantidad	Cantidad de nodos esclavos a crear
 	 */
 	public void createSlaveNodes(Integer cantidad){
-		nodes = new ArrayList<Client>();
+		nodes = new ArrayList<CClient>();
 		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */
 		if (indexa){
 			cantidad--;
@@ -85,7 +85,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 				break;
 			String host = nodo.split(":")[0];
 			Integer port = Integer.valueOf(nodo.split(":")[1]);
-			Client cliente = new Client(host, port);
+			CClient cliente = new CClient(host, port);
 			nodes.add(cliente);
 		}
 	}
@@ -127,7 +127,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		}
 		/* Agrego corpus a cada slave node */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
-		for (Client cliente : nodes){
+		for (CClient cliente : nodes){
 			cliente.setTarea("Inicializar");
 			cliente.setNodoColCorpus((String) iterator.next());
 			Hilo hilo = new Hilo(cliente);
@@ -147,7 +147,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Long inicioIndexacion = System.currentTimeMillis();
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
-		for (Client cliente : nodes){
+		for (CClient cliente : nodes){
 			cliente.setTarea("Indexar");
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
@@ -170,7 +170,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Long inicioRecuperacion = System.currentTimeMillis();
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
-		for (Client cliente : nodes){
+		for (CClient cliente : nodes){
 			cliente.setTarea("Recuperar");
 			cliente.setQuery(query);
 			Hilo hilo = new Hilo(cliente);
