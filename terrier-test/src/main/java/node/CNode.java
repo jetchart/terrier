@@ -97,7 +97,6 @@ public abstract class CNode implements INode {
     	/* Creo una nueva coleccion */
 		coleccion = new TRECCollection();
 		/* Instancio Indexador */
-//		Indexer indexador = new BasicIndexer(configuration.getTerrierHome() +"var/index/", INodeConfiguration.indexName + "_" + sufijoNombreIndice);
 		Indexer indexador = new BasicIndexer(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);
 		/* Indico las colecciones a indexar */
 		org.terrier.indexing.Collection[] col = new org.terrier.indexing.Collection[1];
@@ -108,8 +107,7 @@ public abstract class CNode implements INode {
 		indexador.createInvertedIndex();
 		/* Cierro Coleccion */
 		coleccion.close();
-    	/* Devuelvo el indice creado */
-//		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", INodeConfiguration.indexName + "_" + sufijoNombreIndice);
+    	/* Guardo el indice creado */
 		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
 		System.out.println("Indexación tardó " + finIndexacion + " milisegundos\n");	
