@@ -80,13 +80,13 @@ public class CNodeConfiguration implements INodeConfiguration {
 	private void validarRutasExistentes() throws Exception{
 		String error = "";
 		File f = new File(this.terrierHome);
-		if (!f.isDirectory())
+		if (!f.exists())
 			error += "No existe la siguiente carpeta para la propiedad 'terrierHome': " + this.terrierHome + "\n";
 		f = new File(this.folderPath);
-		if (!f.isDirectory())
+		if (!f.exists())
 			error += "No existe la siguiente carpeta para la propiedad 'folderPath': " + this.folderPath + "\n";
 		f = new File(this.destinationFolderPath);
-		if (!f.isDirectory())
+		if (!f.exists())
 			error += "No existe la siguiente carpeta para la propiedad 'destinationFolderPath': " + this.destinationFolderPath + "\n";
 		f = new File(this.destinationFolderPath);
 		if (!error.isEmpty()){
