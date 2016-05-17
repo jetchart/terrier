@@ -11,8 +11,8 @@ import configuration.INodeConfiguration;
 
 public interface INode extends Remote {
 	
-	static String ID_MASTER = "master";
-	static String ID_SLAVE = "slave";
+	static String ID_MASTER = "MASTER";
+	static String ID_SLAVE = "SLAVE";
 	
 	INodeConfiguration getNodeConfiguration();
 	
