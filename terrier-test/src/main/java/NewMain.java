@@ -3,6 +3,7 @@ import java.util.Scanner;
 import node.CMasterNode;
 import node.CSlaveNode;
 import node.IMasterNode;
+import node.INode;
 import node.ISlaveNode;
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
@@ -33,7 +34,7 @@ public class NewMain {
 	private static void createClient(){
 		try {
 		/* Creo Nodo Master */
-		IMasterNode nodo = new CMasterNode();
+		IMasterNode nodo = new CMasterNode(INode.ID_cliente);
 		/* Pido cantidad de corpus y query */
 		Scanner scanner = new Scanner(System.in);
 		String recrearCorpus = "";
@@ -87,7 +88,7 @@ public class NewMain {
 
 	private static void createServer(Integer port){
 		/* Creo Nodo Esclavo */
-		ISlaveNode slaveNode = new CSlaveNode();
+		ISlaveNode slaveNode = new CSlaveNode(INode.ID_servidor);
 		/* Creo Servidor */
 		if (port == null){
 			port = slaveNode.getNodeConfiguration().getPort();

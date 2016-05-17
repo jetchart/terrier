@@ -23,10 +23,6 @@ public class CNodeConfiguration implements INodeConfiguration {
 	private Integer masterSFTPPort;
 	private String masterSFTPHost;
 
-	public CNodeConfiguration() {
-		this.readFileConfiguration(INodeConfiguration.defaultConfigurationFilePath);
-	}
-	
 	public CNodeConfiguration(String configurationFilePath) {
 		this.readFileConfiguration(configurationFilePath);
 	}

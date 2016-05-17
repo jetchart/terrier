@@ -28,9 +28,15 @@ public abstract class CNode implements INode {
 	/* Identificador del NODO */
 	int id;
 	
-	public CNode(){
+	public CNode(String nodeType){
+		String pathConfiguration = null;
+		if (INode.ID_cliente.equals(nodeType)){
+			pathConfiguration = INodeConfiguration.configurationMasterNodeFilePath;
+		}
+		if (INode.ID_servidor.equals(nodeType)){
+			pathConfiguration = INodeConfiguration.configurationSlaveNodeFilePath;
+		}
 		/* Crea la configuracion configuracion del Nodo */
-		String pathConfiguration = INodeConfiguration.defaultConfigurationFilePath;
 		configuration = new CNodeConfiguration(pathConfiguration);
 		/* Defino properties necesarias para Terrier */
 		System.setProperty("terrier.home",configuration.getTerrierHome());

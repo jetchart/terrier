@@ -13,8 +13,8 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 
 	Server server;
 
-	public CSlaveNode() {
-		super();
+	public CSlaveNode(String nodeType) {
+		super(nodeType);
 	}
 
 	public INodeConfiguration getNodeConfiguration() {

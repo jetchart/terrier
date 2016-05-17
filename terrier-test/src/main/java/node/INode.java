@@ -11,6 +11,9 @@ import configuration.INodeConfiguration;
 
 public interface INode extends Remote {
 	
+	static String ID_cliente = "CLIENTE";
+	static String ID_servidor = "SERVIDOR";
+	
 	INodeConfiguration getNodeConfiguration();
 	
 	Index getIndex();

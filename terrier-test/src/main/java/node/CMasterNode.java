@@ -26,8 +26,8 @@ public class CMasterNode extends CNode implements IMasterNode {
 	/* Indica si el Master indexa o no */
 	private Boolean indexa;
 	
-	public CMasterNode() {
-		super();
+	public CMasterNode(String nodeType) {
+		super(nodeType);
 	}
 	
 	public Collection<String> getColCorpusTotal() {
