@@ -30,10 +30,10 @@ public abstract class CNode implements INode {
 	
 	public CNode(String nodeType){
 		String pathConfiguration = null;
-		if (INode.ID_cliente.equals(nodeType)){
+		if (INode.ID_MASTER.equals(nodeType)){
 			pathConfiguration = INodeConfiguration.configurationMasterNodeFilePath;
 		}
-		if (INode.ID_servidor.equals(nodeType)){
+		if (INode.ID_SLAVE.equals(nodeType)){
 			pathConfiguration = INodeConfiguration.configurationSlaveNodeFilePath;
 		}
 		/* Crea la configuracion configuracion del Nodo */

@@ -7,7 +7,7 @@ import java.net.Socket;
 
 import util.CUtil;
 
-public class Client{
+public class CClient{
 
 	DataOutputStream flujoSalida;
 	DataInputStream flujoEntrada;
@@ -19,7 +19,7 @@ public class Client{
 	private String nodoColCorpus;
 	private String query;
 	
-	public Client(String host, Integer port){
+	public CClient(String host, Integer port){
 		 try {
 			 this.host = host;
 			 this.port = port;
@@ -31,21 +31,6 @@ public class Client{
 		 }
 	}
 	
-	private void test(){
-		 try {
-		 /* Enviar */
-		 flujoSalida= new DataOutputStream(miCliente.getOutputStream());
-		 enviar("mensaje");
-		 /* Recibir*/
-		 flujoEntrada= new DataInputStream( miCliente.getInputStream());
-		 recibir();
-		 /* Cierro */
-		 cerrar();
-		 System.out.println("El cliente terminó su ejecución correctamente");
-		 } catch( IOException e ) {
-			 System.out.println( e );
-		 }
-	}
 	public String recibir(){
 		String msg = null;
 		 try {

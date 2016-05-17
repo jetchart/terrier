@@ -5,12 +5,12 @@ import java.util.Collection;
 import org.terrier.matching.ResultSet;
 
 import partitioning.IPartitionMethod;
-import connections.Client;
+import connections.CClient;
 
 
 public interface IMasterNode extends INode, IClient {
 	
-	Collection<Client> getNodes();
+	Collection<CClient> getNodes();
 
 	void createCorpus();
 	
