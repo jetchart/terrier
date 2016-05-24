@@ -3,7 +3,6 @@ package partitioning;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,29 +18,20 @@ import org.terrier.structures.MetaIndex;
 import org.terrier.structures.PostingIndex;
 import org.terrier.structures.postings.IterablePosting;
 
+import util.CUtil;
+
 public class CRoundRobinByTerms implements IPartitionByTerms {
 
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, int cantidadCorpus, Index index) {
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
 		Collection<String> colCorpusTotal = new ArrayList<String>();
-		FileWriter fichero = null;
-        PrintWriter pw = null;
         /* */
         Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm = new HashMap<Integer, Map<Integer, Collection<String>>>();
         /* Doc y su docPath */
         Map<Integer,String> mapDocDocPath = new HashMap<Integer,String>();
         try{
         	System.out.println("Metodo de particion: " + CRoundRobinByTerms.class.getName());
-	        /* Creo los corpus */
-	        int i;
-	    	for (i=0;i<cantidadCorpus;i++){
-	    			/* Creo nuevo corpus */
-	    			String corpusPath = destinationFolderPath + "corpus"+ i +".txt";
-	                fichero = new FileWriter(corpusPath);
-	                pw = new PrintWriter(fichero, Boolean.TRUE);      
-	                pw.close();
-	        		/* Se agrega path del corpus creado a la coleccion de corpus */
-	        		colCorpusTotal.add(corpusPath);
-	    	}
+        	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
+        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, cantidadCorpus));
 			/* Obtengo metaIndex (para leer el docPath) */
 			MetaIndex meta = index.getMetaIndex();
 			/* Obtengo mapa? */
@@ -62,6 +52,7 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
 			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(iterablePosting.getId()) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(iterablePosting.getId());
 			            /* Agrego el termino a la lista de terminos */
+			            int i;
 			            for (i=0;i<iterablePosting.getFrequency();i++){
 			            	termList.add(lexicon.getKey());
 			            }

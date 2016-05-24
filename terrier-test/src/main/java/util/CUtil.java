@@ -2,14 +2,20 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.terrier.indexing.tokenisation.Tokeniser;
 import org.terrier.matching.ResultSet;
 import org.terrier.structures.Index;
 import org.terrier.structures.MetaIndex;
@@ -33,6 +39,30 @@ public class CUtil {
 			".meta.zdata",
 			".properties"
 		};
+	
+	/**
+	 * Devuelve el contenido dentro del Reader sin tags
+	 * @param reader		Reader sobre el que se requiere obtener el contenido sin tags
+	 * @return
+	 */
+	public static String extractContentInReader(Reader reader){
+		StringBuffer retorno = new StringBuffer();
+	    BufferedReader b = (BufferedReader) reader;
+	    String cadena;
+		try {
+		    /* Recorro el archivo */ 
+		    while((cadena = b.readLine())!=null) {
+		    	/* Agrego contenido al StringBuffer que será devuelto */
+		    	retorno.append(cadena).append(" ");
+		    	System.out.println(cadena);
+		    }
+		    b.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		/* Se parsea documento con librería Jsoup */
+		return parseString(retorno.toString());
+	}
 	
 	/**
 	 * Devuelve el contenido del archivo filePath sin tags
@@ -59,6 +89,16 @@ public class CUtil {
 		}
 		/* Se parsea documento con librería Jsoup */
 		return parseString(retorno.toString());
+	}
+	
+	/**
+	 * Devuelve el contenido del archivo en BufferedReader
+	 * @param filePath		Ruta del archivo sobre el que se requiere obtener el contenido
+	 * @return
+	 * @throws FileNotFoundException 
+	 */
+	public static Reader getReaderArchivo(String filePath) throws FileNotFoundException{
+		return (Reader) new BufferedReader(new FileReader(filePath));
 	}
 	
 	public static void agregarCorpus(java.util.Collection<String> colCorpusPath){
@@ -188,4 +228,52 @@ public class CUtil {
 		System.out.println("FIN COPIA DE CORPUS DESDE MASTER A SLAVE");
 		System.out.println("------------------------------------");
     }
+    
+    /**
+	 * Crea Corpus vacios que luego se llenaran con los documentos.
+	 * 
+	 * @param destinationFolderPath		Indica la carpeta en donde se crearán
+	 * @param cantidadCorpus			Indica la cantidad de archivos a crear
+	 * @return							{@link Collection} de {@link String} con todos los path's de los archivos creados
+	 * @throws IOException
+	 */
+	public static Collection<String> crearCorpusVacios(String destinationFolderPath,
+			Integer cantidadCorpus) throws IOException {
+		Collection<String> col = new ArrayList<String>();
+		int i;
+		for (i=0;i<cantidadCorpus;i++){
+			String corpusPath = destinationFolderPath + "corpus"+ i +".txt";
+			FileWriter fichero = new FileWriter(corpusPath);
+			PrintWriter pw = new PrintWriter(fichero, true);
+			pw.close();
+			fichero.close();
+			col.add(corpusPath);
+		}
+		return col;
+	}
+	
+	public static Integer getAmountUniqueTokensInFile(String filePath) throws IOException{
+		Reader reader = new BufferedReader(new FileReader(filePath));
+		Tokeniser tokeniser = Tokeniser.getTokeniser();
+		String[] tokens = tokeniser.getTokens(reader);
+		Collection<String> tokensUnicos = new ArrayList<String>();
+		for (String token : tokens){
+			if (!tokensUnicos.contains(token)){
+				tokensUnicos.add(token);
+			}
+		}
+		return tokensUnicos.size();
+	}
+	
+	public static Integer getAmountUniqueTokensInReader(Reader reader) throws IOException{
+		Tokeniser tokeniser = Tokeniser.getTokeniser();
+		String[] tokens = tokeniser.getTokens(reader);
+		Collection<String> tokensUnicos = new ArrayList<String>();
+		for (String token : tokens){
+			if (!tokensUnicos.contains(token)){
+				tokensUnicos.add(token);
+			}
+		}
+		return tokensUnicos.size();
+	}
 }

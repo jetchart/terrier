@@ -1,8 +1,9 @@
-package partitioning;
+package partitioningBkp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -18,30 +19,39 @@ import org.terrier.structures.MetaIndex;
 import org.terrier.structures.PostingIndex;
 import org.terrier.structures.postings.IterablePosting;
 
-import util.CUtil;
+public class CRoundRobinByTerms implements IPartitionByTerms {
 
-public class CSizeByTerms implements IPartitionByTerms {
-
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, int cantidadCorpus, Index index) {
 		Collection<String> colCorpusTotal = new ArrayList<String>();
+		FileWriter fichero = null;
+        PrintWriter pw = null;
         /* */
         Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm = new HashMap<Integer, Map<Integer, Collection<String>>>();
         /* Doc y su docPath */
         Map<Integer,String> mapDocDocPath = new HashMap<Integer,String>();
         try{
-        	System.out.println("Metodo de particion: " + CSizeByTerms.class.getName());
-        	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, cantidadCorpus));
+        	System.out.println("Metodo de particion: " + CRoundRobinByTerms.class.getName());
+	        /* Creo los corpus */
+	        int i;
+	    	for (i=0;i<cantidadCorpus;i++){
+	    			/* Creo nuevo corpus */
+	    			String corpusPath = destinationFolderPath + "corpus"+ i +".txt";
+	                fichero = new FileWriter(corpusPath);
+	                pw = new PrintWriter(fichero, Boolean.TRUE);      
+	                pw.close();
+	        		/* Se agrega path del corpus creado a la coleccion de corpus */
+	        		colCorpusTotal.add(corpusPath);
+	    	}
 			/* Obtengo metaIndex (para leer el docPath) */
 			MetaIndex meta = index.getMetaIndex();
 			/* Obtengo mapa? */
 			Lexicon<String> mapLexicon = index.getLexicon();
+			int contador = cantidadCorpus;
 			for (Entry<String, LexiconEntry> lexicon : mapLexicon){
-	//		    System.out.println("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
+				int nodeId = contador++ % cantidadCorpus;
+//			    System.out.println("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
 			    PostingIndex<?> postingIndex = index.getInvertedIndex();
-			    IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
-	        	/* Obtengo nodeId analizando qué nodo tiene menos carga */
-	        	int nodeId = this.getNodeId(mapNodeDocTerm, cantidadCorpus);
+			        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
 			        while (!iterablePosting.endOfPostings()){
 			        	/* Leo siguiente postingList */
 			            iterablePosting.next();
@@ -52,7 +62,6 @@ public class CSizeByTerms implements IPartitionByTerms {
 			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
 			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(iterablePosting.getId()) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(iterablePosting.getId());
 			            /* Agrego el termino a la lista de terminos */
-			            int i;
 			            for (i=0;i<iterablePosting.getFrequency();i++){
 			            	termList.add(lexicon.getKey());
 			            }
@@ -103,28 +112,6 @@ public class CSizeByTerms implements IPartitionByTerms {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	/* Devuelvo el ID del nodo que tiene menos carga de Documentos y Terminos */
-	int getNodeId(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, int cantidadCorpus){
-		int nodeId=0;
-		Long min= -1L;
-		/* Si aún no se utilizó algún nodo, se lo asigno a él */
-		if (mapNodeDocTerm.keySet().size() < cantidadCorpus){
-			return mapNodeDocTerm.keySet().size();
-		}
-		/* Busco el nodo menos cargado */
-		for (int id : mapNodeDocTerm.keySet()){
-			Long minAux=0L;
-			for (int docId : mapNodeDocTerm.get(id).keySet()){
-				minAux+= mapNodeDocTerm.get(id).get(docId).size();
-			}
-			if (minAux < min || min == -1L){
-				min = minAux;
-				nodeId = id;
-			}
-		}
-		return nodeId;
 	}
 
 }

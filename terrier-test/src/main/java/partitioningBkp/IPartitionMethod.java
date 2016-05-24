@@ -1,4 +1,4 @@
-package partitioning;
+package partitioningBkp;
 
 import java.util.Collection;
 
@@ -17,5 +17,5 @@ public interface IPartitionMethod {
 	 * @param index
 	 * @return
 	 */
-	Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index);
+	Collection<String> createCorpus(String folderPath, String destinationFolderPath, int cantidadCorpus, Index index);
 }

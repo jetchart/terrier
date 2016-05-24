@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.Scanner;
 
 import node.CMasterNode;
@@ -11,7 +12,7 @@ import connections.SServer;
 
 public class NewMain {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		Scanner scanner = new Scanner(System.in);
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
@@ -48,9 +49,10 @@ public class NewMain {
 			/* Pido el metodo de particionamiento del corpus */
 			System.out.println("Ingrese el numero del metodo de particionamiento ");
 			System.out.println("1- Particionamiento por Documentos: RoundRobin");
-			System.out.println("2- Particionamiento por Documentos: Por tamaño");
-			System.out.println("3- Particionamiento por Terminos: RoundRobin");
-			System.out.println("4- Particionamiento por Terminos: Por tamaño");
+			System.out.println("2- Particionamiento por Documentos: Por tamaño (archivos)");
+			System.out.println("3- Particionamiento por Documentos: Por tamaño (cantidad de tokens unicos)");
+			System.out.println("4- Particionamiento por Terminos: RoundRobin");
+			System.out.println("5- Particionamiento por Terminos: Por tamaño");
 			System.out.print("Opción: ");
 			int metodoId = 0;
 			while (metodoId > 4 || metodoId < 1)

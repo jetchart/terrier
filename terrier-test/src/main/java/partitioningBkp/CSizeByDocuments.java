@@ -1,4 +1,4 @@
-package partitioning;
+package partitioningBkp;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,10 +13,11 @@ import util.CUtil;
 
 public class CSizeByDocuments implements IPartitionByDocuments {
 
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, int cantidadCorpus, Index index) {
 		Collection<String> colCorpusTotal = new ArrayList<String>();
 		FileWriter fichero = null;
         PrintWriter pw = null;
+    	int corpusId=0;
         try
         {
         	System.out.println("Metodo de particion: " + CSizeByDocuments.class.getName());
@@ -26,13 +27,26 @@ public class CSizeByDocuments implements IPartitionByDocuments {
         	int cantidadTotalArchivos = filesPath.size();
         	System.out.println("Cantidad de corpus a crear: " + cantidadCorpus);
         	System.out.println("Cantidad de documentos: " + cantidadTotalArchivos);
-        	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, cantidadCorpus));
+        	/* Se crea el primer corpus */
+        	String corpusPath = destinationFolderPath + "corpus"+ corpusId +".txt";
+            fichero = new FileWriter(corpusPath);
+            pw = new PrintWriter(fichero);      
+            /* Creo los corpus */
+            int i;
+        	for (i=0;i<cantidadCorpus;i++){
+        			/* Creo nuevo corpus */
+        			corpusPath = destinationFolderPath + "corpus"+ i +".txt";
+                    fichero = new FileWriter(corpusPath);
+                    pw = new PrintWriter(fichero, true);      
+                    pw.close();
+            		/* Se agrega path del corpus creado a la coleccion de corpus */
+            		colCorpusTotal.add(corpusPath);
+        	}
             Long docno = Long.valueOf(0);
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
        			/* Creo nuevo corpus */
-        		String corpusPath = destinationFolderPath + "corpus"+ getIdSmallestDocument(destinationFolderPath, cantidadCorpus) +".txt";
+        		corpusPath = destinationFolderPath + "corpus"+ getIdSmallestDocument(destinationFolderPath, cantidadCorpus) +".txt";
         	    FileOutputStream fileOutputStream = new FileOutputStream(new File(corpusPath), Boolean.TRUE);
                 pw = new PrintWriter(fileOutputStream);     
         		/* Escribo contenido del archivo en el corpus con formato TREC */
