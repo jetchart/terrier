@@ -22,11 +22,12 @@ public class NewMain {
 			/* Si se especificó un puerto lo utilizo, sino lo extraigo de configuration.properties */
 			Integer port = null;
 			createSlave(port);
-		}else
+		}else{
 			System.out.println("Parámetro incorrecto");
 			System.out.println("Parámetros disponibles:");
 			System.out.println("\tmaster");
 			System.out.println("\tslave");
+		}
 		scanner.close();
 	}
 	

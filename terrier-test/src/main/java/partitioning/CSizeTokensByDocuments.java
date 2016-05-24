@@ -54,9 +54,12 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
                 /* Obtengo la cantidad de tokens unicos que tiene el archivo y se lo sumo al corpus */
                 Integer cantidadTokensUnicos = CUtil.getAmountUniqueTokensInReader(reader);
                 tokensByCorpus.put(corpusId, tokensByCorpus.get(corpusId) + cantidadTokensUnicos);
-                System.out.println("Se eligió al corpus " + corpusId + " porque tiene " + tokensByCorpus.get(corpusId)+ " tokens");
+//                System.out.println("Se eligió al corpus " + corpusId + " porque tiene " + tokensByCorpus.get(corpusId)+ " tokens");
                 /* Obtengo el contenido del Reader sin tags */
+                /* TODO SE ESTÁ LEYENDO 2 VECES EL ARCHIVO, INTENTAR EVITAR ESTO */
+                reader = CUtil.getReaderArchivo(filePath);
                 String contenido = CUtil.extractContentInReader(reader);
+                reader.close();
                 pw.append(contenido);
                 pw.append("</TEXT>");
                 pw.append("</DOC>");

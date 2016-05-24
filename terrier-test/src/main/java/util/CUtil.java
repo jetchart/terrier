@@ -53,8 +53,7 @@ public class CUtil {
 		    /* Recorro el archivo */ 
 		    while((cadena = b.readLine())!=null) {
 		    	/* Agrego contenido al StringBuffer que será devuelto */
-		    	retorno.append(cadena).append(" ");
-		    	System.out.println(cadena);
+		    	retorno.append(cadena).append("\n");
 		    }
 		    b.close();
 		} catch (Exception e) {
@@ -99,6 +98,16 @@ public class CUtil {
 	 */
 	public static Reader getReaderArchivo(String filePath) throws FileNotFoundException{
 		return (Reader) new BufferedReader(new FileReader(filePath));
+	}
+	
+	/**
+	 * Devuelve el contenido del archivo en FileReader
+	 * @param filePath		Ruta del archivo sobre el que se requiere obtener el contenido
+	 * @return
+	 * @throws FileNotFoundException 
+	 */
+	public static FileReader getFileReaderArchivo(String filePath) throws FileNotFoundException{
+		return new FileReader(filePath);
 	}
 	
 	public static void agregarCorpus(java.util.Collection<String> colCorpusPath){
@@ -252,6 +261,12 @@ public class CUtil {
 		return col;
 	}
 	
+	/**
+	 * Obtiene la cantidad de tokens unicos (sin repeticiones) existentes en el archivo que se encuentra en "filePath"
+	 * @param filePath		Ruta del archivo
+	 * @return				Cantidad de tokens unicos
+	 * @throws IOException
+	 */
 	public static Integer getAmountUniqueTokensInFile(String filePath) throws IOException{
 		Reader reader = new BufferedReader(new FileReader(filePath));
 		Tokeniser tokeniser = Tokeniser.getTokeniser();
@@ -265,6 +280,12 @@ public class CUtil {
 		return tokensUnicos.size();
 	}
 	
+	/**
+	 * Obtiene la cantidad de tokens unicos (sin repeticiones) existentes en el {@link Reader} recibido
+	 * @param reader		Reader con el contenido del archivo
+	 * @return				Cantidad de tokens unicos
+	 * @throws IOException
+	 */
 	public static Integer getAmountUniqueTokensInReader(Reader reader) throws IOException{
 		Tokeniser tokeniser = Tokeniser.getTokeniser();
 		String[] tokens = tokeniser.getTokens(reader);
