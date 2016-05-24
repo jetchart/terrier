@@ -105,8 +105,13 @@ public class CSizeByTerms implements IPartitionByTerms {
 		}
 	}
 	
-	/* Devuelvo el ID del nodo que tiene menos carga de Documentos y Terminos */
-	int getNodeId(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, int cantidadCorpus){
+	/**
+	 * Recorre el mapa mapNodeDocTerm y devuelve aquella clave que contenga menos carga de Documentos y Terminos.
+	 * En caso de haber mas de una clave con el mismo valor minimo, se devuelve la primera.
+	 * @param tokensByCorpus
+	 * @return
+	 */
+	private Integer getNodeId(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, Integer cantidadCorpus){
 		int nodeId=0;
 		Long min= -1L;
 		/* Si aún no se utilizó algún nodo, se lo asigno a él */

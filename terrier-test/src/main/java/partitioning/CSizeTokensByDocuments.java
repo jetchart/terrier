@@ -38,6 +38,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
             Long docno = Long.valueOf(0);
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
+        		/* Se obtiene el id del corpus con menos tokens unicos */
         		Integer corpusId = getIdCorpusSmallestTokens(tokensByCorpus);
        			/* Creo nuevo corpus */
         		String corpusPath = destinationFolderPath + "corpus"+ corpusId +".txt";
@@ -79,6 +80,13 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
 		return colCorpusTotal;
 	}
 
+	/**
+	 * Inicializa el mapa agregando N claves (donde N = cantidadCorpus) con valor 0.
+	 * Cada una de estas claves corresponde con el id del corpus, y cada valor 
+	 * almacenará la cantidad de tokens unicos existentes para ese corpus.
+	 * @param cantidadCorpus	Cantidad de claves a crear
+	 * @return
+	 */
 	private Map<Integer, Integer> inicializarMapa(Integer cantidadCorpus) {
 		Map<Integer,Integer> mapa = new HashMap<Integer,Integer>();
 		for (int i = 0;i<cantidadCorpus;i++){
@@ -87,7 +95,12 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
 		return mapa;
 	}
 
-	/* Devuelvo el ID del corpus de menor tamaño */
+	/**
+	 * Recorre el mapa tokensByCorpus y devuelve aquella clave que contenga menos tokens unicos (valor).
+	 * En caso de haber mas de una clave con el mismo valor minimo, se devuelve la primera.
+	 * @param tokensByCorpus
+	 * @return
+	 */
 	private Integer getIdCorpusSmallestTokens(Map<Integer, Integer> tokensByCorpus){
 		Integer idCorpus = 0;
 		Integer min = -1;
