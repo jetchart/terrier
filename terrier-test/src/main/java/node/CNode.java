@@ -26,7 +26,9 @@ public abstract class CNode implements INode {
 	/* Configuracion */
 	INodeConfiguration configuration;
 	/* Identificador del NODO */
-	int id;
+	Integer id;
+	/* ResultSet */
+	ResultSet resultSet = null;
 	
 	public CNode(String nodeType){
 		String pathConfiguration = null;
@@ -82,8 +84,10 @@ public abstract class CNode implements INode {
 		/* Muestro los resultados */
 		ResultSet rs = srq.getResultSet();
 		CUtil.mostrarResultados(rs, index, query);
+		/* Guardo el ResultSet */
+		this.resultSet = srq.getResultSet();
 		/* Devuelvo el resultSet con los resultados */
-		return srq.getResultSet();
+		return this.resultSet;
 	}
 
 	public void createIndex(String recrearCorpus, String sufijoNombreIndice) {

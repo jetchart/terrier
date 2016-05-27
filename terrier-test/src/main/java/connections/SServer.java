@@ -60,6 +60,9 @@ public class SServer {
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 recibir();
 		 /* Enviar */
+		 /* TODO Acá se debería enviar el objeto resultSet serializado con los resultados. 
+		  * Para esto se puede usar el ObjectOutputStream en vez de DataOutputStream
+		  * */
 		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
 		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
 		 System.out.println("------------------------------------");
