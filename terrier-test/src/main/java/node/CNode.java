@@ -27,7 +27,9 @@ public abstract class CNode implements INode {
 	INodeConfiguration configuration;
 	/* Identificador del NODO */
 	int id;
-	
+	/* ResultSet */
+	ResultSet resultSet;
+
 	public CNode(String nodeType){
 		String pathConfiguration = null;
 		if (INode.ID_MASTER.equals(nodeType)){
@@ -80,8 +82,8 @@ public abstract class CNode implements INode {
 		Long finRecuperacion = System.currentTimeMillis() - inicioRecuperacion;
 		System.out.println("Recuperación tardó " + finRecuperacion + " milisegundos\n");	 
 		/* Muestro los resultados */
-		ResultSet rs = srq.getResultSet();
-		CUtil.mostrarResultados(rs, index, query);
+		this.resultSet = srq.getResultSet();
+//		CUtil.mostrarResultados(resultSet, index, query);
 		/* Devuelvo el resultSet con los resultados */
 		return srq.getResultSet();
 	}
@@ -120,4 +122,13 @@ public abstract class CNode implements INode {
 	public void setId(int id){
 		this.id = id;
 	}
+	
+	public ResultSet getResultSet() {
+		return resultSet;
+	}
+
+	public void setResultSet(ResultSet resultSet) {
+		this.resultSet = resultSet;
+	}
+
 }

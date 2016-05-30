@@ -8,7 +8,8 @@ import node.INode;
 import node.ISlaveNode;
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
-import connections.SServer;
+import connections.CClient;
+import connections.CServer;
 
 public class NewMain {
 
@@ -82,6 +83,18 @@ public class NewMain {
 		nodo.sendOrderToIndex(recrearCorpus, nodo.getPartitionMethod().getClass().getName());
 		/* Recupero */
 		nodo.sendOrderToRetrieval(query);
+		/* Mostrar resultados del master */
+		if (nodo.getIndexa()){
+			System.out.println("\nResultados del Master:");
+			CUtil.mostrarResultados(nodo.getResultSet(), nodo.getIndex(), query);
+		}
+		/* Mostrar resultados de los esclavos */
+		for (CClient client : nodo.getNodes()){
+			System.out.println("\nResultados del Esclavo:" + client.getHost() + ":" + client.getPort());
+			CUtil.mostrarResultados(client.getResultSetNodo(), null, query);
+		}
+		
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -94,7 +107,7 @@ public class NewMain {
 		if (port == null){
 			port = slaveNode.getNodeConfiguration().getPort();
 		}
-		SServer server = new SServer(port,slaveNode);
+		CServer server = new CServer(port,slaveNode);
 		server.listen();
 	}
 	

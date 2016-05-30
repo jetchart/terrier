@@ -3,20 +3,24 @@ package connections;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.terrier.matching.ResultSet;
+
 import node.ISlaveNode;
 
-public class SServer {
+public class CServer {
 
 	DataOutputStream flujoSalida;
+	ObjectOutputStream objetoSalida;
 	DataInputStream flujoEntrada;
 	Socket socketServicio;
 	ServerSocket miServicio;
 	ISlaveNode slaveNode;
 	
-	public SServer(Integer port, ISlaveNode slaveNode){
+	public CServer(Integer port, ISlaveNode slaveNode){
 		this.slaveNode = slaveNode;
 		System.out.println("Bienvenido al Servidor!");
 		System.out.println("Id: " + slaveNode.getNodeConfiguration().getIdNode());
@@ -60,8 +64,9 @@ public class SServer {
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 recibir();
 		 /* Enviar */
-		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
+		 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
+//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
+		 enviarObjeto(slaveNode.getResultSet());
 		 System.out.println("------------------------------------");
 		 System.out.println("TERMINÓ CICLO");
 		 System.out.println("------------------------------------");
@@ -90,6 +95,15 @@ public class SServer {
 		 try {
 		 flujoSalida.writeUTF(mensaje);
 		 System.out.println("El servidor envió: " + mensaje);
+		 } catch( IOException e ) {
+			 System.out.println( e );
+		 }
+	}
+	
+	private void enviarObjeto(ResultSet resultSet){
+		 try {
+		 objetoSalida.writeObject(resultSet);
+		 System.out.println("El servidor envió: resultSet serializado");
 		 } catch( IOException e ) {
 			 System.out.println( e );
 		 }

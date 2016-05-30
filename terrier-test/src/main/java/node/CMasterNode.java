@@ -72,6 +72,8 @@ public class CMasterNode extends CNode implements IMasterNode {
 	 * En caso que el Master deba indexar, se creará cantidad-1 de nodos esclavos.
 	 * @param cantidad	Cantidad de nodos esclavos a crear
 	 */
+	/* TODO Acá estaría bueno que se conecte por SSH a cada nodo y ejecute el programa .jar
+	 */
 	public void createSlaveNodes(Integer cantidad){
 		nodes = new ArrayList<CClient>();
 		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */

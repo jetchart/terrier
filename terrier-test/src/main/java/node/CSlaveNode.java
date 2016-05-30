@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 
 import util.CUtil;
 import configuration.INodeConfiguration;
-import connections.SServer;
+import connections.CServer;
 
 
 public class CSlaveNode extends CNode implements ISlaveNode {
 
-	SServer server;
+	CServer server;
 
 	public CSlaveNode(String nodeType) {
 		super(nodeType);
@@ -52,11 +52,11 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 		}
 	}
 
-	public SServer getServer() {
+	public CServer getServer() {
 		return server;
 	}
 
-	public void setServer(SServer server) {
+	public void setServer(CServer server) {
 		this.server = server;
 	}
 }

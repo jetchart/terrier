@@ -21,7 +21,12 @@ public class Hilo extends Thread{
 			cliente.recibir();
 		}else if ("Recuperar".equals(cliente.getTarea())){
 			cliente.enviar("retrieval" + CUtil.separator + cliente.getQuery());
-			cliente.recibir();
+			try {
+				cliente.setResultSetNodo(cliente.recibirObjeto());
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

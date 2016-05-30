@@ -3,14 +3,18 @@ package connections;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collection;
 
-import util.CUtil;
+import org.terrier.matching.ResultSet;
 
 public class CClient{
 
 	DataOutputStream flujoSalida;
 	DataInputStream flujoEntrada;
+	ObjectInputStream objetoEntrada;
 	Socket miCliente;
 	
 	private String host;
@@ -18,6 +22,7 @@ public class CClient{
 	private String tarea;
 	private String nodoColCorpus;
 	private String query;
+	private ResultSet resultSetNodo;
 	
 	public CClient(String host, Integer port){
 		 try {
@@ -25,7 +30,7 @@ public class CClient{
 			 this.port = port;
 			 miCliente = new Socket( host,port );
 			 flujoSalida= new DataOutputStream(miCliente.getOutputStream());
-			 flujoEntrada= new DataInputStream( miCliente.getInputStream());
+			 flujoEntrada= new DataInputStream(miCliente.getInputStream());
 		 } catch( IOException e ) {
 			 System.out.println( e );
 		 }
@@ -40,6 +45,18 @@ public class CClient{
 		 System.out.println( e );
 		 }
 		 return msg;
+	}
+	
+	public ResultSet recibirObjeto() throws ClassNotFoundException{
+		ResultSet resultSet = null;
+		 try {
+			 objetoEntrada= new ObjectInputStream(miCliente.getInputStream());
+			 resultSet = (ResultSet) objetoEntrada.readObject();
+			 System.out.println("El cliente recibió: objeto ResultSet");
+		 } catch( IOException e ) {
+		 System.out.println( e );
+		 }
+		 return resultSet;
 	}
 	
 	public void enviar(String mensaje){
@@ -87,33 +104,6 @@ public class CClient{
 	public void setPort(Integer port) {
 		this.port = port;
 	}
-
-//	@Override
-//	public void run() {
-//		if ("Inicializar".equals(getTarea())){
-//			this.enviar("setId" + CUtil.separator + getPort());
-//			this.enviar("setColCorpus" + CUtil.separator + getNodoColCorpus());
-//			this.recibir();
-//			this.cerrar();
-//		}else if ("Indexar".equals(getTarea())){
-//			this.enviar("createIndex");
-//			this.recibir();
-//			this.cerrar();
-//		}
-//	}
-
-	public void run() {
-		if ("Inicializar".equals(getTarea())){
-			this.enviar("setId" + CUtil.separator + getPort());
-			this.enviar("setColCorpus" + CUtil.separator + getNodoColCorpus());
-			this.recibir();
-			this.cerrar();
-		}else if ("Indexar".equals(getTarea())){
-			this.enviar("createIndex");
-			this.recibir();
-			this.cerrar();
-		}
-	}
 	
 	public String getTarea() {
 		return tarea;
@@ -137,5 +127,13 @@ public class CClient{
 
 	public void setQuery(String query) {
 		this.query = query;
+	}
+
+	public ResultSet getResultSetNodo() {
+		return resultSetNodo;
+	}
+
+	public void setResultSetNodo(ResultSet resultSetNodo) {
+		this.resultSetNodo = resultSetNodo;
 	}
 }

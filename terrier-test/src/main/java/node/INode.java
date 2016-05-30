@@ -31,4 +31,7 @@ public interface INode extends Remote {
 	
 	void setId(int id);
 	
+	ResultSet getResultSet();
+	
+	void setResultSet(ResultSet resultSet);
 }
