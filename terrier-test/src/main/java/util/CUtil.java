@@ -176,11 +176,16 @@ public class CUtil {
 		 /* Imprimo resultados */
 		 System.out.println(docIds.length +" documentos para la query: " + query);
 		 for (int id : docIds){
-			 /* Obtengo el MetaIndex para acceder a los metadatos */
-			 MetaIndex meta = index.getMetaIndex();
-			 /* A partir del id obtengo el DOCNO */
-			 String docPath = meta.getItem("DOCPATH", id);
-			 System.out.println("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);
+			 if (index != null){
+				 /* Obtengo el MetaIndex para acceder a los metadatos */
+				 MetaIndex meta = index.getMetaIndex();
+				 /* A partir del id obtengo el DOCNO */
+				 String docPath = meta.getItem("DOCPATH", id);
+				 System.out.println("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);				 
+			 }else{
+				 System.out.println("\t "+ ++posicion + "- DOCNO: " + id + " con score: " + scores[posicion-1]);
+			 }
+
 		 }
     }
     
