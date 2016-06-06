@@ -11,6 +11,8 @@ import java.io.Reader;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
@@ -257,13 +259,30 @@ public class CUtil {
 		int i;
 		for (i=0;i<cantidadCorpus;i++){
 			String corpusPath = destinationFolderPath + "corpus"+ i +".txt";
-			FileWriter fichero = new FileWriter(corpusPath);
-			PrintWriter pw = new PrintWriter(fichero, true);
+			FileWriter fichero = new FileWriter(corpusPath, Boolean.FALSE);
+			PrintWriter pw = new PrintWriter(fichero);
 			pw.close();
 			fichero.close();
 			col.add(corpusPath);
 		}
 		return col;
+	}
+	
+	/**
+	 * Crea Corpus con sus contenidos extrayendo la informacion del mapa recibido.
+	 * 
+	 * @param mapa		Donde la key es el path del corpus, y el value es el contenido del corpus
+	 * @param append	Indica si debe escribirse sobre el final del archivo o sobreescribirse
+	 * @throws IOException
+	 */
+	public static void crearCorpusConDocumentos(Map<String, StringBuffer> mapa, Boolean append) throws IOException {
+		for (Entry<String, StringBuffer> corpus : mapa.entrySet()){
+			FileWriter fichero = new FileWriter(corpus.getKey(),append);
+			PrintWriter pw = new PrintWriter(fichero);
+			pw.print(corpus.getValue());
+			pw.close();
+			fichero.close();
+		}
 	}
 	
 	/**

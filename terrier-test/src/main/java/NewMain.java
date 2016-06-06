@@ -57,7 +57,7 @@ public class NewMain {
 			System.out.println("5- Particionamiento por Terminos: Por tamaño");
 			System.out.print("Opción: ");
 			int metodoId = 0;
-			while (metodoId > 4 || metodoId < 1)
+			while (metodoId > 5 || metodoId < 1)
 				metodoId = Integer.parseInt(scanner.nextLine());
 			/* Instancio el metodo de particionamiento */
 			nodo.setPartitionMethod(CFactoryPartitionMethod.getInstance(metodoId));
