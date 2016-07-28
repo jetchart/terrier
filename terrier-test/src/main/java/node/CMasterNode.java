@@ -103,6 +103,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 			/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
 			/* TODO se puede mejorar esto */
 			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, null);
+			this.setColCorpus(colCorpusTotal);
 			this.createIndex("S", CRoundRobinByDocuments.class.getName());
 			colCorpusTotal.clear();
 		}else{
