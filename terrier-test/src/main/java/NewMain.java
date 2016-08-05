@@ -67,6 +67,8 @@ public class NewMain {
 		IMasterNode nodo = new CMasterNode(parameters);
 		if (parameters.getRecrearCorpus()){
 			nodo.createSlaveNodes(nodo.getParameters().getCantidadNodos());
+		}else{
+			nodo.setColCorpus(CUtil.recuperarCollectionSpec());
 		}
 		/* Se parsea la query */
 		parameters.setQuery(CUtil.parseString(parameters.getQuery()));

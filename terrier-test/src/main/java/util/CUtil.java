@@ -347,4 +347,30 @@ public class CUtil {
 		
 		return path + "corpus" + nodeId + "_" + parameters.getMetodoParticionamiento().getClass().getName() + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
 	}
+	
+	/**
+	 * Devuelve una colección con todos los corpus que aparecen en el collection.spec (de la corrida previa)
+	 * @return
+	 */
+	public static Collection<String> recuperarCollectionSpec(){
+	    FileReader f;
+	    BufferedReader b;
+	    String cadena;
+	    Collection<String> col = new ArrayList<String>();
+	    String collectionSpecPath = System.getProperty("terrier.etc") + "collection.spec";
+		try {
+			/* Abro el collection.spec */
+			f = new FileReader(collectionSpecPath);
+		    b = new BufferedReader(f);
+		    /* Recorro el archivo */ 
+		    while((cadena = b.readLine())!=null) {
+		    	/* Agrego la ruta del corpus a la coleccion */
+		    	col.add(cadena);
+		    }
+		    b.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return col;
+	}
 }
