@@ -5,13 +5,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
 
 public class CClient{
 
+	static final Logger logger = Logger.getLogger(CClient.class);
+	
 	DataOutputStream flujoSalida;
 	DataInputStream flujoEntrada;
 	ObjectInputStream objetoEntrada;
@@ -32,7 +33,7 @@ public class CClient{
 			 flujoSalida= new DataOutputStream(miCliente.getOutputStream());
 			 flujoEntrada= new DataInputStream(miCliente.getInputStream());
 		 } catch( IOException e ) {
-			 System.out.println( e );
+			 logger.info( e );
 		 }
 	}
 	
@@ -40,9 +41,9 @@ public class CClient{
 		String msg = null;
 		 try {
 			 msg = flujoEntrada.readUTF();
-			 System.out.println("El cliente recibió: " + msg);
+			 logger.info("El cliente recibió: " + msg);
 		 } catch( IOException e ) {
-		 System.out.println( e );
+		 logger.info( e );
 		 }
 		 return msg;
 	}
@@ -52,9 +53,9 @@ public class CClient{
 		 try {
 			 objetoEntrada= new ObjectInputStream(miCliente.getInputStream());
 			 resultSet = (ResultSet) objetoEntrada.readObject();
-			 System.out.println("El cliente recibió: objeto ResultSet");
+			 logger.info("El cliente recibió: objeto ResultSet");
 		 } catch( IOException e ) {
-		 System.out.println( e );
+		 logger.info( e );
 		 }
 		 return resultSet;
 	}
@@ -62,9 +63,9 @@ public class CClient{
 	public void enviar(String mensaje){
 		 try {
 		 flujoSalida.writeUTF(mensaje);
-		 System.out.println("El Cliente envió al Nodo " + this.port + " el mensaje: " + mensaje);
+		 logger.info("El Cliente envió al Nodo " + this.port + " el mensaje: " + mensaje);
 		 } catch( IOException e ) {
-		 System.out.println( e );
+		 logger.info( e );
 		 }
 	}
 	
@@ -74,7 +75,7 @@ public class CClient{
 			flujoSalida.close();
 			flujoEntrada.close();
 			miCliente.close();
-			System.out.println("El cliente terminó su ejecución correctamente");
+			logger.info("El cliente terminó su ejecución correctamente");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

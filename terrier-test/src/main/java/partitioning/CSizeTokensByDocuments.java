@@ -7,12 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 
 import util.CUtil;
 
 public class CSizeTokensByDocuments implements IPartitionByDocuments {
 
+	static final Logger logger = Logger.getLogger(CSizeTokensByDocuments.class);
 	static Long cantidadDocumentosAntesCierre = 1000L;
 	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
@@ -21,17 +23,17 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
     	Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try
         {
-        	System.out.println("Metodo de particion: " + CSizeTokensByDocuments.class.getName());
+        	logger.info("Metodo de particion: " + CSizeTokensByDocuments.class.getName());
         	/* Se obtienen todos los ficheros del folder "folderPath" */
         	java.util.Collection<String> filesPath = CUtil.getFilesFromFolder(new ArrayList<String>(),folderPath, Boolean.TRUE);
         	/* Se obtiene cantidad de ficheros */
         	int cantidadTotalArchivos = filesPath.size();
-        	System.out.println("Cantidad de corpus a crear: " + cantidadCorpus);
-        	System.out.println("Cantidad de documentos: " + cantidadTotalArchivos);
+        	logger.info("Cantidad de corpus a crear: " + cantidadCorpus);
+        	logger.info("Cantidad de documentos: " + cantidadTotalArchivos);
         	/* Inicializar mapa tokens */
         	tokensByCorpus = this.inicializarMapa(cantidadCorpus);
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, cantidadCorpus));
+        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CSizeTokensByDocuments.class.getName(), cantidadCorpus));
         	/* Inicializo el mapa con la ruta de los corpus vacios */
         	for (String pathCorpus : colCorpusTotal){
         		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
@@ -43,7 +45,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
         		/* Se obtiene el id del corpus con menos tokens unicos */
         		Integer corpusId = getIdCorpusSmallestTokens(tokensByCorpus);
        			/* Creo nuevo corpus */
-        		String corpusPath = destinationFolderPath + "corpus"+ corpusId +".txt";
+        		String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, corpusId.toString(), CSizeTokensByDocuments.class.getName(), cantidadCorpus.toString());
         		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);   
         		/* Escribo contenido del archivo en el corpus con formato TREC */
                 contenido.append("<DOC>").append("\n");
@@ -56,7 +58,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
                 /* Obtengo la cantidad de tokens unicos que tiene el archivo y se lo sumo al corpus */
                 Integer cantidadTokensUnicos = CUtil.getAmountUniqueTokensInReader(reader);
                 tokensByCorpus.put(corpusId, tokensByCorpus.get(corpusId) + cantidadTokensUnicos);
-//                System.out.println("Se eligió al corpus " + corpusId + " porque tiene " + tokensByCorpus.get(corpusId)+ " tokens");
+//                logger.info("Se eligió al corpus " + corpusId + " porque tiene " + tokensByCorpus.get(corpusId)+ " tokens");
                 /* Obtengo el contenido del Reader sin tags */
                 /* TODO SE ESTÁ LEYENDO 2 VECES EL ARCHIVO, INTENTAR EVITAR ESTO */
                 reader = CUtil.getReaderArchivo(filePath);

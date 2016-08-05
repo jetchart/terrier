@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
@@ -22,6 +23,8 @@ import util.CUtil;
 
 public class CRoundRobinByTerms implements IPartitionByTerms {
 
+	static final Logger logger = Logger.getLogger(CRoundRobinByTerms.class);
+	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
 		Collection<String> colCorpusTotal = new ArrayList<String>();
         /* */
@@ -29,9 +32,9 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
         /* Doc y su docPath */
         Map<Integer,String> mapDocDocPath = new HashMap<Integer,String>();
         try{
-        	System.out.println("Metodo de particion: " + CRoundRobinByTerms.class.getName());
+        	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, cantidadCorpus));
+        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByTerms.class.getName(), cantidadCorpus));
 			/* Obtengo metaIndex (para leer el docPath) */
 			MetaIndex meta = index.getMetaIndex();
 			/* Obtengo mapa? */
@@ -39,7 +42,7 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			int contador = cantidadCorpus;
 			for (Entry<String, LexiconEntry> lexicon : mapLexicon){
 				int nodeId = contador++ % cantidadCorpus;
-//			    System.out.println("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
+//			    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
 			    PostingIndex<?> postingIndex = index.getInvertedIndex();
 			        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
 			        while (!iterablePosting.endOfPostings()){
@@ -73,13 +76,13 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 		return colCorpusTotal;
 	}
 
-	public void writeDoc(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, Map<Integer,String> mapDocDocPath, int cantidadCorpus, String destinationFolderPath) {
+	public void writeDoc(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, Map<Integer,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath) {
         PrintWriter pw = null;
         try {
-        	for (int nodeId : mapNodeDocTerm.keySet()){
+        	for (Integer nodeId : mapNodeDocTerm.keySet()){
 				for (int docId : mapNodeDocTerm.get(nodeId).keySet()){
 		   			/* Creo nuevo corpus */
-		    		String corpusPath = destinationFolderPath + "corpus"+ nodeId +".txt";
+					String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, nodeId.toString(), CRoundRobinByTerms.class.getName(), cantidadCorpus.toString());
 		    	    FileOutputStream fileOutputStream;
 					fileOutputStream = new FileOutputStream(new File(corpusPath), Boolean.TRUE);
 		            pw = new PrintWriter(fileOutputStream);     

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.terrier.indexing.tokenisation.Tokeniser;
@@ -29,6 +30,7 @@ import com.jcraft.jsch.UserInfo;
 
 
 public class CUtil {
+	static final Logger logger = Logger.getLogger(CUtil.class);
 	public static String separator = Pattern.quote("*");
 	private static String[] indexFiles = {
 			".direct.bf",
@@ -169,40 +171,40 @@ public class CUtil {
     }
 	
     public static void mostrarResultados(ResultSet rs, Index index, String query) throws Exception{
-		System.out.println("------------------------------------");
-		System.out.println("RESULTADOS");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("RESULTADOS");
+		logger.info("------------------------------------");
 		 int[] docIds = rs.getDocids();
 		 double[] scores = rs.getScores();
 		 int posicion = 0;
 		 /* Imprimo resultados */
-		 System.out.println(docIds.length +" documentos para la query: " + query);
+		 logger.info(docIds.length +" documentos para la query: " + query);
 		 for (int id : docIds){
 			 if (index != null){
 				 /* Obtengo el MetaIndex para acceder a los metadatos */
 				 MetaIndex meta = index.getMetaIndex();
 				 /* A partir del id obtengo el DOCNO */
 				 String docPath = meta.getItem("DOCPATH", id);
-				 System.out.println("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);				 
+				 logger.info("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);				 
 			 }else{
-				 System.out.println("\t "+ ++posicion + "- DOCNO: " + id + " con score: " + scores[posicion-1]);
+				 logger.info("\t "+ ++posicion + "- DOCNO: " + id + " con score: " + scores[posicion-1]);
 			 }
 
 		 }
     }
     
     public static void deleteIndexFiles(String etcFolder, String prefixName){
-		System.out.println("------------------------------------");
-		System.out.println("INICIO LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("INICIO LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
+		logger.info("------------------------------------");
     	for (String indexFile : indexFiles){
             File fichero = new File(etcFolder + prefixName + indexFile);
             if (fichero.delete())
-            	System.out.println("Se eliminó el archivo: " + etcFolder + prefixName + indexFile);
+            	logger.info("Se eliminó el archivo: " + etcFolder + prefixName + indexFile);
     	}
-		System.out.println("------------------------------------");
-		System.out.println("FIN LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("FIN LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
+		logger.info("------------------------------------");
     }
     
     public static Boolean existeIndice(String indexPath){
@@ -211,9 +213,9 @@ public class CUtil {
     }
     
     public static void copyFileSFTP(String source, String target, String user, String pass, String host, Integer port){
-		System.out.println("------------------------------------");
-		System.out.println("INICIO COPIA DE CORPUS DESDE MASTER A SLAVE");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("INICIO COPIA DE CORPUS DESDE MASTER A SLAVE");
+		logger.info("------------------------------------");
 		Long inicioCopiaCorpus = System.currentTimeMillis();
         try {
 	        JSch jsch = new JSch();
@@ -229,7 +231,7 @@ public class CUtil {
 	        sftp.connect();
 
 	        sftp.get(source, target);
-	        System.out.println("Archivo copiado");
+	        logger.info("Archivo copiado");
 	 
 	        sftp.exit();
 	        sftp.disconnect();
@@ -239,10 +241,10 @@ public class CUtil {
 			e.printStackTrace();
 		}
 		Long finCopiaCorpus = System.currentTimeMillis() - inicioCopiaCorpus;
-		System.out.println("Copia del corpus tardó " + finCopiaCorpus + " milisegundos");
-		System.out.println("------------------------------------");
-		System.out.println("FIN COPIA DE CORPUS DESDE MASTER A SLAVE");
-		System.out.println("------------------------------------");
+		logger.info("Copia del corpus tardó " + finCopiaCorpus + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN COPIA DE CORPUS DESDE MASTER A SLAVE");
+		logger.info("------------------------------------");
     }
     
     /**
@@ -253,12 +255,11 @@ public class CUtil {
 	 * @return							{@link Collection} de {@link String} con todos los path's de los archivos creados
 	 * @throws IOException
 	 */
-	public static Collection<String> crearCorpusVacios(String destinationFolderPath,
-			Integer cantidadCorpus) throws IOException {
+	public static Collection<String> crearCorpusVacios(String path, String metodoParticionamiento, Integer cantidadNodos) throws IOException {
 		Collection<String> col = new ArrayList<String>();
-		int i;
-		for (i=0;i<cantidadCorpus;i++){
-			String corpusPath = destinationFolderPath + "corpus"+ i +".txt";
+		Integer i;
+		for (i=0;i<cantidadNodos;i++){
+			String corpusPath = CUtil.generarPathArchivoCorpus(path, i.toString(), metodoParticionamiento, cantidadNodos.toString());
 			FileWriter fichero = new FileWriter(corpusPath, Boolean.FALSE);
 			PrintWriter pw = new PrintWriter(fichero);
 			pw.close();
@@ -320,5 +321,20 @@ public class CUtil {
 			}
 		}
 		return tokensUnicos.size();
+	}
+	
+	/**
+	 * Arma el path completo del corpus a crear en base a los parámetros recibidos, con el fin 
+	 * de diferenciar los corpus entre corridas y que no queden cacheados.
+	 * TODO --> ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ Agregar parámetros: indexaMaster, metodoComunicacion. !!!!!!!!!!!!!!!!!!!!
+	 * 
+	 * @param path
+	 * @param id
+	 * @param metodoParticionamiento
+	 * @param cantidadNodos
+	 * @return
+	 */
+	public static String generarPathArchivoCorpus(String path, String id, String metodoParticionamiento, String cantidadNodos){
+		return path + "corpus" + id + "_" + metodoParticionamiento + "_" + cantidadNodos + "_" + ".txt";
 	}
 }

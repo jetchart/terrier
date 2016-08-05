@@ -6,12 +6,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 
 import util.CUtil;
 
 public class CSizeByDocuments implements IPartitionByDocuments {
 
+	static final Logger logger = Logger.getLogger(CSizeByDocuments.class);
 	static Long cantidadDocumentosAntesCierre = 1000L;
 	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
@@ -19,15 +21,15 @@ public class CSizeByDocuments implements IPartitionByDocuments {
         Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try
         {
-        	System.out.println("Metodo de particion: " + CSizeByDocuments.class.getName());
+        	logger.info("Metodo de particion: " + CSizeByDocuments.class.getName());
         	/* Se obtienen todos los ficheros del folder "folderPath" */
         	java.util.Collection<String> filesPath = CUtil.getFilesFromFolder(new ArrayList<String>(),folderPath, Boolean.TRUE);
         	/* Se obtiene cantidad de ficheros */
         	int cantidadTotalArchivos = filesPath.size();
-        	System.out.println("Cantidad de corpus a crear: " + cantidadCorpus);
-        	System.out.println("Cantidad de documentos: " + cantidadTotalArchivos);
+        	logger.info("Cantidad de corpus a crear: " + cantidadCorpus);
+        	logger.info("Cantidad de documentos: " + cantidadTotalArchivos);
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, cantidadCorpus));
+        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CSizeByDocuments.class.getName(), cantidadCorpus));
         	/* Inicializo el mapa con la ruta de los corpus vacios */
         	for (String pathCorpus : colCorpusTotal){
         		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
@@ -37,7 +39,7 @@ public class CSizeByDocuments implements IPartitionByDocuments {
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
        			/* Creo nuevo corpus */
-        		String corpusPath = destinationFolderPath + "corpus"+ getIdSmallestDocument(destinationFolderPath, cantidadCorpus) +".txt";
+        		String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, getIdSmallestDocument(destinationFolderPath, cantidadCorpus).toString(), CSizeByDocuments.class.getName(), cantidadCorpus.toString());
         		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);  
         		/* Escribo contenido del archivo en el corpus con formato TREC */
                 contenido.append("<DOC>").append("\n");
@@ -72,12 +74,12 @@ public class CSizeByDocuments implements IPartitionByDocuments {
 	}
 
 	/* Devuelvo el ID del corpus de menor tamaño */
-	private int getIdSmallestDocument(String destinationFolderPath, int cantidadCorpus){
-        int i;
+	private Integer getIdSmallestDocument(String destinationFolderPath, Integer cantidadCorpus){
+        Integer i;
         long size = -1;
-        int idSmallestDocument = 0;
+        Integer idSmallestDocument = 0;
     	for (i=0;i<cantidadCorpus;i++){
-    			String corpusPath = destinationFolderPath + "corpus"+ i +".txt";
+    		String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, i.toString(), CSizeByDocuments.class.getName(), cantidadCorpus.toString());
     			File file = new File (corpusPath);
     			if (file.length() < size || i == 0){
     				size = file.length();

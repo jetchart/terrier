@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.terrier.indexing.Collection;
@@ -21,11 +22,13 @@ import org.terrier.structures.MetaIndex;
 import org.terrier.structures.indexing.Indexer;
 import org.terrier.structures.indexing.classical.BasicIndexer;
 
+import util.CUtil;
 import configuration.INodeConfiguration;
 
 
 public class Main {
 
+	static final Logger logger = Logger.getLogger(Main.class);
 	static Map<Long, String> mapFilesPath = new HashMap<Long, String>();
 	/* Terrier Home */
 	static String terrierHome = "/home/jetchart/terrier-4.0";
@@ -55,17 +58,17 @@ public class Main {
 			Long inicioCreacionCorpus = System.currentTimeMillis();
 			crearCorpus(folderPath, destinationFolderPath, cantidadCorpus);
 			Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
-			System.out.println("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
+			logger.info("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
 			/* Indexo */
 			Long inicioIndexacion = System.currentTimeMillis();
 			Index index = indexar();
 			Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-			System.out.println("Indexación tardó " + finIndexacion + " milisegundos");	
+			logger.info("Indexación tardó " + finIndexacion + " milisegundos");	
 			/* Recupero */
 			Long inicioRecuperacion = System.currentTimeMillis();
 			ResultSet rs = recuperar(index, query);
 			Long finRecuperacion = System.currentTimeMillis() - inicioRecuperacion;
-			System.out.println("Recuperación tardó " + finRecuperacion + " milisegundos");	 
+			logger.info("Recuperación tardó " + finRecuperacion + " milisegundos");	 
 			/* Muestro Resultados */
 			mostrarResultados(rs, index, query);
 		} catch (Exception e) {
@@ -97,11 +100,11 @@ public class Main {
 	}
 	
 	/* Se recorre carpeta "folderPath", se leen los archivos y se crea corpus con formato TREC en "destinationFolderPath" */
-    private static void crearCorpus(String folderPath, String destinationFolderPath, int cantidadCorpus)
+    private static void crearCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus)
     {
     	FileWriter fichero = null;
         PrintWriter pw = null;
-    	int corpusId=0;
+    	Integer corpusId=0;
     	int contador = 0;
         try
         {
@@ -117,13 +120,13 @@ public class Main {
         	int extra = 0;
         	if (resto>0)
         		extra = 1;
-        	System.out.println("Cantidad de corpus a crear: " + cantidadCorpus);
-        	System.out.println("Cantidad de documentos: " + cantidadTotalArchivos);
-        	System.out.println("Cantidad de documentos por corpus: " + cantidadArchivosPorCorpus);
+        	logger.info("Cantidad de corpus a crear: " + cantidadCorpus);
+        	logger.info("Cantidad de documentos: " + cantidadTotalArchivos);
+        	logger.info("Cantidad de documentos por corpus: " + cantidadArchivosPorCorpus);
         	/* Se crea colección que tendra los path's de los corpus creados */
         	java.util.Collection<String> colCorpusPath = new ArrayList<String>();
         	/* Se crea el primer corpus */
-        	String corpusPath = destinationFolderPath + "corpus"+ corpusId +".txt";
+        	String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, corpusId.toString(), "metodoNoDefinido", cantidadCorpus.toString());
             fichero = new FileWriter(corpusPath);
             colCorpusPath.add(corpusPath);
             pw = new PrintWriter(fichero);      
@@ -261,13 +264,13 @@ public class Main {
 		 double[] scores = rs.getScores();
 		 int posicion = 0;
 		 /* Imprimo resultados */
-		 System.out.println(docIds.length +" documentos para la query: " + query);
+		 logger.info(docIds.length +" documentos para la query: " + query);
 		 for (int id : docIds){
 			 /* Obtengo el MetaIndex para acceder a los metadatos */
 			 MetaIndex meta = index.getMetaIndex();
 			 /* A partir del id obtengo el DOCNO */
 			 String docPath = meta.getItem("DOCPATH", id);
-			 System.out.println("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);
+			 logger.info("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);
 		 }
     }
 }

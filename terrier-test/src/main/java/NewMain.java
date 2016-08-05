@@ -1,11 +1,14 @@
 import java.io.IOException;
-import java.util.Scanner;
 
 import node.CMasterNode;
 import node.CSlaveNode;
 import node.IMasterNode;
 import node.INode;
 import node.ISlaveNode;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
 import connections.CClient;
@@ -13,64 +16,53 @@ import connections.CServer;
 
 public class NewMain {
 
+	static final Logger logger = Logger.getLogger(NewMain.class);
+	
 	public static void main(String[] args) throws IOException {
-		Scanner scanner = new Scanner(System.in);
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
-			createMaster();
+			if (args.length == 7){
+				createMaster(args[1],args[2],args[3],args[4],args[5], args[6]);
+			}else{
+				mostrarMensajeParametros();
+			}
 		}else if (opcion!=null && INode.ID_SLAVE.equals(opcion.toUpperCase())){
-			/* TODO creo que habría que sacar esto */
-			/* Si se especificó un puerto lo utilizo, sino lo extraigo de configuration.properties */
-			Integer port = null;
-			createSlave(port);
+			if (args.length != 1){
+				/* TODO creo que habría que sacar esto */
+				/* Si se especificó un puerto lo utilizo, sino lo extraigo de configuration.properties */
+				Integer port = null;
+				createSlave(port);
+			}else{
+				mostrarMensajeParametros();
+			}
 		}else{
-			System.out.println("Parámetro incorrecto");
-			System.out.println("Parámetros disponibles:");
-			System.out.println("\tmaster");
-			System.out.println("\tslave");
+			mostrarMensajeParametros();
 		}
-		scanner.close();
 	}
 	
-	private static void createMaster(){
+	private static void createMaster(String masterIndexa, String recrearCorpus, String metodoParticionamiento, String cantidadNodos, String metodoComunicacion, String query){
 		try {
+		/* Muestro los parametros recibidos */
+		logger.info("Tipo nodo: " + INode.ID_MASTER);
+		logger.info("Master indexa: " + masterIndexa);
+		logger.info("Recrear corpus: " + recrearCorpus);
+		logger.info("Metodo particionamiento: " + CFactoryPartitionMethod.getInstance(Integer.valueOf(metodoParticionamiento)).getClass().getName());
+		logger.info("Cantidad nodos: " + cantidadNodos);
+		logger.info("Metodo de comunicación: " + metodoComunicacion);
+		logger.info("Query: " + query);
 		/* Creo Nodo Master */
 		IMasterNode nodo = new CMasterNode(INode.ID_MASTER);
-		/* Pido cantidad de corpus y query */
-		Scanner scanner = new Scanner(System.in);
-		String recrearCorpus = "";
-		/* Indica si el Master debe indexar o no */
-		System.out.print("El master debe indexar? S/N: ");
-		String indexa = scanner.nextLine().toUpperCase();
-		nodo.setIndexa("S".equals(indexa)?Boolean.TRUE:Boolean.FALSE);
-		System.out.print("Desea recrear el corpus? S/N: ");
-		while (!recrearCorpus.equals("S") && !recrearCorpus.equals("N") && !recrearCorpus.equals("s") && !recrearCorpus.equals("s"))
-			recrearCorpus = CUtil.parseString(scanner.nextLine());
-		int cantidadCorpus=0;
-		if (recrearCorpus.equals("S") || recrearCorpus.equals("s")){
-			/* Pido el metodo de particionamiento del corpus */
-			System.out.println("Ingrese el numero del metodo de particionamiento ");
-			System.out.println("1- Particionamiento por Documentos: RoundRobin");
-			System.out.println("2- Particionamiento por Documentos: Por tamaño (archivos)");
-			System.out.println("3- Particionamiento por Documentos: Por tamaño (cantidad de tokens unicos)");
-			System.out.println("4- Particionamiento por Terminos: RoundRobin");
-			System.out.println("5- Particionamiento por Terminos: Por tamaño");
-			System.out.print("Opción: ");
-			int metodoId = 0;
-			while (metodoId > 5 || metodoId < 1)
-				metodoId = Integer.parseInt(scanner.nextLine());
+		nodo.setIndexa("S".equals(masterIndexa)?Boolean.TRUE:Boolean.FALSE);
+		if (recrearCorpus.equals("S")){
+			Integer metodoId = Integer.parseInt(metodoParticionamiento);
 			/* Instancio el metodo de particionamiento */
 			nodo.setPartitionMethod(CFactoryPartitionMethod.getInstance(metodoId));
 			/* Cantidad de corpus a crear */
-			System.out.print("Ingrese la cantidad de nodos: ");
-			cantidadCorpus = Integer.valueOf(scanner.nextLine());
-			nodo.setCantidadCorpus(cantidadCorpus);
+			nodo.setCantidadCorpus(Integer.valueOf(cantidadNodos));
 			nodo.createSlaveNodes(nodo.getCantidadCorpus());
 		}
-		/* Se pide query y se lo parsea */
-		System.out.print("Ingrese el query: ");
-		String query = CUtil.parseString(scanner.nextLine());
-		scanner.close();
+		/* Se parsea la query */
+		query = CUtil.parseString(query);
 		if (recrearCorpus.equals("S") || recrearCorpus.equals("s")){
 			/* Creo Corpus */
 			nodo.createCorpus();
@@ -85,12 +77,12 @@ public class NewMain {
 		nodo.sendOrderToRetrieval(query);
 		/* Mostrar resultados del master */
 		if (nodo.getIndexa()){
-			System.out.println("\nResultados del Master:");
+			logger.info("\nResultados del Master:");
 			CUtil.mostrarResultados(nodo.getResultSet(), nodo.getIndex(), query);
 		}
 		/* Mostrar resultados de los esclavos */
 		for (CClient client : nodo.getNodes()){
-			System.out.println("\nResultados del Esclavo:" + client.getHost() + ":" + client.getPort());
+			logger.info("\nResultados del Esclavo:" + client.getHost() + ":" + client.getPort());
 			CUtil.mostrarResultados(client.getResultSetNodo(), null, query);
 		}
 		
@@ -111,5 +103,23 @@ public class NewMain {
 		server.listen();
 	}
 	
+	private static void mostrarMensajeParametros(){
+		logger.info("¡Parámetro incorrectos!");
+		logger.info("Parámetros necesarios:");
+		logger.info("1) Tipo de nodo --> master / slave");
+		logger.info("2) Master indexa --> 1 / 0");
+		logger.info("3) Recrear corpus --> 1 / 0");
+		logger.info("4) Metodo particionamiento --> 1,2,3,4");
+		logger.info("\t1- Particionamiento por Documentos: RoundRobin");
+		logger.info("\t2- Particionamiento por Documentos: Por tamaño (archivos)");
+		logger.info("\t3- Particionamiento por Documentos: Por tamaño (cantidad de tokens unicos)");
+		logger.info("\t4- Particionamiento por Terminos: RoundRobin");
+		logger.info("\t5- Particionamiento por Terminos: Por tamaño");
+		logger.info("5) Cantidad nodos --> 1 <= N");
+		logger.info("6) Metodo de comunicación: 1 / 2");
+		logger.info("\t1- Vía SSH");
+		logger.info("\t2- Documentos compartidos");
+		logger.info("7) Query --> \"texto entre comillas\"");
+	}
    
 }

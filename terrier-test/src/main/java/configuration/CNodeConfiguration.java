@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 public class CNodeConfiguration implements INodeConfiguration {
 
+	static final Logger logger = Logger.getLogger(CNodeConfiguration.class);
+	
 	Integer port;
 	String idNode;
 	String nodeType;
@@ -62,11 +66,11 @@ public class CNodeConfiguration implements INodeConfiguration {
 			validarRutasExistentes();
 			
 		} catch (FileNotFoundException e) {
-			System.out.println("Error, no existe el archivo: " + configurationFilePath);
+			logger.info("Error, no existe el archivo: " + configurationFilePath);
 		} catch (IOException e) {
-			System.out.println("Error, no se puede leer el archivo" + configurationFilePath);
+			logger.info("Error, no se puede leer el archivo" + configurationFilePath);
 		} catch (Exception e) {
-			System.out.println("Han ocurrido los siguientes errores al leer el archivo de configuracion:\n" + e.getMessage());
+			logger.info("Han ocurrido los siguientes errores al leer el archivo de configuracion:\n" + e.getMessage());
 		}
 	}
 

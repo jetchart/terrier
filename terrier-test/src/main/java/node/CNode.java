@@ -17,6 +17,7 @@ import util.CUtil;
 
 
 public abstract class CNode implements INode {
+	
 	Logger logger = Logger.getLogger(CNode.class);
 	
 	/* Index */
@@ -62,10 +63,10 @@ public abstract class CNode implements INode {
 	}
 
 	public ResultSet retrieval(String query) throws Exception {
-//		System.out.println("------------------------------------");
-//		System.out.println("COMIENZA RECUPERACION");
-//		System.out.println("------------------------------------");
-		System.out.println("\nInicia Recuperación");
+//		logger.info("------------------------------------");
+//		logger.info("COMIENZA RECUPERACION");
+//		logger.info("------------------------------------");
+		logger.info("\nInicia Recuperación");
 		Long inicioRecuperacion = System.currentTimeMillis();
 		/* Instancio Manager con el indice creado */
 		Manager m = new Manager(this.index);
@@ -80,7 +81,7 @@ public abstract class CNode implements INode {
 		m.runPostFilters(srq);
 		 /* Devuelvo ResultSet */
 		Long finRecuperacion = System.currentTimeMillis() - inicioRecuperacion;
-		System.out.println("Recuperación tardó " + finRecuperacion + " milisegundos\n");	 
+		logger.info("Recuperación tardó " + finRecuperacion + " milisegundos\n");	 
 		/* Muestro los resultados */
 		this.resultSet = srq.getResultSet();
 //		CUtil.mostrarResultados(resultSet, index, query);
@@ -93,7 +94,7 @@ public abstract class CNode implements INode {
 	}
 
 	public void createIndex(String recrearCorpus, String sufijoNombreIndice) {
-		System.out.println("\nInicia Indexación");
+		logger.info("\nInicia Indexación");
 		if (recrearCorpus.equals("S")){
 			/* Elimino el indice anterior */
 			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);
@@ -116,7 +117,7 @@ public abstract class CNode implements INode {
     	/* Guardo el indice creado */
 		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-		System.out.println("Indexación tardó " + finIndexacion + " milisegundos\n");	
+		logger.info("Indexación tardó " + finIndexacion + " milisegundos\n");	
 	}
 
 	public int getId() {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
 
 import partitioning.CRoundRobinByDocuments;
@@ -15,6 +16,8 @@ import connections.CClient;
 
 public class CMasterNode extends CNode implements IMasterNode {
 
+	static final Logger logger = Logger.getLogger(CMasterNode.class);
+	
 	/* Coleccion de todos los Corpus */
 	private Collection<String> colCorpusTotal;
 	/* Nodos que posee, incluyéndose a él mismo */
@@ -93,9 +96,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 	
 	public void createCorpus() {
-		System.out.println("------------------------------------");
-		System.out.println("COMIENZA CREACION DE CORPUS");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("COMIENZA CREACION DE CORPUS");
+		logger.info("------------------------------------");
 		Long inicioCreacionCorpus = System.currentTimeMillis();
 		/* Si el metodo de particion es por terminos, necesitamos primero
 		 * tener el indice, para obtener los terminos y dividirlos */
@@ -111,14 +114,14 @@ public class CMasterNode extends CNode implements IMasterNode {
 		}
 		colCorpusTotal = partitionMethod.createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, this.index);
 		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
-		System.out.println("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
+		logger.info("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
 	}
 	
 
 	public void sendCorpusToNodes() {
-		System.out.println("------------------------------------");
-		System.out.println("COMIENZA ENVIO DE CORPUS A NODOS");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("COMIENZA ENVIO DE CORPUS A NODOS");
+		logger.info("------------------------------------");
 		Long inicioSetCorpusToNodes = System.currentTimeMillis();
 		/* Agrego corpus al master node solo si indexa */
 		Iterator<String> iterator = this.getColCorpusTotal().iterator();
@@ -140,13 +143,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
 		Long finSetCorpusToNodes = System.currentTimeMillis() - inicioSetCorpusToNodes;
-		System.out.println("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
+		logger.info("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
 	}
 	
 	public void sendOrderToIndex(String recrearCorpus, String methodPartitionName) {
-		System.out.println("------------------------------------");
-		System.out.println("COMIENZA INDEXACION");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("COMIENZA INDEXACION");
+		logger.info("------------------------------------");
 		Long inicioIndexacion = System.currentTimeMillis();
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
@@ -163,13 +166,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-		System.out.println("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
+		logger.info("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
 	}
 
 	public Collection<ResultSet> sendOrderToRetrieval(String query) throws Exception {
-		System.out.println("------------------------------------");
-		System.out.println("COMIENZA RECUPERACION");
-		System.out.println("------------------------------------");
+		logger.info("------------------------------------");
+		logger.info("COMIENZA RECUPERACION");
+		logger.info("------------------------------------");
 		Long inicioRecuperacion = System.currentTimeMillis();
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
@@ -187,7 +190,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
 		Long finRecuperacion = System.currentTimeMillis() - inicioRecuperacion;
-		System.out.println("Recuperacion TOTAL tardó " + finRecuperacion + " milisegundos");
+		logger.info("Recuperacion TOTAL tardó " + finRecuperacion + " milisegundos");
 
 		return null;
 

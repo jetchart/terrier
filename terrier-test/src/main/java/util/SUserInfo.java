@@ -1,9 +1,12 @@
 package util;
 
+import org.apache.log4j.Logger;
+
 import com.jcraft.jsch.UserInfo;
  
 public class SUserInfo implements UserInfo {
  
+	static final Logger logger = Logger.getLogger(SUserInfo.class);
     private String password;
     private String passPhrase;
  
@@ -33,6 +36,6 @@ public class SUserInfo implements UserInfo {
     }
  
     public void showMessage(String arg0) {
-        System.out.println("SUserInfo.showMessage()");
+        logger.info("SUserInfo.showMessage()");
     }
 }

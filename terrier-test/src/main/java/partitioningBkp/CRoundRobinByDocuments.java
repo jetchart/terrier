@@ -5,21 +5,25 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 
+import partitioning.CSizeTokensByDocuments;
 import util.CUtil;
 
 public class CRoundRobinByDocuments implements IPartitionByDocuments {
 
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, int cantidadCorpus, Index index) {
+	static final Logger logger = Logger.getLogger(CRoundRobinByDocuments.class);
+	
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
 		Collection<String> colCorpusTotal = new ArrayList<String>();
 		FileWriter fichero = null;
         PrintWriter pw = null;
-    	int corpusId=0;
+    	Integer corpusId=0;
     	int contador = 0;
         try
         {
-        	System.out.println("Metodo de particion: " + CRoundRobinByDocuments.class.getName());
+        	logger.info("Metodo de particion: " + CRoundRobinByDocuments.class.getName());
         	/* Se obtienen todos los ficheros del folder "folderPath" */
         	java.util.Collection<String> filesPath = CUtil.getFilesFromFolder(new ArrayList<String>(),folderPath, Boolean.TRUE);
         	/* Se obtiene cantidad de ficheros */
@@ -32,11 +36,11 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
         	int extra = 0;
         	if (resto>0)
         		extra = 1;
-        	System.out.println("Cantidad de corpus a crear: " + cantidadCorpus);
-        	System.out.println("Cantidad de documentos: " + cantidadTotalArchivos);
-        	System.out.println("Cantidad de documentos por corpus: " + cantidadArchivosPorCorpus);
+        	logger.info("Cantidad de corpus a crear: " + cantidadCorpus);
+        	logger.info("Cantidad de documentos: " + cantidadTotalArchivos);
+        	logger.info("Cantidad de documentos por corpus: " + cantidadArchivosPorCorpus);
         	/* Se crea el primer corpus */
-        	String corpusPath = destinationFolderPath + "corpus"+ corpusId +".txt";
+        	String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, corpusId.toString(), CRoundRobinByDocuments.class.getName(), cantidadCorpus.toString());
             fichero = new FileWriter(corpusPath);
         	/* Se agrega path del corpus creado a la coleccion de corpus */            
             colCorpusTotal.add(corpusPath);

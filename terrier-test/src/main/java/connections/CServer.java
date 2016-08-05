@@ -7,12 +7,15 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.terrier.matching.ResultSet;
-
 import node.ISlaveNode;
+
+import org.apache.log4j.Logger;
+import org.terrier.matching.ResultSet;
 
 public class CServer {
 
+	static final Logger logger = Logger.getLogger(CServer.class);
+	
 	DataOutputStream flujoSalida;
 	ObjectOutputStream objetoSalida;
 	DataInputStream flujoEntrada;
@@ -22,9 +25,9 @@ public class CServer {
 	
 	public CServer(Integer port, ISlaveNode slaveNode){
 		this.slaveNode = slaveNode;
-		System.out.println("Bienvenido al Servidor!");
-		System.out.println("Id: " + slaveNode.getNodeConfiguration().getIdNode());
-		System.out.println("Puerto: " + port);
+		logger.info("Bienvenido al Servidor!");
+		logger.info("Id: " + slaveNode.getNodeConfiguration().getIdNode());
+		logger.info("Puerto: " + port);
 		iniciarServidor(port);
 	}
 	
@@ -32,7 +35,7 @@ public class CServer {
 		 try {
 		 miServicio = new ServerSocket( port );
 		 } catch( IOException e ) {
-			 System.out.println( e );
+			 logger.info( e );
 		 }
 	}
 
@@ -41,9 +44,9 @@ public class CServer {
 	}
 	
 	public void listen(){
-		 System.out.println("------------------------------------");
-		 System.out.println("COMIENZA NUEVO CICLO");
-		 System.out.println("------------------------------------");
+		 logger.info("------------------------------------");
+		 logger.info("COMIENZA NUEVO CICLO");
+		 logger.info("------------------------------------");
 		 socketServicio = null;
 		 try {
 		 socketServicio = miServicio.accept();
@@ -67,15 +70,15 @@ public class CServer {
 		 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
 //		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
 		 enviarObjeto(slaveNode.getResultSet());
-		 System.out.println("------------------------------------");
-		 System.out.println("TERMINÓ CICLO");
-		 System.out.println("------------------------------------");
+		 logger.info("------------------------------------");
+		 logger.info("TERMINÓ CICLO");
+		 logger.info("------------------------------------");
 		 cerrar();
 		 /* Inicio el ciclo de nuevo */
 		 iniciarServidor(slaveNode.getNodeConfiguration().getPort());
 		 listen();
 		 } catch( IOException e ) {
-			 System.out.println( e );
+			 logger.info( e );
 		 }
 	}
 	
@@ -83,10 +86,10 @@ public class CServer {
 		 String msg = null;
 		 try {
 			 msg = flujoEntrada.readUTF();
-			 System.out.println("El servidor recibió: " + msg);
+			 logger.info("El servidor recibió: " + msg);
 			 slaveNode.executeMessage(msg);
 		 } catch( IOException e ) {
-			 System.out.println( e );
+			 logger.info( e );
 		 }
 		 return msg;
 	}
@@ -94,18 +97,18 @@ public class CServer {
 	private void enviar(String mensaje){
 		 try {
 		 flujoSalida.writeUTF(mensaje);
-		 System.out.println("El servidor envió: " + mensaje);
+		 logger.info("El servidor envió: " + mensaje);
 		 } catch( IOException e ) {
-			 System.out.println( e );
+			 logger.info( e );
 		 }
 	}
 	
 	private void enviarObjeto(ResultSet resultSet){
 		 try {
 		 objetoSalida.writeObject(resultSet);
-		 System.out.println("El servidor envió: resultSet serializado");
+		 logger.info("El servidor envió: resultSet serializado");
 		 } catch( IOException e ) {
-			 System.out.println( e );
+			 logger.info( e );
 		 }
 	}
 	
@@ -116,7 +119,7 @@ public class CServer {
 			flujoEntrada.close();
 			socketServicio.close();
 			miServicio.close();
-			System.out.println("El servidor terminó su ejecución correctamente");
+			logger.info("El servidor terminó su ejecución correctamente");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

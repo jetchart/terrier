@@ -33,8 +33,8 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				Collection<String> col = new ArrayList<String>();
 				String corpusPathOnMaster = array[1];
 				String corpusPathOnSlave= configuration.getDestinationFolderPath()+"corpus.txt";
-				System.out.println("corpusPathOnMaster: " + corpusPathOnMaster);
-				System.out.println("corpusPathOnSlave: " + corpusPathOnSlave);
+				logger.info("corpusPathOnMaster: " + corpusPathOnMaster);
+				logger.info("corpusPathOnSlave: " + corpusPathOnSlave);
 				CUtil.copyFileSFTP(corpusPathOnMaster, corpusPathOnSlave, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
 				col.add(corpusPathOnSlave);
 				this.setColCorpus(col);

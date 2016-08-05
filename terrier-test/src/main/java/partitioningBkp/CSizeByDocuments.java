@@ -7,28 +7,31 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 
 import util.CUtil;
 
 public class CSizeByDocuments implements IPartitionByDocuments {
 
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, int cantidadCorpus, Index index) {
+	static final Logger logger = Logger.getLogger(CSizeByDocuments.class);
+	
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
 		Collection<String> colCorpusTotal = new ArrayList<String>();
 		FileWriter fichero = null;
         PrintWriter pw = null;
-    	int corpusId=0;
+    	Integer corpusId=0;
         try
         {
-        	System.out.println("Metodo de particion: " + CSizeByDocuments.class.getName());
+        	logger.info("Metodo de particion: " + CSizeByDocuments.class.getName());
         	/* Se obtienen todos los ficheros del folder "folderPath" */
         	java.util.Collection<String> filesPath = CUtil.getFilesFromFolder(new ArrayList<String>(),folderPath, Boolean.TRUE);
         	/* Se obtiene cantidad de ficheros */
         	int cantidadTotalArchivos = filesPath.size();
-        	System.out.println("Cantidad de corpus a crear: " + cantidadCorpus);
-        	System.out.println("Cantidad de documentos: " + cantidadTotalArchivos);
+        	logger.info("Cantidad de corpus a crear: " + cantidadCorpus);
+        	logger.info("Cantidad de documentos: " + cantidadTotalArchivos);
         	/* Se crea el primer corpus */
-        	String corpusPath = destinationFolderPath + "corpus"+ corpusId +".txt";
+        	String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, corpusId.toString(), CSizeByDocuments.class.getName(), cantidadCorpus.toString());
             fichero = new FileWriter(corpusPath);
             pw = new PrintWriter(fichero);      
             /* Creo los corpus */
@@ -76,12 +79,12 @@ public class CSizeByDocuments implements IPartitionByDocuments {
 	}
 
 	/* Devuelvo el ID del corpus de menor tamaño */
-	private int getIdSmallestDocument(String destinationFolderPath, int cantidadCorpus){
-        int i;
+	private int getIdSmallestDocument(String destinationFolderPath, Integer cantidadCorpus){
+        Integer i;
         long size = -1;
         int idSmallestDocument = 0;
     	for (i=0;i<cantidadCorpus;i++){
-    			String corpusPath = destinationFolderPath + "corpus"+ i +".txt";
+    			String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, i.toString(), CSizeByDocuments.class.getName(), cantidadCorpus.toString());
     			File file = new File (corpusPath);
     			if (file.length() < size || i == 0){
     				size = file.length();
