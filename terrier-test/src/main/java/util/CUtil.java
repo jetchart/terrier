@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.sql.Timestamp;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +28,8 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
+
+import configuration.CParameters;
 
 
 public class CUtil {
@@ -255,11 +258,11 @@ public class CUtil {
 	 * @return							{@link Collection} de {@link String} con todos los path's de los archivos creados
 	 * @throws IOException
 	 */
-	public static Collection<String> crearCorpusVacios(String path, String metodoParticionamiento, Integer cantidadNodos) throws IOException {
+	public static Collection<String> crearCorpusVacios(String path, String metodoParticionamiento, Integer cantidadNodos, CParameters parameters) throws IOException {
 		Collection<String> col = new ArrayList<String>();
 		Integer i;
 		for (i=0;i<cantidadNodos;i++){
-			String corpusPath = CUtil.generarPathArchivoCorpus(path, i.toString(), metodoParticionamiento, cantidadNodos.toString());
+			String corpusPath = CUtil.generarPathArchivoCorpus(parameters, path, i.toString());
 			FileWriter fichero = new FileWriter(corpusPath, Boolean.FALSE);
 			PrintWriter pw = new PrintWriter(fichero);
 			pw.close();
@@ -326,15 +329,22 @@ public class CUtil {
 	/**
 	 * Arma el path completo del corpus a crear en base a los parámetros recibidos, con el fin 
 	 * de diferenciar los corpus entre corridas y que no queden cacheados.
-	 * TODO --> ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ Agregar parámetros: indexaMaster, metodoComunicacion. !!!!!!!!!!!!!!!!!!!!
-	 * 
+	 * El formato se compone de los siguientes campos sepadados por un guión bajo (_):
+	 * 		- nodeId
+	 * 		- Metodo de particionamiento
+	 * 		- Cantidad de nodos
+	 * 		- Master indexa
+	 * 		- Metodo de comunicación
+	 * 		- Fecha
+	 * 		- Hora
 	 * @param path
 	 * @param id
 	 * @param metodoParticionamiento
 	 * @param cantidadNodos
 	 * @return
 	 */
-	public static String generarPathArchivoCorpus(String path, String id, String metodoParticionamiento, String cantidadNodos){
-		return path + "corpus" + id + "_" + metodoParticionamiento + "_" + cantidadNodos + "_" + ".txt";
+	public static String generarPathArchivoCorpus(CParameters parameters, String path, String nodeId){
+		
+		return path + "corpus" + nodeId + "_" + parameters.getMetodoParticionamiento().getClass().getName() + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
 	}
 }

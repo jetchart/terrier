@@ -3,11 +3,13 @@ package partitioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 
+import configuration.CParameters;
 import util.CUtil;
 
 public class CRoundRobinByDocuments implements IPartitionByDocuments {
@@ -15,8 +17,8 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
 	static final Logger logger = Logger.getLogger(CRoundRobinByDocuments.class);
 	static Long cantidadDocumentosAntesCierre = 1000L;
 	
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
-		Collection<String> colCorpusTotal = new ArrayList<String>();
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
+		List<String> colCorpusTotal = new ArrayList<String>();
         Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try
         {
@@ -33,7 +35,7 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
         	logger.info("Cantidad de documentos por corpus: " + cantidadArchivosPorCorpus);
         	
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByDocuments.class.getName(), cantidadCorpus));
+        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByDocuments.class.getName(), cantidadCorpus, parameters));
         	/* Inicializo el mapa con la ruta de los corpus vacios */
         	for (String pathCorpus : colCorpusTotal){
         		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
@@ -44,8 +46,8 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
         		Long resto = docno % cantidadCorpus;
-        		/* Indico corpus */
-        		String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, resto.toString(), CRoundRobinByDocuments.class.getName(), cantidadCorpus.toString());
+        		/* Abro el corpus correspondiente */
+        		String corpusPath = colCorpusTotal.get(Integer.valueOf(resto.toString()));
         		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);         			
         		/* Escribo contenido del archivo en el corpus con formato TREC */
                 contenido.append("<DOC>").append("\n");

@@ -1,21 +1,24 @@
 package configuration;
 
+import partitioning.IPartitionMethod;
+import Factory.CFactoryPartitionMethod;
+
 public class CParameters {
 
-	private String tipoNodo;
-	private String masterIndexa;
-	private String recrearCorpus;
-	private String metodoParticionamiento;
-	private String cantidadNodos;
+	private String nodeType;
+	private Boolean masterIndexa;
+	private Boolean recrearCorpus;
+	private IPartitionMethod metodoParticionamiento;
+	private Integer cantidadNodos;
 	private String metodoComunicacion;
 	private String query;
 	
-	public CParameters(String tipoNodo, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String cantidadNodos, String metodoComunicacion, String query){
-		this.tipoNodo = tipoNodo;
-		this.masterIndexa = masterIndexa;
-		this.recrearCorpus = recrearCorpus;
-		this.metodoParticionamiento = metodoParticionamiento;
-		this.cantidadNodos = cantidadNodos;
+	public CParameters(String nodeType, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String cantidadNodos, String metodoComunicacion, String query){
+		this.nodeType = nodeType;
+		this.masterIndexa = masterIndexa.toUpperCase().equals("S");
+		this.recrearCorpus = recrearCorpus.toUpperCase().equals("S");
+		this.metodoParticionamiento = CFactoryPartitionMethod.getInstance(Integer.valueOf(metodoParticionamiento));
+		this.cantidadNodos = Integer.valueOf(cantidadNodos);
 		this.metodoComunicacion = metodoComunicacion;
 		this.query = query;
 	}
@@ -29,42 +32,42 @@ public class CParameters {
 	}
 
 	public String getTipoNodo() {
-		return tipoNodo;
+		return nodeType;
 	}
 
 	public void setTipoNodo(String tipoNodo) {
-		this.tipoNodo = tipoNodo;
+		this.nodeType = tipoNodo;
 	}
 
-	public String getMasterIndexa() {
+	public Boolean getMasterIndexa() {
 		return masterIndexa;
 	}
 
-	public void setMasterIndexa(String masterIndexa) {
+	public void setMasterIndexa(Boolean masterIndexa) {
 		this.masterIndexa = masterIndexa;
 	}
 
-	public String getRecrearCorpus() {
+	public Boolean getRecrearCorpus() {
 		return recrearCorpus;
 	}
 
-	public void setRecrearCorpus(String recrearCorpus) {
+	public void setRecrearCorpus(Boolean recrearCorpus) {
 		this.recrearCorpus = recrearCorpus;
 	}
 
-	public String getMetodoParticionamiento() {
+	public IPartitionMethod getMetodoParticionamiento() {
 		return metodoParticionamiento;
 	}
 
-	public void setMetodoParticionamiento(String metodoParticionamiento) {
+	public void setMetodoParticionamiento(IPartitionMethod metodoParticionamiento) {
 		this.metodoParticionamiento = metodoParticionamiento;
 	}
 
-	public String getCantidadNodos() {
+	public Integer getCantidadNodos() {
 		return cantidadNodos;
 	}
 
-	public void setCantidadNodos(String cantidadNodos) {
+	public void setCantidadNodos(Integer cantidadNodos) {
 		this.cantidadNodos = cantidadNodos;
 	}
 

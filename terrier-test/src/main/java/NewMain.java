@@ -23,13 +23,13 @@ public class NewMain {
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
 			if (args.length == 7){
-				CParameters parameters = new CParameters(args[0],args[1],args[2],args[3],args[4],args[5], args[6]);
+				CParameters parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6]);
 				createMaster(parameters);
 			}else{
 				mostrarMensajeParametros();
 			}
 		}else if (opcion!=null && INode.ID_SLAVE.equals(opcion.toUpperCase())){
-			if (args.length != 1){
+			if (args.length == 1){
 				/* TODO creo que habría que sacar esto */
 				/* Si se especificó un puerto lo utilizo, sino lo extraigo de configuration.properties */
 				Integer port = null;
@@ -52,10 +52,10 @@ public class NewMain {
 		logger.info("---------------------------------------");
 		logger.info("---------- INICIO PARAMETROS ----------");
 		logger.info("---------------------------------------");
-		logger.info("Tipo nodo: " + parameters.getTipoNodo().toUpperCase());
-		logger.info("Master indexa: " + parameters.getMasterIndexa());
-		logger.info("Recrear corpus: " + parameters.getRecrearCorpus());
-		logger.info("Metodo particionamiento: " + CFactoryPartitionMethod.getInstance(Integer.valueOf(parameters.getMetodoParticionamiento())).getClass().getName());
+		logger.info("Tipo nodo: " + parameters.getTipoNodo());
+		logger.info("Master indexa: " + parameters.getMasterIndexa().toString());
+		logger.info("Recrear corpus: " + parameters.getRecrearCorpus().toString());
+		logger.info("Metodo particionamiento: " + parameters.getMetodoParticionamiento().getClass().getName());
 		logger.info("Cantidad nodos: " + parameters.getCantidadNodos());
 		logger.info("Metodo de comunicación: " + parameters.getMetodoComunicacion());
 		logger.info("Query: " + parameters.getQuery());
@@ -65,18 +65,12 @@ public class NewMain {
 		logger.info("");
 		/* Creo Nodo Master */
 		IMasterNode nodo = new CMasterNode(parameters);
-		nodo.setIndexa("S".equals(parameters.getMasterIndexa())?Boolean.TRUE:Boolean.FALSE);
-		if (parameters.getRecrearCorpus().equals("S")){
-			Integer metodoId = Integer.parseInt(parameters.getMetodoParticionamiento());
-			/* Instancio el metodo de particionamiento */
-			nodo.setPartitionMethod(CFactoryPartitionMethod.getInstance(metodoId));
-			/* Cantidad de corpus a crear */
-			nodo.setCantidadCorpus(Integer.valueOf(parameters.getCantidadNodos()));
-			nodo.createSlaveNodes(nodo.getCantidadCorpus());
+		if (parameters.getRecrearCorpus()){
+			nodo.createSlaveNodes(nodo.getParameters().getCantidadNodos());
 		}
 		/* Se parsea la query */
 		parameters.setQuery(CUtil.parseString(parameters.getQuery()));
-		if (parameters.getRecrearCorpus().equals("S") || parameters.getRecrearCorpus().equals("s")){
+		if (parameters.getRecrearCorpus()){
 			/* Creo Corpus */
 			nodo.createCorpus();
 		   	/* Agrego todos los corpus al archivo /etc/collection.spec/ para que se tengan en cuenta en la Indexacion */
@@ -85,11 +79,11 @@ public class NewMain {
 
 		}
 		/* Creo Index */
-		nodo.sendOrderToIndex(parameters.getRecrearCorpus(), nodo.getPartitionMethod().getClass().getName());
+		nodo.sendOrderToIndex(parameters.getRecrearCorpus(), nodo.getParameters().getMetodoParticionamiento().getClass().getName());
 		/* Recupero */
 		nodo.sendOrderToRetrieval(parameters.getQuery());
 		/* Mostrar resultados del master */
-		if (nodo.getIndexa()){
+		if (nodo.getParameters().getMasterIndexa()){
 			logger.info("");
 			logger.info("Resultados del Master:");
 			CUtil.mostrarResultados(nodo.getResultSet(), nodo.getIndex(), parameters.getQuery());

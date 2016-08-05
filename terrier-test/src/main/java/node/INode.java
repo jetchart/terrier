@@ -18,7 +18,7 @@ public interface INode extends Remote {
 	
 	Index getIndex();
 	
-	void createIndex(String recrearCorpus, String methodPartitionName);
+	void createIndex(Boolean recrearCorpus, String methodPartitionName);
 	
 	Collection<String> getColCorpusNode();
 	

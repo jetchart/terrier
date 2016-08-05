@@ -66,11 +66,11 @@ public class CNodeConfiguration implements INodeConfiguration {
 			validarRutasExistentes();
 			
 		} catch (FileNotFoundException e) {
-			logger.info("Error, no existe el archivo: " + configurationFilePath);
+			logger.error("Error, no existe el archivo: " + configurationFilePath);
 		} catch (IOException e) {
-			logger.info("Error, no se puede leer el archivo" + configurationFilePath);
+			logger.error("Error, no se puede leer el archivo" + configurationFilePath);
 		} catch (Exception e) {
-			logger.info("Han ocurrido los siguientes errores al leer el archivo de configuracion:\n" + e.getMessage());
+			logger.error("Han ocurrido los siguientes errores al leer el archivo de configuracion:\n" + e.getMessage());
 		}
 	}
 

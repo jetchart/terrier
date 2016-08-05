@@ -32,7 +32,9 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				/* Agrego el path de la porcion de corpus que se le asignó */
 				Collection<String> col = new ArrayList<String>();
 				String corpusPathOnMaster = array[1];
-				String corpusPathOnSlave= configuration.getDestinationFolderPath()+"corpus.txt";
+				/* TODO --> Pensar como hacer para que funcione en WINDOWS (por el tema de la barra invertida) */
+				String nombreCorpusOnMaster = corpusPathOnMaster.split("/")[corpusPathOnMaster.split("/").length-1];
+				String corpusPathOnSlave= configuration.getDestinationFolderPath()+nombreCorpusOnMaster;
 				logger.info("corpusPathOnMaster: " + corpusPathOnMaster);
 				logger.info("corpusPathOnSlave: " + corpusPathOnSlave);
 				CUtil.copyFileSFTP(corpusPathOnMaster, corpusPathOnSlave, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
@@ -40,7 +42,7 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				this.setColCorpus(col);
 				break;
 			case "createIndex":
-				this.createIndex("S", "slaveNode_"+this.configuration.getIdNode());
+				this.createIndex(Boolean.TRUE, "slaveNode_"+this.configuration.getIdNode());
 		        break;
 			case "retrieval":
 				try {

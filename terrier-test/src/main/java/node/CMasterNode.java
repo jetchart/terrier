@@ -9,7 +9,6 @@ import org.terrier.matching.ResultSet;
 
 import partitioning.CRoundRobinByDocuments;
 import partitioning.IPartitionByTerms;
-import partitioning.IPartitionMethod;
 import configuration.CParameters;
 import configuration.INodeConfiguration;
 import connections.CClient;
@@ -23,12 +22,6 @@ public class CMasterNode extends CNode implements IMasterNode {
 	private Collection<String> colCorpusTotal;
 	/* Nodos que posee, incluyéndose a él mismo */
 	private Collection<CClient> nodes;
-	/* Metodo de particionamiento del corpus */
-	private IPartitionMethod partitionMethod;
-	/* Cantidad de corpus (para repartir entre nodos) */
-	private Integer cantidadCorpus;
-	/* Indica si el Master indexa o no */
-	private Boolean indexa;
 	/* Parametros recibidos */
 	CParameters parameters;
 	
@@ -45,30 +38,6 @@ public class CMasterNode extends CNode implements IMasterNode {
 		return this.configuration;
 	}
 
-	public IPartitionMethod getPartitionMethod() {
-		return partitionMethod;
-	}
-
-	public void setPartitionMethod(IPartitionMethod partitionMethod) {
-		this.partitionMethod = partitionMethod;
-	}
-
-	public int getCantidadCorpus() {
-		return cantidadCorpus;
-	}
-
-	public void setCantidadCorpus(Integer cantidadCorpus) {
-		this.cantidadCorpus = cantidadCorpus;
-	}
-	
-	public Boolean getIndexa() {
-		return indexa;
-	}
-
-	public void setIndexa(Boolean indexa) {
-		this.indexa = indexa;
-	}
-	
 	public Collection<CClient> getNodes() {
 		return this.nodes;
 	}
@@ -84,7 +53,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 	public void createSlaveNodes(Integer cantidad){
 		nodes = new ArrayList<CClient>();
 		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */
-		if (indexa){
+		if (this.getParameters().getMasterIndexa()){
 			cantidad--;
 		}
 		int i = 0;
@@ -106,17 +75,17 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Long inicioCreacionCorpus = System.currentTimeMillis();
 		/* Si el metodo de particion es por terminos, necesitamos primero
 		 * tener el indice, para obtener los terminos y dividirlos */
-		if (partitionMethod instanceof IPartitionByTerms){
+		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms){
 			/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
 			/* TODO se puede mejorar esto */
-			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, null);
+			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), null, parameters);
 			this.setColCorpus(colCorpusTotal);
-			this.createIndex("S", CRoundRobinByDocuments.class.getName());
+			this.createIndex(Boolean.TRUE, CRoundRobinByDocuments.class.getName());
 			colCorpusTotal.clear();
 		}else{
 			this.index = null;
 		}
-		colCorpusTotal = partitionMethod.createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), cantidadCorpus, this.index);
+		colCorpusTotal = this.getParameters().getMetodoParticionamiento().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), this.index, parameters);
 		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
 		logger.info("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
 	}
@@ -129,7 +98,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Long inicioSetCorpusToNodes = System.currentTimeMillis();
 		/* Agrego corpus al master node solo si indexa */
 		Iterator<String> iterator = this.getColCorpusTotal().iterator();
-		if (indexa){
+		if (this.getParameters().getMasterIndexa()){
 			String corpusMasterNode = (String) iterator.next();
 			Collection<String> colCorpusMasterNode = new ArrayList<String>();
 			colCorpusMasterNode.add(corpusMasterNode);
@@ -150,7 +119,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
 	}
 	
-	public void sendOrderToIndex(String recrearCorpus, String methodPartitionName) {
+	public void sendOrderToIndex(Boolean recrearCorpus, String methodPartitionName) {
 		logger.info("------------------------------------");
 		logger.info("COMIENZA INDEXACION");
 		logger.info("------------------------------------");
@@ -164,7 +133,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 			hilos.add(hilo);
 		}
 		/* Indexo yo mismo si así se indica */
-		if (indexa){
+		if (this.getParameters().getMasterIndexa()){
 			createIndex(recrearCorpus, "masterNode");
 		}
 		/* Espero a que todos los nodos terminen */
@@ -188,7 +157,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 			hilos.add(hilo);
 		}
 		/* Recupero yo mismo si tuve que indexar */
-		if (indexa){
+		if (this.getParameters().getMasterIndexa()){
 			retrieval(query);
 		}
 		/* Espero a que todos los nodos terminen */

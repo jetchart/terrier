@@ -94,10 +94,10 @@ public abstract class CNode implements INode {
 		return this.resultSet;
 	}
 
-	public void createIndex(String recrearCorpus, String sufijoNombreIndice) {
+	public void createIndex(Boolean recrearCorpus, String sufijoNombreIndice) {
 		logger.info("");
 		logger.info("Inicia Indexación");
-		if (recrearCorpus.equals("S")){
+		if (recrearCorpus){
 			/* Elimino el indice anterior */
 			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);
 		}

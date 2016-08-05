@@ -4,12 +4,14 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 
+import configuration.CParameters;
 import util.CUtil;
 
 public class CSizeTokensByDocuments implements IPartitionByDocuments {
@@ -17,8 +19,8 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
 	static final Logger logger = Logger.getLogger(CSizeTokensByDocuments.class);
 	static Long cantidadDocumentosAntesCierre = 1000L;
 	
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index) {
-		Collection<String> colCorpusTotal = new ArrayList<String>();
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
+		List<String> colCorpusTotal = new ArrayList<String>();
     	Map<Integer,Integer> tokensByCorpus;
     	Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try
@@ -33,7 +35,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
         	/* Inicializar mapa tokens */
         	tokensByCorpus = this.inicializarMapa(cantidadCorpus);
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CSizeTokensByDocuments.class.getName(), cantidadCorpus));
+        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CSizeTokensByDocuments.class.getName(), cantidadCorpus, parameters));
         	/* Inicializo el mapa con la ruta de los corpus vacios */
         	for (String pathCorpus : colCorpusTotal){
         		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
@@ -44,8 +46,8 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
         	for (String filePath : filesPath){
         		/* Se obtiene el id del corpus con menos tokens unicos */
         		Integer corpusId = getIdCorpusSmallestTokens(tokensByCorpus);
-       			/* Creo nuevo corpus */
-        		String corpusPath = CUtil.generarPathArchivoCorpus(destinationFolderPath, corpusId.toString(), CSizeTokensByDocuments.class.getName(), cantidadCorpus.toString());
+       			/* Abro el corpus correspondiente */
+        		String corpusPath = colCorpusTotal.get(corpusId);
         		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);   
         		/* Escribo contenido del archivo en el corpus con formato TREC */
                 contenido.append("<DOC>").append("\n");
