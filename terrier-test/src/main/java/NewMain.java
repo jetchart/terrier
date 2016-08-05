@@ -7,7 +7,6 @@ import node.INode;
 import node.ISlaveNode;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
@@ -19,6 +18,7 @@ public class NewMain {
 	static final Logger logger = Logger.getLogger(NewMain.class);
 	
 	public static void main(String[] args) throws IOException {
+		
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
 			if (args.length == 7){
@@ -43,6 +43,13 @@ public class NewMain {
 	private static void createMaster(String masterIndexa, String recrearCorpus, String metodoParticionamiento, String cantidadNodos, String metodoComunicacion, String query){
 		try {
 		/* Muestro los parametros recibidos */
+		logger.info("******************************************************************************************************************************************************");
+		logger.info("*********************************************************************** INICIO ***********************************************************************");
+		logger.info("******************************************************************************************************************************************************");
+		logger.info("");
+		logger.info("---------------------------------------");
+		logger.info("---------- INICIO PARAMETROS ----------");
+		logger.info("---------------------------------------");
 		logger.info("Tipo nodo: " + INode.ID_MASTER);
 		logger.info("Master indexa: " + masterIndexa);
 		logger.info("Recrear corpus: " + recrearCorpus);
@@ -50,6 +57,10 @@ public class NewMain {
 		logger.info("Cantidad nodos: " + cantidadNodos);
 		logger.info("Metodo de comunicación: " + metodoComunicacion);
 		logger.info("Query: " + query);
+		logger.info("---------------------------------------");
+		logger.info("----------   FIN PARAMETROS  ----------");
+		logger.info("---------------------------------------");
+		logger.info("");
 		/* Creo Nodo Master */
 		IMasterNode nodo = new CMasterNode(INode.ID_MASTER);
 		nodo.setIndexa("S".equals(masterIndexa)?Boolean.TRUE:Boolean.FALSE);
@@ -77,15 +88,22 @@ public class NewMain {
 		nodo.sendOrderToRetrieval(query);
 		/* Mostrar resultados del master */
 		if (nodo.getIndexa()){
-			logger.info("\nResultados del Master:");
+			logger.info("");
+			logger.info("Resultados del Master:");
 			CUtil.mostrarResultados(nodo.getResultSet(), nodo.getIndex(), query);
 		}
 		/* Mostrar resultados de los esclavos */
 		for (CClient client : nodo.getNodes()){
-			logger.info("\nResultados del Esclavo:" + client.getHost() + ":" + client.getPort());
+			logger.info("");
+			logger.info("Resultados del Esclavo:" + client.getHost() + ":" + client.getPort());
 			CUtil.mostrarResultados(client.getResultSetNodo(), null, query);
 		}
 		
+		logger.info("");
+		logger.info("******************************************************************************************************************************************************");
+		logger.info("************************************************************************* FIN ************************************************************************");
+		logger.info("******************************************************************************************************************************************************");
+		logger.info("");
 		
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -104,22 +122,22 @@ public class NewMain {
 	}
 	
 	private static void mostrarMensajeParametros(){
-		logger.info("¡Parámetro incorrectos!");
-		logger.info("Parámetros necesarios:");
-		logger.info("1) Tipo de nodo --> master / slave");
-		logger.info("2) Master indexa --> 1 / 0");
-		logger.info("3) Recrear corpus --> 1 / 0");
-		logger.info("4) Metodo particionamiento --> 1,2,3,4");
-		logger.info("\t1- Particionamiento por Documentos: RoundRobin");
-		logger.info("\t2- Particionamiento por Documentos: Por tamaño (archivos)");
-		logger.info("\t3- Particionamiento por Documentos: Por tamaño (cantidad de tokens unicos)");
-		logger.info("\t4- Particionamiento por Terminos: RoundRobin");
-		logger.info("\t5- Particionamiento por Terminos: Por tamaño");
-		logger.info("5) Cantidad nodos --> 1 <= N");
-		logger.info("6) Metodo de comunicación: 1 / 2");
-		logger.info("\t1- Vía SSH");
-		logger.info("\t2- Documentos compartidos");
-		logger.info("7) Query --> \"texto entre comillas\"");
+		logger.error("¡Parámetros incorrectos!");
+		logger.error("Parámetros necesarios:");
+		logger.error("1) Tipo de nodo --> master / slave");
+		logger.error("2) Master indexa --> S / N");
+		logger.error("3) Recrear corpus --> S / N");
+		logger.error("4) Metodo particionamiento --> 1,2,3,4");
+		logger.error("\t1- Particionamiento por Documentos: RoundRobin");
+		logger.error("\t2- Particionamiento por Documentos: Por tamaño (archivos)");
+		logger.error("\t3- Particionamiento por Documentos: Por tamaño (cantidad de tokens unicos)");
+		logger.error("\t4- Particionamiento por Terminos: RoundRobin");
+		logger.error("\t5- Particionamiento por Terminos: Por tamaño");
+		logger.error("5) Cantidad nodos --> 1 <= N");
+		logger.error("6) Metodo de comunicación: 1 / 2");
+		logger.error("\t1- Vía SSH");
+		logger.error("\t2- Documentos compartidos");
+		logger.error("7) Query --> \"texto entre comillas\"");
 	}
    
 }

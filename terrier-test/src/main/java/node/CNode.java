@@ -66,7 +66,8 @@ public abstract class CNode implements INode {
 //		logger.info("------------------------------------");
 //		logger.info("COMIENZA RECUPERACION");
 //		logger.info("------------------------------------");
-		logger.info("\nInicia Recuperación");
+		logger.info("");
+		logger.info("Inicia Recuperación");
 		Long inicioRecuperacion = System.currentTimeMillis();
 		/* Instancio Manager con el indice creado */
 		Manager m = new Manager(this.index);
@@ -94,7 +95,8 @@ public abstract class CNode implements INode {
 	}
 
 	public void createIndex(String recrearCorpus, String sufijoNombreIndice) {
-		logger.info("\nInicia Indexación");
+		logger.info("");
+		logger.info("Inicia Indexación");
 		if (recrearCorpus.equals("S")){
 			/* Elimino el indice anterior */
 			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);
