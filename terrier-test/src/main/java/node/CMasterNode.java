@@ -10,6 +10,7 @@ import org.terrier.matching.ResultSet;
 import partitioning.CRoundRobinByDocuments;
 import partitioning.IPartitionByTerms;
 import partitioning.IPartitionMethod;
+import configuration.CParameters;
 import configuration.INodeConfiguration;
 import connections.CClient;
 
@@ -28,9 +29,12 @@ public class CMasterNode extends CNode implements IMasterNode {
 	private Integer cantidadCorpus;
 	/* Indica si el Master indexa o no */
 	private Boolean indexa;
+	/* Parametros recibidos */
+	CParameters parameters;
 	
-	public CMasterNode(String nodeType) {
-		super(nodeType);
+	public CMasterNode(CParameters parameters) {
+		super(parameters.getTipoNodo());
+		this.parameters = parameters;
 	}
 	
 	public Collection<String> getColCorpusTotal() {
@@ -210,6 +214,16 @@ public class CMasterNode extends CNode implements IMasterNode {
 					continuar = true;
 			}
 		}
+	}
+
+	@Override
+	public CParameters getParameters() {
+		return parameters;
+	}
+
+	@Override
+	public void setParameters(CParameters parameters) {
+		this.parameters = parameters;
 	}
 
 }

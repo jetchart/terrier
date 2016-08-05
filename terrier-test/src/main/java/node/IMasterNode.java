@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.terrier.matching.ResultSet;
 
 import partitioning.IPartitionMethod;
+import configuration.CParameters;
 import connections.CClient;
 
 
@@ -35,5 +36,9 @@ public interface IMasterNode extends INode, IClient {
 	void setIndexa(Boolean indexa);
 	
 	Boolean getIndexa();
+	
+	CParameters getParameters();
+	
+	void setParameters(CParameters parameters);
 
 }

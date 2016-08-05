@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import util.CUtil;
 import Factory.CFactoryPartitionMethod;
+import configuration.CParameters;
 import connections.CClient;
 import connections.CServer;
 
@@ -22,7 +23,8 @@ public class NewMain {
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
 			if (args.length == 7){
-				createMaster(args[1],args[2],args[3],args[4],args[5], args[6]);
+				CParameters parameters = new CParameters(args[0],args[1],args[2],args[3],args[4],args[5], args[6]);
+				createMaster(parameters);
 			}else{
 				mostrarMensajeParametros();
 			}
@@ -40,7 +42,7 @@ public class NewMain {
 		}
 	}
 	
-	private static void createMaster(String masterIndexa, String recrearCorpus, String metodoParticionamiento, String cantidadNodos, String metodoComunicacion, String query){
+	private static void createMaster(CParameters parameters){
 		try {
 		/* Muestro los parametros recibidos */
 		logger.info("******************************************************************************************************************************************************");
@@ -50,31 +52,31 @@ public class NewMain {
 		logger.info("---------------------------------------");
 		logger.info("---------- INICIO PARAMETROS ----------");
 		logger.info("---------------------------------------");
-		logger.info("Tipo nodo: " + INode.ID_MASTER);
-		logger.info("Master indexa: " + masterIndexa);
-		logger.info("Recrear corpus: " + recrearCorpus);
-		logger.info("Metodo particionamiento: " + CFactoryPartitionMethod.getInstance(Integer.valueOf(metodoParticionamiento)).getClass().getName());
-		logger.info("Cantidad nodos: " + cantidadNodos);
-		logger.info("Metodo de comunicación: " + metodoComunicacion);
-		logger.info("Query: " + query);
+		logger.info("Tipo nodo: " + parameters.getTipoNodo().toUpperCase());
+		logger.info("Master indexa: " + parameters.getMasterIndexa());
+		logger.info("Recrear corpus: " + parameters.getRecrearCorpus());
+		logger.info("Metodo particionamiento: " + CFactoryPartitionMethod.getInstance(Integer.valueOf(parameters.getMetodoParticionamiento())).getClass().getName());
+		logger.info("Cantidad nodos: " + parameters.getCantidadNodos());
+		logger.info("Metodo de comunicación: " + parameters.getMetodoComunicacion());
+		logger.info("Query: " + parameters.getQuery());
 		logger.info("---------------------------------------");
 		logger.info("----------   FIN PARAMETROS  ----------");
 		logger.info("---------------------------------------");
 		logger.info("");
 		/* Creo Nodo Master */
-		IMasterNode nodo = new CMasterNode(INode.ID_MASTER);
-		nodo.setIndexa("S".equals(masterIndexa)?Boolean.TRUE:Boolean.FALSE);
-		if (recrearCorpus.equals("S")){
-			Integer metodoId = Integer.parseInt(metodoParticionamiento);
+		IMasterNode nodo = new CMasterNode(parameters);
+		nodo.setIndexa("S".equals(parameters.getMasterIndexa())?Boolean.TRUE:Boolean.FALSE);
+		if (parameters.getRecrearCorpus().equals("S")){
+			Integer metodoId = Integer.parseInt(parameters.getMetodoParticionamiento());
 			/* Instancio el metodo de particionamiento */
 			nodo.setPartitionMethod(CFactoryPartitionMethod.getInstance(metodoId));
 			/* Cantidad de corpus a crear */
-			nodo.setCantidadCorpus(Integer.valueOf(cantidadNodos));
+			nodo.setCantidadCorpus(Integer.valueOf(parameters.getCantidadNodos()));
 			nodo.createSlaveNodes(nodo.getCantidadCorpus());
 		}
 		/* Se parsea la query */
-		query = CUtil.parseString(query);
-		if (recrearCorpus.equals("S") || recrearCorpus.equals("s")){
+		parameters.setQuery(CUtil.parseString(parameters.getQuery()));
+		if (parameters.getRecrearCorpus().equals("S") || parameters.getRecrearCorpus().equals("s")){
 			/* Creo Corpus */
 			nodo.createCorpus();
 		   	/* Agrego todos los corpus al archivo /etc/collection.spec/ para que se tengan en cuenta en la Indexacion */
@@ -83,20 +85,20 @@ public class NewMain {
 
 		}
 		/* Creo Index */
-		nodo.sendOrderToIndex(recrearCorpus, nodo.getPartitionMethod().getClass().getName());
+		nodo.sendOrderToIndex(parameters.getRecrearCorpus(), nodo.getPartitionMethod().getClass().getName());
 		/* Recupero */
-		nodo.sendOrderToRetrieval(query);
+		nodo.sendOrderToRetrieval(parameters.getQuery());
 		/* Mostrar resultados del master */
 		if (nodo.getIndexa()){
 			logger.info("");
 			logger.info("Resultados del Master:");
-			CUtil.mostrarResultados(nodo.getResultSet(), nodo.getIndex(), query);
+			CUtil.mostrarResultados(nodo.getResultSet(), nodo.getIndex(), parameters.getQuery());
 		}
 		/* Mostrar resultados de los esclavos */
 		for (CClient client : nodo.getNodes()){
 			logger.info("");
 			logger.info("Resultados del Esclavo:" + client.getHost() + ":" + client.getPort());
-			CUtil.mostrarResultados(client.getResultSetNodo(), null, query);
+			CUtil.mostrarResultados(client.getResultSetNodo(), null, parameters.getQuery());
 		}
 		
 		logger.info("");
