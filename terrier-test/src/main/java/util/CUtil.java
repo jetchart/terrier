@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Timestamp;
@@ -24,6 +27,7 @@ import org.terrier.matching.ResultSet;
 import org.terrier.structures.Index;
 import org.terrier.structures.MetaIndex;
 
+import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -249,6 +253,46 @@ public class CUtil {
 		logger.info("------------------------------------");
 		logger.info("FIN COPIA DE CORPUS DESDE MASTER A SLAVE");
 		logger.info("------------------------------------");
+    }
+    
+    public static String executeCommandSSH(String host, Integer port, String user, String pass, String command){
+		logger.info("------------------------------------");
+		logger.info("INICIO LEVANTAR ESCLAVO");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+        try {
+        	logger.info("Intentando levantar esclavo vía SSH");
+        	logger.info("Host: " + host);
+        	logger.info("Port: " + port);
+        	logger.info("User: " + user);
+        	logger.info("Pass: " + pass);
+        	logger.info("Command: " + command);
+	        JSch jsch = new JSch();
+	        Session session = jsch.getSession(user, host, port);
+	        UserInfo ui = new SUserInfo(pass, null);
+	 
+	        session.setUserInfo(ui);
+	        session.setPassword(pass);
+	        
+			session.connect();
+			Channel channel = session.openChannel("shell");
+			InputStream input = channel.getInputStream();
+			OutputStream ops = channel.getOutputStream();
+			PrintStream ps = new PrintStream(ops, true);
+			channel.connect();
+			ps.println(command);
+			channel.disconnect();
+	        session.disconnect();
+	        logger.info("Esclavo levantado");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Levantar esclavo " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN LEVANTAR ESCLAVO");
+		logger.info("------------------------------------");
+		 return null;
     }
     
     /**

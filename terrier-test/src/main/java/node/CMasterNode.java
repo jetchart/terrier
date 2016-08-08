@@ -1,6 +1,5 @@
 package node;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,7 +64,12 @@ public class CMasterNode extends CNode implements IMasterNode {
 				break;
 			String host = nodo.split(":")[0];
 			Integer port = Integer.valueOf(nodo.split(":")[1]);
-			CClient cliente = new CClient(host, port);
+			String user = nodo.split(":")[2];
+			String pass = nodo.split(":")[3];
+			String jarPath = nodo.split(":")[4];
+			String jarName = nodo.split(":")[5];
+			CUtil.executeCommandSSH(host, 22, user, pass, "cd " + jarPath + "; java -jar " + jarName + " slave");
+			CClient cliente = new CClient(host, port, user, pass, jarPath);
 			nodes.add(cliente);
 		}
 	}

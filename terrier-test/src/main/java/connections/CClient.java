@@ -20,15 +20,21 @@ public class CClient{
 	
 	private String host;
 	private Integer port;
+	private String user;
+	private String pass;
+	private String jarPath;
 	private String tarea;
 	private String nodoColCorpus;
 	private String query;
 	private ResultSet resultSetNodo;
 	
-	public CClient(String host, Integer port){
+	public CClient(String host, Integer port, String user, String pass, String jarPath){
 		 try {
 			 this.host = host;
 			 this.port = port;
+			 this.user = user;
+			 this.pass = pass;
+			 this.jarPath = jarPath;
 			 miCliente = new Socket( host,port );
 			 flujoSalida= new DataOutputStream(miCliente.getOutputStream());
 			 flujoEntrada= new DataInputStream(miCliente.getInputStream());
@@ -136,5 +142,29 @@ public class CClient{
 
 	public void setResultSetNodo(ResultSet resultSetNodo) {
 		this.resultSetNodo = resultSetNodo;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPass() {
+		return pass;
+	}
+
+	public void setPass(String pass) {
+		this.pass = pass;
+	}
+
+	public String getJarPath() {
+		return jarPath;
+	}
+
+	public void setJarPath(String jarPath) {
+		this.jarPath = jarPath;
 	}
 }
