@@ -195,4 +195,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 		this.parameters = parameters;
 	}
 
+	@Override
+	public void setColCorpusTotal(Collection<String> colCorpusTotal) {
+		this.colCorpusTotal = colCorpusTotal;
+	}
+
 }

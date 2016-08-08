@@ -65,21 +65,21 @@ public class NewMain {
 		logger.info("");
 		/* Creo Nodo Master */
 		IMasterNode nodo = new CMasterNode(parameters);
-		if (parameters.getRecrearCorpus()){
-			nodo.createSlaveNodes(nodo.getParameters().getCantidadNodos());
-		}else{
-			nodo.setColCorpus(CUtil.recuperarCollectionSpec());
-		}
-		/* Se parsea la query */
-		parameters.setQuery(CUtil.parseString(parameters.getQuery()));
+		nodo.createSlaveNodes(nodo.getParameters().getCantidadNodos());
+		/* Creo Corpus */
+	   	/* Agrego todos los corpus al archivo /etc/collection.spec/ para que se tengan en cuenta en la Indexacion */
+		/* Cuando se tengan Slave nodes se dividirán los Corpus */
 		if (parameters.getRecrearCorpus()){
 			/* Creo Corpus */
 			nodo.createCorpus();
-		   	/* Agrego todos los corpus al archivo /etc/collection.spec/ para que se tengan en cuenta en la Indexacion */
-			/* Cuando se tengan Slave nodes se dividirán los Corpus */
-			nodo.sendCorpusToNodes();
-
+		}else{
+			/* Si se eligió no recrear los corpus, se levantan los de la corrida anterior (los que se encuentra en el archivo /etc/collection.spec/) */
+			nodo.setColCorpusTotal(CUtil.recuperarCollectionSpec());
 		}
+		/* Se parsea la query */
+		parameters.setQuery(CUtil.parseString(parameters.getQuery()));
+		/* Envío los corpus a los nodos */
+		nodo.sendCorpusToNodes();
 		/* Creo Index */
 		nodo.sendOrderToIndex(parameters.getRecrearCorpus(), nodo.getParameters().getMetodoParticionamiento().getClass().getName());
 		/* Recupero */

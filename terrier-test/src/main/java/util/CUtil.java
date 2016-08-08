@@ -359,6 +359,10 @@ public class CUtil {
 	    Collection<String> col = new ArrayList<String>();
 	    String collectionSpecPath = System.getProperty("terrier.etc") + "collection.spec";
 		try {
+			logger.info("------------------------------------");
+			logger.info("INICIO LEVANTAR CORPUS YA CREADOS");
+			logger.info("------------------------------------");
+			logger.info("Se levantan los siguientes corpus ya que se eligió no recrearlos:");
 			/* Abro el collection.spec */
 			f = new FileReader(collectionSpecPath);
 		    b = new BufferedReader(f);
@@ -366,8 +370,12 @@ public class CUtil {
 		    while((cadena = b.readLine())!=null) {
 		    	/* Agrego la ruta del corpus a la coleccion */
 		    	col.add(cadena);
+		    	logger.info("\t- "+cadena);
 		    }
 		    b.close();
+			logger.info("------------------------------------");
+			logger.info("FIN LEVANTAR CORPUS YA CREADOS");
+			logger.info("------------------------------------");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

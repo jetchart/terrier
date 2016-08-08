@@ -16,6 +16,8 @@ public interface IMasterNode extends INode, IClient {
 	
 	Collection<String> getColCorpusTotal();
 	
+	void setColCorpusTotal(Collection<String> colCorpusTotal);
+	
 	void sendCorpusToNodes();
 	
 	void sendOrderToIndex(Boolean recrearCorpus, String methodPartitionName);
