@@ -12,9 +12,12 @@ public class Hilo extends Thread{
 	}
 	@Override
 	public void run() {
-		if ("Inicializar".equals(cliente.getTarea())){
+		/* El parámetro Inicializar viene acompañado del metodoComunicacion, separado por _
+		 * Por lo tanto se hace un split("_")*/
+		if ("Inicializar".equals(cliente.getTarea().split("_")[0])){
 			cliente.enviar("setId" + CUtil.separator + cliente.getPort());
-			cliente.enviar("setColCorpus" + CUtil.separator + cliente.getNodoColCorpus());
+			String metodoComunicacion = cliente.getTarea().split("_")[1];
+			cliente.enviar("setColCorpus_" + metodoComunicacion + CUtil.separator + cliente.getNodoColCorpus());
 			cliente.recibir();
 		}else if ("Indexar".equals(cliente.getTarea())){
 			cliente.enviar("createIndex");

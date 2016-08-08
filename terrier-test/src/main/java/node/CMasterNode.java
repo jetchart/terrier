@@ -1,5 +1,6 @@
 package node;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -9,6 +10,7 @@ import org.terrier.matching.ResultSet;
 
 import partitioning.CRoundRobinByDocuments;
 import partitioning.IPartitionByTerms;
+import util.CUtil;
 import configuration.CParameters;
 import configuration.INodeConfiguration;
 import connections.CClient;
@@ -86,8 +88,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 			this.index = null;
 		}
 		colCorpusTotal = this.getParameters().getMetodoParticionamiento().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), this.index, parameters);
+		/* Guardo backup del collection.spec */
+		CUtil.guardarCollectionAnterior(colCorpusTotal);
 		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
 		logger.info("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN CREACION DE CORPUS");
+		logger.info("------------------------------------");
 	}
 	
 
@@ -95,6 +102,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("------------------------------------");
 		logger.info("COMIENZA ENVIO DE CORPUS A NODOS");
 		logger.info("------------------------------------");
+		if ("1".equals(parameters.getMetodoComunicacion())){
+			logger.info("Los nodos esclavos acceden a los corpus a través de una copia vía SFTP");
+		}else if ("2".equals(parameters.getMetodoComunicacion())){
+			logger.info("Los nodos esclavos acceden a los corpus utilizando el mismo path que el master");
+		}else{
+			logger.error("Método de comunicación INVÁLIDO: " + parameters.getMetodoComunicacion());
+		}
 		Long inicioSetCorpusToNodes = System.currentTimeMillis();
 		/* Agrego corpus al master node solo si indexa */
 		Iterator<String> iterator = this.getColCorpusTotal().iterator();
@@ -107,7 +121,8 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Agrego corpus a cada slave node */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			cliente.setTarea("Inicializar");
+			/* Le envío la orden para inicializar, junto con el método de comunicación (via Path o por SCP) */
+			cliente.setTarea("Inicializar_" + parameters.getMetodoComunicacion());
 			cliente.setNodoColCorpus((String) iterator.next());
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
@@ -117,6 +132,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 		esperar(hilos);
 		Long finSetCorpusToNodes = System.currentTimeMillis() - inicioSetCorpusToNodes;
 		logger.info("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN ENVIO DE CORPUS A NODOS");
+		logger.info("------------------------------------");
 	}
 	
 	public void sendOrderToIndex(Boolean recrearCorpus, String methodPartitionName) {
@@ -140,6 +158,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 		esperar(hilos);
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
 		logger.info("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN INDEXACION");
+		logger.info("------------------------------------");
 	}
 
 	public Collection<ResultSet> sendOrderToRetrieval(String query) throws Exception {
@@ -164,7 +185,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 		esperar(hilos);
 		Long finRecuperacion = System.currentTimeMillis() - inicioRecuperacion;
 		logger.info("Recuperacion TOTAL tardó " + finRecuperacion + " milisegundos");
-
+		logger.info("------------------------------------");
+		logger.info("FIN RECUPERACION");
+		logger.info("------------------------------------");
 		return null;
 
 	}

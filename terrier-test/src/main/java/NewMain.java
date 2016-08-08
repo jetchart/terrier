@@ -66,9 +66,8 @@ public class NewMain {
 		/* Creo Nodo Master */
 		IMasterNode nodo = new CMasterNode(parameters);
 		nodo.createSlaveNodes(nodo.getParameters().getCantidadNodos());
-		/* Creo Corpus */
+		/* Creo los Corpus (la cantidad será nodo.getParameters().getCantidadNodos()) */
 	   	/* Agrego todos los corpus al archivo /etc/collection.spec/ para que se tengan en cuenta en la Indexacion */
-		/* Cuando se tengan Slave nodes se dividirán los Corpus */
 		if (parameters.getRecrearCorpus()){
 			/* Creo Corpus */
 			nodo.createCorpus();

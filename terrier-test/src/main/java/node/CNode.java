@@ -119,7 +119,7 @@ public abstract class CNode implements INode {
     	/* Guardo el indice creado */
 		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-		logger.info("Indexación tardó " + finIndexacion + " milisegundos\n");	
+		logger.info("Indexación del nodo tardó " + finIndexacion + " milisegundos\n");	
 	}
 
 	public int getId() {

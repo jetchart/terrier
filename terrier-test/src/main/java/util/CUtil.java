@@ -221,6 +221,7 @@ public class CUtil {
 		logger.info("------------------------------------");
 		Long inicioCopiaCorpus = System.currentTimeMillis();
         try {
+        	logger.info("Se eligió metodo de comunicación vía SSH");
 	        JSch jsch = new JSch();
 	        Session session = jsch.getSession(user, host, port);
 	        UserInfo ui = new SUserInfo(pass, null);
@@ -349,7 +350,7 @@ public class CUtil {
 	}
 	
 	/**
-	 * Devuelve una colección con todos los corpus que aparecen en el collection.spec (de la corrida previa)
+	 * Devuelve una colección con todos los corpus que aparecen en el collection_anterior.spec (de la corrida previa)
 	 * @return
 	 */
 	public static Collection<String> recuperarCollectionSpec(){
@@ -357,7 +358,7 @@ public class CUtil {
 	    BufferedReader b;
 	    String cadena;
 	    Collection<String> col = new ArrayList<String>();
-	    String collectionSpecPath = System.getProperty("terrier.etc") + "collection.spec";
+	    String collectionSpecPath = System.getProperty("terrier.etc") + "collection_anterior.spec";
 		try {
 			logger.info("------------------------------------");
 			logger.info("INICIO LEVANTAR CORPUS YA CREADOS");
@@ -368,9 +369,11 @@ public class CUtil {
 		    b = new BufferedReader(f);
 		    /* Recorro el archivo */ 
 		    while((cadena = b.readLine())!=null) {
-		    	/* Agrego la ruta del corpus a la coleccion */
-		    	col.add(cadena);
-		    	logger.info("\t- "+cadena);
+		    	if (!cadena.trim().isEmpty()){
+			    	/* Agrego la ruta del corpus a la coleccion */
+			    	col.add(cadena);
+			    	logger.info("\t- "+cadena);
+		    	}
 		    }
 		    b.close();
 			logger.info("------------------------------------");
@@ -380,5 +383,27 @@ public class CUtil {
 			e.printStackTrace();
 		}
 		return col;
+	}
+	
+    /**
+     * Se hace un backup del collection.spec para poder utilizarlo en la próxima corrida y
+     * levantar los corpus anteriores si es que se elige no recrearlos
+     * @param collection
+     * @throws IOException
+     */
+	public static void guardarCollectionAnterior(Collection<String> collection){
+		String collectionSpecPath = System.getProperty("terrier.etc") + "collection_anterior.spec";
+		FileWriter fichero = null;
+		try {
+			fichero = new FileWriter(collectionSpecPath, Boolean.FALSE);
+			PrintWriter pw = new PrintWriter(fichero);
+			for (String corpusPath : collection){
+				pw.print(corpusPath + "\n");
+			}
+			pw.close();
+			fichero.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
