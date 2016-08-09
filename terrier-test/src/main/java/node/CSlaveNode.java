@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 
 import util.CUtil;
+import configuration.CParameters;
 import configuration.INodeConfiguration;
 import connections.CServer;
 
@@ -35,7 +36,7 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				setColCorpus(array, "2");
 				break;
 			case "createIndex":
-				this.createIndex("slaveNode_"+this.configuration.getIdNode());
+				this.createIndex(INodeConfiguration.prefixIndex, "slaveNode_"+this.configuration.getIdNode());
 		        break;
 			case "retrieval":
 				try {
@@ -60,8 +61,8 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 		Collection<String> col = new ArrayList<String>();
 		String corpusPathOnMaster = array[1];
 		String corpusPathOnSlave = null;
-		/* Si el método de comunicacion es 1 (via SSH) se copia el archivo del master en el slave utilizando SFTP */
-		if ("1".equals(metodoComunicacion)){
+		/* Si el método de comunicacion via SSH copia el archivo del master en el slave utilizando SFTP */
+		if (CParameters.metodoComunicacion_SSH.equals(metodoComunicacion)){
 			/* TODO --> Pensar como hacer para que funcione en WINDOWS (por el tema de la barra invertida) */
 			String nombreCorpusOnMaster = corpusPathOnMaster.split("/")[corpusPathOnMaster.split("/").length-1];
 			corpusPathOnSlave = configuration.getDestinationFolderPath()+nombreCorpusOnMaster;
@@ -69,8 +70,8 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 			logger.info("corpusPathOnSlave: " + corpusPathOnSlave);
 			CUtil.copyFileSFTP(corpusPathOnMaster, corpusPathOnSlave, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
 		}
-		/* Si el método de comunicacion es 2 (via PATH) se utiliza el archivo desde el mismo path que el master */
-		else if ("2".equals(metodoComunicacion)){
+		/* Si el método de comunicacion via PATH utiliza el archivo desde el mismo path que el master */
+		else if (CParameters.metodoComunicacion_PATH.equals(metodoComunicacion)){
 			logger.info("Se eligió metodo de comunicación vía path, por lo tanto se utilizará el path del master: " + corpusPathOnMaster);
 			corpusPathOnSlave = corpusPathOnMaster;
 		}

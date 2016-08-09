@@ -56,7 +56,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 	public void createSlaveNodes(Integer cantidad){
 		Long inicio = System.currentTimeMillis();
 		logger.info("------------------------------------");
-		logger.info("INICIO LEVANTAR ESCLAVO");
+		logger.info("INICIO DESPERTAR ESCLAVOS");
 		logger.info("------------------------------------");
 		nodes = new ArrayList<CClient>();
 		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */
@@ -70,18 +70,24 @@ public class CMasterNode extends CNode implements IMasterNode {
 				break;
 			String host = nodo.split(":")[0];
 			Integer port = Integer.valueOf(nodo.split(":")[1]);
-			String user = nodo.split(":")[2];
-			String pass = nodo.split(":")[3];
-			String jarPath = nodo.split(":")[4];
-			String jarName = nodo.split(":")[5];
-			CUtil.executeCommandSSH(host, 22, user, pass, "cd " + jarPath + "; java -jar " + jarName + " slave");
+			String user = null;
+			String pass = null;
+			String jarPath = null;
+			/* Si el metodo de comunicación es SSH, despierto los esclavos */
+			if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
+				user = nodo.split(":")[2];
+				pass = nodo.split(":")[3];
+				jarPath = nodo.split(":")[4];
+				String jarName = nodo.split(":")[5];
+				CUtil.executeCommandSSH(host, 22, user, pass, "cd " + jarPath + "; java -jar " + jarName + " slave");
+			}
 			CClient cliente = new CClient(host, port, user, pass, jarPath);
 			nodes.add(cliente);
 		}
 		Long fin = System.currentTimeMillis() - inicio;
-		logger.info("Levantar esclavo tardó " + fin + " milisegundos");
+		logger.info("Despertar esclavos tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
-		logger.info("FIN LEVANTAR ESCLAVO");
+		logger.info("FIN DESPERTAR ESCLAVOS");
 		logger.info("------------------------------------");
 	}
 	
@@ -97,7 +103,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 			/* TODO se puede mejorar esto */
 			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), null, parameters);
 			this.setColCorpus(colCorpusTotal);
-			this.createIndex(CRoundRobinByDocuments.class.getName());
+			this.createIndex(INodeConfiguration.prefixIndexNoProcess, CRoundRobinByDocuments.class.getName());
 			/* TODO Eliminar siempre o solo cuando se indica? */
 			if (getParameters().getEliminarCorpus()){
 				colCorpusTotalByTerms = new ArrayList<String>();
@@ -112,6 +118,10 @@ public class CMasterNode extends CNode implements IMasterNode {
 		colCorpusTotal = this.getParameters().getMetodoParticionamiento().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), this.index, parameters);
 		/* Guardo backup del collection.spec */
 		CUtil.guardarCollectionAnterior(colCorpusTotal);
+		/* Si el metodo es particionado por términos, elimino el indice parcial porque ya fue utilizado */
+		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms){
+			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndexNoProcess + CRoundRobinByDocuments.class.getName());
+		}
 		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
 		logger.info("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
 		logger.info("------------------------------------");
@@ -124,9 +134,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("------------------------------------");
 		logger.info("COMIENZA ENVIO DE CORPUS A NODOS");
 		logger.info("------------------------------------");
-		if ("1".equals(parameters.getMetodoComunicacion())){
+		if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
 			logger.info("Los nodos esclavos acceden a los corpus a través de una copia vía SFTP");
-		}else if ("2".equals(parameters.getMetodoComunicacion())){
+		}else if (CParameters.metodoComunicacion_PATH.equals(parameters.getMetodoComunicacion())){
 			logger.info("Los nodos esclavos acceden a los corpus utilizando el mismo path que el master");
 		}else{
 			logger.error("Método de comunicación INVÁLIDO: " + parameters.getMetodoComunicacion());
@@ -174,7 +184,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		}
 		/* Indexo yo mismo si así se indica */
 		if (this.getParameters().getMasterIndexa()){
-			createIndex("masterNode");
+			createIndex(INodeConfiguration.prefixIndex, "masterNode");
 		}
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);

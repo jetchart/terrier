@@ -94,10 +94,10 @@ public abstract class CNode implements INode {
 		return this.resultSet;
 	}
 
-	public void createIndex(String sufijoNombreIndice) {
+	public void createIndex(String prefix, String sufijoNombreIndice) {
 		logger.info("");
 		logger.info("Inicia Indexación");
-		String indexName = INodeConfiguration.prefixIndex + sufijoNombreIndice;
+		String indexName = prefix + sufijoNombreIndice;
 		CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", indexName);
 		Long inicioIndexacion = System.currentTimeMillis();
     	TRECCollection coleccion = null;

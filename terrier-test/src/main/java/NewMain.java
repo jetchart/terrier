@@ -118,15 +118,15 @@ public class NewMain {
 		logger.error("\t5- Particionamiento por Terminos: Por tamaño");
 		logger.error("6) Cantidad nodos --> 1 <= N");
 		logger.error("7) Ruta documentos[Opcional] --> Ruta donde se encuentran los documentos que formarán el corpus (sobreescribe a la property \"folderPath\" de la configuración)");
-		logger.error("8) Metodo de comunicación: 1 / 2");
-		logger.error("\t1- Vía SSH");
-		logger.error("\t2- Documentos compartidos");
+		logger.error("8) Metodo de comunicación: SSH / PATH");
+		logger.error("\t-SSH --> Requiere autenticación SSH (no despierta a los esclavos)");
+		logger.error("\t-PATH --> Requiere que los nodos compartan la memoria");
 		logger.error("9) Query[Opcional] --> \"texto entre comillas\"");
 		logger.error("10) Eliminar corpus --> S / N");
 		logger.error("");
 		logger.error("EJEMPLOS:");
-		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 2 \"\" N");
-		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 2 \"hola como andas\" S");
+		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh \"\" N");
+		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh \"hola como andas\" S");
 	}
    
 	private static void actionIndex(IMasterNode nodo){

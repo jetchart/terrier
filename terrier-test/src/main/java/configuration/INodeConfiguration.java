@@ -11,6 +11,7 @@ public interface INodeConfiguration {
 //	public static String configurationSlaveNodeFilePath = "./src/main/resources/configurationSlaveNode.properties";
 	
 	public static String prefixIndex = "jmeIndex_";
+	public static String prefixIndexNoProcess = "noProcess_";
 	
 	String getIdMasterNode();
 	

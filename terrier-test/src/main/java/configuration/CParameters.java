@@ -20,6 +20,9 @@ public class CParameters {
 	public final static String action_RETRIEVAL = "RETRIEVAL";
 	public final static String action_ALL = "ALL";
 	
+	public final static String metodoComunicacion_SSH = "SSH";
+	public final static String metodoComunicacion_PATH = "PATH";
+	
 	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String query, String eliminarCorpus){
 		this.nodeType = nodeType;
 		this.action = action;
@@ -28,7 +31,7 @@ public class CParameters {
 		this.metodoParticionamiento = CFactoryPartitionMethod.getInstance(Integer.valueOf(metodoParticionamiento));
 		this.carpetaColeccion = carpetaColeccion;
 		this.cantidadNodos = Integer.valueOf(cantidadNodos);
-		this.metodoComunicacion = metodoComunicacion;
+		this.metodoComunicacion = metodoComunicacion.toUpperCase();
 		this.query = query;
 		this.setEliminarCorpus(eliminarCorpus.toUpperCase().equals("S"));
 	}
