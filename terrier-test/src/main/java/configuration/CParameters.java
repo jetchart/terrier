@@ -16,6 +16,7 @@ public class CParameters {
 	private Boolean wakeUpSlaves;
 	private String query;
 	private Boolean eliminarCorpus;
+	private Boolean mergearIndices;
 	
 	public final static String action_INDEX = "INDEX";
 	public final static String action_RETRIEVAL = "RETRIEVAL";
@@ -24,7 +25,7 @@ public class CParameters {
 	public final static String metodoComunicacion_SSH = "SSH";
 	public final static String metodoComunicacion_PATH = "PATH";
 	
-	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String wakeUpSlaves, String query, String eliminarCorpus){
+	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String wakeUpSlaves, String query, String eliminarCorpus, String mergearIndices){
 		this.nodeType = nodeType;
 		this.action = action;
 		this.masterIndexa = masterIndexa.toUpperCase().equals("S");
@@ -35,7 +36,8 @@ public class CParameters {
 		this.metodoComunicacion = metodoComunicacion.toUpperCase();
 		this.wakeUpSlaves = wakeUpSlaves.toUpperCase().equals("S");
 		this.query = query;
-		this.setEliminarCorpus(eliminarCorpus.toUpperCase().equals("S"));
+		this.eliminarCorpus = eliminarCorpus.toUpperCase().equals("S");
+		this.mergearIndices = mergearIndices.toUpperCase().equals("S");
 	}
 	
 	public String getQuery() {
@@ -124,5 +126,13 @@ public class CParameters {
 
 	public void setWakeUpSlaves(Boolean wakeUpSlaves) {
 		this.wakeUpSlaves = wakeUpSlaves;
+	}
+
+	public Boolean getMergearIndices() {
+		return mergearIndices;
+	}
+
+	public void setMergearIndices(Boolean mergearIndices) {
+		this.mergearIndices = mergearIndices;
 	}
 }

@@ -51,12 +51,10 @@ public class CMasterNode extends CNode implements IMasterNode {
 	 * En caso que el Master deba indexar, se creará cantidad-1 de nodos esclavos.
 	 * @param cantidad	Cantidad de nodos esclavos a crear
 	 */
-	/* TODO Acá estaría bueno que se conecte por SSH a cada nodo y ejecute el programa .jar
-	 */
 	public void createSlaveNodes(Integer cantidad){
 		Long inicio = System.currentTimeMillis();
 		logger.info("------------------------------------");
-		logger.info("INICIO DESPERTAR ESCLAVOS");
+		logger.info("INICIO CREACION ESCLAVOS");
 		logger.info("------------------------------------");
 		nodes = new ArrayList<CClient>();
 		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */
@@ -85,9 +83,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 			nodes.add(cliente);
 		}
 		Long fin = System.currentTimeMillis() - inicio;
-		logger.info("Despertar esclavos tardó " + fin + " milisegundos");
+		logger.info("Creación esclavos tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
-		logger.info("FIN DESPERTAR ESCLAVOS");
+		logger.info("FIN CREACION ESCLAVOS");
 		logger.info("------------------------------------");
 	}
 	
@@ -154,7 +152,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
 			/* Le envío la orden para inicializar, junto con el método de comunicación (via Path o por SCP) */
-			cliente.setTarea("Inicializar_" + parameters.getMetodoComunicacion());
+			cliente.setTarea(task_INITIALIZE + "_" + parameters.getMetodoComunicacion());
 			cliente.setNodoColCorpus((String) iterator.next());
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
@@ -178,7 +176,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			cliente.setTarea("LimpiarIndices");
+			cliente.setTarea(task_CLEAN_INDEXES);
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
 			hilos.add(hilo);
@@ -205,7 +203,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			cliente.setTarea("Salir");
+			cliente.setTarea(task_CLOSE);
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
 			hilos.add(hilo);
@@ -228,7 +226,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			cliente.setTarea("EliminarCorpus");
+			cliente.setTarea(task_DELETE_CORPUS);
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
 			hilos.add(hilo);
@@ -252,7 +250,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			cliente.setTarea("Indexar");
+			cliente.setTarea(task_CREATE_INDEX);
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
 			hilos.add(hilo);
@@ -278,7 +276,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Envio indicacion para indexar a cada nodo */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			cliente.setTarea("Recuperar");
+			cliente.setTarea(task_RETRIEVAL);
 			cliente.setQuery(query);
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();

@@ -30,6 +30,14 @@ public abstract class CNode implements INode {
 	Integer id;
 	/* ResultSet */
 	ResultSet resultSet;
+	
+	public static final String task_INITIALIZE = "initialize";
+	public static final String task_CREATE_INDEX = "createIndex";
+	public static final String task_CLEAN_INDEXES = "cleanIndexes";
+	public static final String task_DELETE_CORPUS = "deleteCorpus";
+	public static final String task_CLOSE = "close";
+	public static final String task_RETRIEVAL = "retrieval";
+
 
 	public CNode(String nodeType){
 		String pathConfiguration = null;

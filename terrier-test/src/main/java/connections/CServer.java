@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import node.CNode;
 import node.ISlaveNode;
 
 import org.apache.log4j.Logger;
@@ -54,7 +55,7 @@ public class CServer {
 		 String mensaje;
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 while ((mensaje = recibir()) != null){
-			 if (mensaje.startsWith("retrieval")){
+			 if (mensaje.startsWith(CNode.task_RETRIEVAL)){
 				 logger.info(">>>>>>>>>>** "+mensaje+" **<<<<<<<<<");
 				 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
 				 enviarObjeto(slaveNode.getResultSet());
@@ -63,35 +64,11 @@ public class CServer {
 				flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
 			 	enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio: " + mensaje);
 			 }
-			 if ("salir".equals(mensaje)){
+			 if (CNode.task_CLOSE.equals(mensaje)){
 				break; 
 			 }
 			 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
 		 }
-//		 /* Recibir */
-//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-//		 recibir();
-//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-//		 recibir();
-//		 /* Enviar */
-//		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio datos requeridos para indexar");
-//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-//
-//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-//		 recibir();
-//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio orden para limpiar indices");
-//		 recibir();
-//		 /* Enviar */
-//		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " indexó la colección");
-//		 /* Recibir*/
-//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-//		 recibir();
-//		 /* Enviar */
-//		 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
-////		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
-//		 enviarObjeto(slaveNode.getResultSet());
 		 logger.info("------------------------------------");
 		 logger.info("TERMINÓ CICLO");
 		 logger.info("------------------------------------");

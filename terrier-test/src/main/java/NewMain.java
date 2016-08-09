@@ -23,8 +23,8 @@ public class NewMain {
 		
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
-			if (args.length == 11){
-				CParameters parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10]);
+			if (args.length == 12){
+				CParameters parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
 				createMaster(parameters);
 			}else{
 				mostrarMensajeParametros();
@@ -64,6 +64,7 @@ public class NewMain {
 		logger.info("Despertar Esclavos: " + parameters.getWakeUpSlaves());
 		logger.info("Query: " + parameters.getQuery());
 		logger.info("Eliminar corpus: " + parameters.getEliminarCorpus());
+		logger.info("Mergear índices: " + parameters.getMergearIndices());
 		logger.info("---------------------------------------");
 		logger.info("----------   FIN PARAMETROS  ----------");
 		logger.info("---------------------------------------");
@@ -128,10 +129,12 @@ public class NewMain {
 		logger.error("9) Despertar esclavos --> S / N");
 		logger.error("10) Query[Opcional] --> \"texto entre comillas\"");
 		logger.error("11) Eliminar corpus --> S / N");
+		logger.error("12) Mergear indices --> S / N");
 		logger.error("");
 		logger.error("EJEMPLOS:");
-		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh S \"\" N");
-		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh N \"hola como andas\" S");
+		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh S \"\" N S");
+		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh N \"hola como andas\" S S");
+		logger.error("\tjava -jar programa.jar slave");
 	}
    
 	private static void actionIndex(IMasterNode nodo){

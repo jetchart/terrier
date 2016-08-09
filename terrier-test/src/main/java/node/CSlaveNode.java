@@ -25,26 +25,22 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 	public void executeMessage(String msg) {
 		String[] array = msg.split(Pattern.quote(CUtil.separator));
 		switch (array[0]) {
-			case "setId":
-				/* Defino Id del nodo */
-				this.setId(Integer.parseInt(array[1]));
-				break;
-			case "setColCorpus_SSH":
+			case task_INITIALIZE + "_SSH":
 				setColCorpus(array, "SSH");
 				break;
-			case "setColCorpus_PATH":
+			case task_INITIALIZE + "_PATH":
 				setColCorpus(array, "PATH");
 				break;
-			case "createIndex":
+			case task_CREATE_INDEX:
 				this.createIndex(INodeConfiguration.prefixIndex, "slaveNode_"+this.configuration.getIdNode());
 		        break;
-			case "cleanIndexes":
+			case task_CLEAN_INDEXES:
 				CUtil.deleteIndexFiles(INodeConfiguration.prefixIndex, "slaveNode_"+this.configuration.getIdNode());
 		        break;
-			case "deleteCorpus":
+			case task_DELETE_CORPUS:
 				this.eliminarCorpus(colCorpus);
 		        break;
-			case "retrieval":
+			case task_RETRIEVAL:
 				try {
 					this.retrieval(array[1]);
 				} catch (Exception e) {
