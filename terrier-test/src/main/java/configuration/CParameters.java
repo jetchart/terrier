@@ -6,21 +6,31 @@ import Factory.CFactoryPartitionMethod;
 public class CParameters {
 
 	private String nodeType;
+	private String action;
 	private Boolean masterIndexa;
 	private Boolean recrearCorpus;
 	private IPartitionMethod metodoParticionamiento;
+	private String carpetaColeccion;
 	private Integer cantidadNodos;
 	private String metodoComunicacion;
 	private String query;
+	private Boolean eliminarCorpus;
 	
-	public CParameters(String nodeType, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String cantidadNodos, String metodoComunicacion, String query){
+	public final static String action_INDEX = "INDEX";
+	public final static String action_RETRIEVAL = "RETRIEVAL";
+	public final static String action_ALL = "ALL";
+	
+	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String query, String eliminarCorpus){
 		this.nodeType = nodeType;
+		this.action = action;
 		this.masterIndexa = masterIndexa.toUpperCase().equals("S");
 		this.recrearCorpus = recrearCorpus.toUpperCase().equals("S");
 		this.metodoParticionamiento = CFactoryPartitionMethod.getInstance(Integer.valueOf(metodoParticionamiento));
+		this.carpetaColeccion = carpetaColeccion;
 		this.cantidadNodos = Integer.valueOf(cantidadNodos);
 		this.metodoComunicacion = metodoComunicacion;
 		this.query = query;
+		this.setEliminarCorpus(eliminarCorpus.toUpperCase().equals("S"));
 	}
 	
 	public String getQuery() {
@@ -77,5 +87,29 @@ public class CParameters {
 
 	public void setMetodoComunicacion(String metodoComunicacion) {
 		this.metodoComunicacion = metodoComunicacion;
+	}
+
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	public String getCarpetaColeccion() {
+		return carpetaColeccion;
+	}
+
+	public void setCarpetaColeccion(String carpetaColeccion) {
+		this.carpetaColeccion = carpetaColeccion;
+	}
+
+	public Boolean getEliminarCorpus() {
+		return eliminarCorpus;
+	}
+
+	public void setEliminarCorpus(Boolean eliminarCorpus) {
+		this.eliminarCorpus = eliminarCorpus;
 	}
 }

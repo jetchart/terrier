@@ -21,6 +21,8 @@ public class CMasterNode extends CNode implements IMasterNode {
 	
 	/* Coleccion de todos los Corpus */
 	private Collection<String> colCorpusTotal;
+	/* Coleccion de corpus temporales para los particionamientos ByTerms */
+	private Collection<String> colCorpusTotalByTerms;
 	/* Nodos que posee, incluyéndose a él mismo */
 	private Collection<CClient> nodes;
 	/* Parametros recibidos */
@@ -96,6 +98,13 @@ public class CMasterNode extends CNode implements IMasterNode {
 			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), null, parameters);
 			this.setColCorpus(colCorpusTotal);
 			this.createIndex(CRoundRobinByDocuments.class.getName());
+			/* TODO Eliminar siempre o solo cuando se indica? */
+			if (getParameters().getEliminarCorpus()){
+				colCorpusTotalByTerms = new ArrayList<String>();
+				colCorpusTotalByTerms.addAll(colCorpusTotal);
+				eliminarCorpus(colCorpusTotalByTerms);
+				colCorpusTotalByTerms.clear();
+			}
 			colCorpusTotal.clear();
 		}else{
 			this.index = null;
@@ -253,6 +262,23 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("Mostrar tamaños de corpus tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
 		logger.info("FIN MOSTRAR TAMAÑOS DE CORPUS");
+		logger.info("------------------------------------");
+	}
+
+	@Override
+	public void eliminarCorpus(Collection<String> colPaths) {
+		logger.info("------------------------------------");
+		logger.info("COMIENZA ELIMINACIÓN CORPUS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		for (String corpusPath : colPaths){
+			CUtil.deleteFile(corpusPath);
+			logger.info("Se elimina el corpus: " + corpusPath);
+		}
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Eliminación de corpus tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN ELIMINACIÓN CORPUS");
 		logger.info("------------------------------------");
 	}
 

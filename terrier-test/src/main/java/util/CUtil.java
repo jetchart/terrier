@@ -454,4 +454,12 @@ public class CUtil {
 	public static Long getFileSizeInBytes(String filePath){
 		return new File (filePath).length();
 	}
+
+	/**
+	 * Elimina el archivo que se encuentra en el path recibido por parametro
+	 * @param corpusPath
+	 */
+	public static void deleteFile(String filePath) {
+		new File(filePath).delete();
+	}
 }

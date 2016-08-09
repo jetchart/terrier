@@ -161,4 +161,8 @@ public class CNodeConfiguration implements INodeConfiguration {
 	public String getPasswordSFTP() {
 		return passwordSFTP;
 	}
+	@Override
+	public void setFolderPath(String folderPath){
+		this.folderPath = folderPath;
+	}
 }

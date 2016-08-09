@@ -20,6 +20,8 @@ public interface INodeConfiguration {
 	
 	String getFolderPath();
 	
+	void setFolderPath(String folderPath);
+	
 	String getDestinationFolderPath();
 	
 	String getNodeType();
