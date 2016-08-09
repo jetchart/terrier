@@ -88,8 +88,8 @@ public abstract class CNode implements INode {
 		/* Muestro los resultados */
 		this.resultSet = srq.getResultSet();
 //		CUtil.mostrarResultados(resultSet, index, query);
-		ResultSet rs = srq.getResultSet();
-		CUtil.mostrarResultados(rs, index, query);
+//		ResultSet rs = srq.getResultSet();
+//		CUtil.mostrarResultados(rs, index, query);
 		/* Guardo el ResultSet */
 		this.resultSet = srq.getResultSet();
 		/* Devuelvo el resultSet con los resultados */
