@@ -41,6 +41,8 @@ public abstract class CNode implements INode {
 		}
 		/* Crea la configuracion configuracion del Nodo */
 		configuration = new CNodeConfiguration(pathConfiguration);
+		/* Le asigno el ID */
+		setId(Integer.valueOf(configuration.getIdNode()));
 		/* Defino properties necesarias para Terrier */
 		System.setProperty("terrier.home",configuration.getTerrierHome());
 		System.setProperty("terrier.etc",configuration.getTerrierHome() + "etc/");
@@ -136,4 +138,21 @@ public abstract class CNode implements INode {
 		this.resultSet = resultSet;
 	}
 
+
+	@Override
+	public void eliminarCorpus(Collection<String> colPaths) {
+		logger.info("------------------------------------");
+		logger.info("COMIENZA ELIMINACIÓN CORPUS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		for (String corpusPath : colPaths){
+			CUtil.deleteFile(corpusPath);
+			logger.info("Se elimina el corpus: " + corpusPath);
+		}
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Eliminación de corpus tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN ELIMINACIÓN CORPUS");
+		logger.info("------------------------------------");
+	}
 }

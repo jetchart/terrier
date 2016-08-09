@@ -29,14 +29,20 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				/* Defino Id del nodo */
 				this.setId(Integer.parseInt(array[1]));
 				break;
-			case "setColCorpus_1":
-				setColCorpus(array, "1");
+			case "setColCorpus_SSH":
+				setColCorpus(array, "SSH");
 				break;
-			case "setColCorpus_2":
-				setColCorpus(array, "2");
+			case "setColCorpus_PATH":
+				setColCorpus(array, "PATH");
 				break;
 			case "createIndex":
 				this.createIndex(INodeConfiguration.prefixIndex, "slaveNode_"+this.configuration.getIdNode());
+		        break;
+			case "cleanIndexes":
+				CUtil.deleteIndexFiles(INodeConfiguration.prefixIndex, "slaveNode_"+this.configuration.getIdNode());
+		        break;
+			case "deleteCorpus":
+				this.eliminarCorpus(colCorpus);
 		        break;
 			case "retrieval":
 				try {

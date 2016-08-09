@@ -23,8 +23,8 @@ public class NewMain {
 		
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
-			if (args.length == 10){
-				CParameters parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9]);
+			if (args.length == 11){
+				CParameters parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10]);
 				createMaster(parameters);
 			}else{
 				mostrarMensajeParametros();
@@ -61,6 +61,7 @@ public class NewMain {
 		logger.info("Carpeta colección: " + (parameters.getCarpetaColeccion().trim().isEmpty()?"[Se utiliza el path indicado en la configuración]":parameters.getCarpetaColeccion()));
 		logger.info("Cantidad nodos: " + parameters.getCantidadNodos());
 		logger.info("Metodo de comunicación: " + parameters.getMetodoComunicacion());
+		logger.info("Despertar Esclavos: " + parameters.getWakeUpSlaves());
 		logger.info("Query: " + parameters.getQuery());
 		logger.info("Eliminar corpus: " + parameters.getEliminarCorpus());
 		logger.info("---------------------------------------");
@@ -81,6 +82,9 @@ public class NewMain {
 		if (parameters.getAction().toUpperCase().equals(CParameters.action_RETRIEVAL) || parameters.getAction().toUpperCase().equals(CParameters.action_ALL)){
 			actionRetrieval(nodo);
 		}
+		/* Envio orden para cerrar esclavos */
+		nodo.sendOrderToCloseSlaves();
+		
 		logger.info("");
 		logger.info("******************************************************************************************************************************************************");
 		logger.info("************************************************************************* FIN ************************************************************************");
@@ -119,14 +123,15 @@ public class NewMain {
 		logger.error("6) Cantidad nodos --> 1 <= N");
 		logger.error("7) Ruta documentos[Opcional] --> Ruta donde se encuentran los documentos que formarán el corpus (sobreescribe a la property \"folderPath\" de la configuración)");
 		logger.error("8) Metodo de comunicación: SSH / PATH");
-		logger.error("\t-SSH --> Requiere autenticación SSH (no despierta a los esclavos)");
+		logger.error("\t-SSH --> Requiere autenticación SSH");
 		logger.error("\t-PATH --> Requiere que los nodos compartan la memoria");
-		logger.error("9) Query[Opcional] --> \"texto entre comillas\"");
-		logger.error("10) Eliminar corpus --> S / N");
+		logger.error("9) Despertar esclavos --> S / N");
+		logger.error("10) Query[Opcional] --> \"texto entre comillas\"");
+		logger.error("11) Eliminar corpus --> S / N");
 		logger.error("");
 		logger.error("EJEMPLOS:");
-		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh \"\" N");
-		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh \"hola como andas\" S");
+		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh S \"\" N");
+		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh N \"hola como andas\" S");
 	}
    
 	private static void actionIndex(IMasterNode nodo){
@@ -143,11 +148,13 @@ public class NewMain {
 		}
 		/* Envío los corpus a los nodos */
 		nodo.sendCorpusToNodes();
+		/* Envio orden para limpiar indices anteriores */
+		nodo.sendOrderToCleanIndexes(nodo.getParameters().getMetodoParticionamiento().getClass().getName());
 		/* Creo Index */
 		nodo.sendOrderToIndex(nodo.getParameters().getRecrearCorpus(), nodo.getParameters().getMetodoParticionamiento().getClass().getName());
 		/* Eliminar corpus al terminar */
 		if (nodo.getParameters().getEliminarCorpus()){
-			nodo.eliminarCorpus(nodo.getColCorpusTotal());
+			nodo.sendOrderToDeleteCorpus();
 		}
 	}
 	

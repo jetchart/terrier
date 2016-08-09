@@ -200,17 +200,17 @@ public class CUtil {
     }
     
     public static void deleteIndexFiles(String etcFolder, String prefixName){
-		logger.info("------------------------------------");
-		logger.info("INICIO LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
-		logger.info("------------------------------------");
+//		logger.info("------------------------------------");
+//		logger.info("INICIO LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
+//		logger.info("------------------------------------");
     	for (String indexFile : indexFiles){
             File fichero = new File(etcFolder + prefixName + indexFile);
             if (fichero.delete())
             	logger.info("Se eliminó el archivo: " + etcFolder + prefixName + indexFile);
     	}
-		logger.info("------------------------------------");
-		logger.info("FIN LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
-		logger.info("------------------------------------");
+//		logger.info("------------------------------------");
+//		logger.info("FIN LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
+//		logger.info("------------------------------------");
     }
     
     public static Boolean existeIndice(String indexPath){
@@ -384,8 +384,7 @@ public class CUtil {
 	 * @return
 	 */
 	public static String generarPathArchivoCorpus(CParameters parameters, String path, String nodeId){
-		
-		return path + "corpus" + nodeId + "_" + parameters.getMetodoParticionamiento().getClass().getName() + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
+		return path + "corpus" + nodeId + "_" + parameters.getMetodoParticionamiento().getClass().getName() + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + parameters.getWakeUpSlaves() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
 	}
 	
 	/**

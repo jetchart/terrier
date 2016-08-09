@@ -34,4 +34,6 @@ public interface INode extends Remote {
 	ResultSet getResultSet();
 	
 	void setResultSet(ResultSet resultSet);
+	
+	void eliminarCorpus(Collection<String> colPaths);
 }

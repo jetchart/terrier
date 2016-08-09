@@ -73,8 +73,8 @@ public class CMasterNode extends CNode implements IMasterNode {
 			String user = null;
 			String pass = null;
 			String jarPath = null;
-			/* Si el metodo de comunicación es SSH, despierto los esclavos */
-			if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
+			/* Despierto los esclavos */
+			if (parameters.getWakeUpSlaves()){
 				user = nodo.split(":")[2];
 				pass = nodo.split(":")[3];
 				jarPath = nodo.split(":")[4];
@@ -166,6 +166,81 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("Enviar corpus a Nodos tardó " + finSetCorpusToNodes + " milisegundos");
 		logger.info("------------------------------------");
 		logger.info("FIN ENVIO DE CORPUS A NODOS");
+		logger.info("------------------------------------");
+	}
+	
+	@Override
+	public void sendOrderToCleanIndexes(String methodPartitionName) {
+		logger.info("------------------------------------");
+		logger.info("COMIENZA LIMPIEZA INDICES ANTERIORES");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		/* Envio indicacion para indexar a cada nodo */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
+		for (CClient cliente : nodes){
+			cliente.setTarea("LimpiarIndices");
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
+		}
+		/* Limpio el Master solo si tiene que indexar */
+		if (this.getParameters().getMasterIndexa()){
+			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndex + "masterNode");
+		}
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Limpieza de indices TOTAL tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN LIMPIEZA INDICES ANTERIORES");
+		logger.info("------------------------------------");
+	}
+	
+	@Override
+	public void sendOrderToCloseSlaves() {
+		logger.info("------------------------------------");
+		logger.info("COMIENZA CIERRE DE ESCLAVOS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		/* Envio indicacion para indexar a cada nodo */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
+		for (CClient cliente : nodes){
+			cliente.setTarea("Salir");
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
+		}
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Cierre de esclavos TOTAL tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN LIMPIEZA CIERRE DE ESCLAVOS");
+		logger.info("------------------------------------");
+	}
+	
+	@Override
+	public void sendOrderToDeleteCorpus() {
+		logger.info("------------------------------------");
+		logger.info("COMIENZA ELIMINACIÓN CORPUS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		/* Envio indicacion para indexar a cada nodo */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
+		for (CClient cliente : nodes){
+			cliente.setTarea("EliminarCorpus");
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
+		}
+		/* El Master también elimina sus corpus */
+		this.eliminarCorpus(colCorpusTotal);
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Eliminacion Corpus TOTAL tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN ELIMINACIÓN CORPUS");
 		logger.info("------------------------------------");
 	}
 	
@@ -272,23 +347,6 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("Mostrar tamaños de corpus tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
 		logger.info("FIN MOSTRAR TAMAÑOS DE CORPUS");
-		logger.info("------------------------------------");
-	}
-
-	@Override
-	public void eliminarCorpus(Collection<String> colPaths) {
-		logger.info("------------------------------------");
-		logger.info("COMIENZA ELIMINACIÓN CORPUS");
-		logger.info("------------------------------------");
-		Long inicio = System.currentTimeMillis();
-		for (String corpusPath : colPaths){
-			CUtil.deleteFile(corpusPath);
-			logger.info("Se elimina el corpus: " + corpusPath);
-		}
-		Long fin = System.currentTimeMillis() - inicio;
-		logger.info("Eliminación de corpus tardó " + fin + " milisegundos");
-		logger.info("------------------------------------");
-		logger.info("FIN ELIMINACIÓN CORPUS");
 		logger.info("------------------------------------");
 	}
 

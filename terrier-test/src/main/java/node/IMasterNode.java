@@ -32,6 +32,10 @@ public interface IMasterNode extends INode, IClient {
 
 	void showCorpusSize();
 
-	void eliminarCorpus(Collection<String> colPaths);
+	void sendOrderToCleanIndexes(String methodPartitionName);
+
+	void sendOrderToCloseSlaves();
+	
+	void sendOrderToDeleteCorpus();
 
 }

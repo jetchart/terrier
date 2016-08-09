@@ -13,6 +13,7 @@ public class CParameters {
 	private String carpetaColeccion;
 	private Integer cantidadNodos;
 	private String metodoComunicacion;
+	private Boolean wakeUpSlaves;
 	private String query;
 	private Boolean eliminarCorpus;
 	
@@ -23,7 +24,7 @@ public class CParameters {
 	public final static String metodoComunicacion_SSH = "SSH";
 	public final static String metodoComunicacion_PATH = "PATH";
 	
-	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String query, String eliminarCorpus){
+	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String wakeUpSlaves, String query, String eliminarCorpus){
 		this.nodeType = nodeType;
 		this.action = action;
 		this.masterIndexa = masterIndexa.toUpperCase().equals("S");
@@ -32,6 +33,7 @@ public class CParameters {
 		this.carpetaColeccion = carpetaColeccion;
 		this.cantidadNodos = Integer.valueOf(cantidadNodos);
 		this.metodoComunicacion = metodoComunicacion.toUpperCase();
+		this.wakeUpSlaves = wakeUpSlaves.toUpperCase().equals("S");
 		this.query = query;
 		this.setEliminarCorpus(eliminarCorpus.toUpperCase().equals("S"));
 	}
@@ -114,5 +116,13 @@ public class CParameters {
 
 	public void setEliminarCorpus(Boolean eliminarCorpus) {
 		this.eliminarCorpus = eliminarCorpus;
+	}
+
+	public Boolean getWakeUpSlaves() {
+		return wakeUpSlaves;
+	}
+
+	public void setWakeUpSlaves(Boolean wakeUpSlaves) {
+		this.wakeUpSlaves = wakeUpSlaves;
 	}
 }

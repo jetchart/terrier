@@ -12,6 +12,8 @@ import node.ISlaveNode;
 import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
 
+import util.CUtil;
+
 public class CServer {
 
 	static final Logger logger = Logger.getLogger(CServer.class);
@@ -49,26 +51,47 @@ public class CServer {
 		 socketServicio = null;
 		 try {
 		 socketServicio = miServicio.accept();
-		 /* Recibir */
+		 String mensaje;
 		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-		 recibir();
-		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-		 recibir();
-		 /* Enviar */
-		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio datos requeridos para indexar");
-		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-		 recibir();
-		 /* Enviar */
-		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " indexó la colección");
-		 /* Recibir*/
-		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-		 recibir();
-		 /* Enviar */
-		 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
-//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
-		 enviarObjeto(slaveNode.getResultSet());
+		 while ((mensaje = recibir()) != null){
+			 if (mensaje.startsWith("retrieval")){
+				 logger.info(">>>>>>>>>>** "+mensaje+" **<<<<<<<<<");
+				 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
+				 enviarObjeto(slaveNode.getResultSet());
+			 }else{
+				 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
+				flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+			 	enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio: " + mensaje);
+			 }
+			 if ("salir".equals(mensaje)){
+				break; 
+			 }
+			 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+		 }
+//		 /* Recibir */
+//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+//		 recibir();
+//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+//		 recibir();
+//		 /* Enviar */
+//		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio datos requeridos para indexar");
+//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+//
+//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+//		 recibir();
+//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio orden para limpiar indices");
+//		 recibir();
+//		 /* Enviar */
+//		 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+//		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " indexó la colección");
+//		 /* Recibir*/
+//		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+//		 recibir();
+//		 /* Enviar */
+//		 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
+////		 enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recuperó en base a la query ");
+//		 enviarObjeto(slaveNode.getResultSet());
 		 logger.info("------------------------------------");
 		 logger.info("TERMINÓ CICLO");
 		 logger.info("------------------------------------");
