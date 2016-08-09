@@ -9,7 +9,6 @@ import node.ISlaveNode;
 import org.apache.log4j.Logger;
 
 import util.CUtil;
-import Factory.CFactoryPartitionMethod;
 import configuration.CParameters;
 import connections.CClient;
 import connections.CServer;
@@ -71,6 +70,8 @@ public class NewMain {
 		if (parameters.getRecrearCorpus()){
 			/* Creo Corpus */
 			nodo.createCorpus();
+			/* Muestro los tamaños de los corpus */
+			nodo.showCorpusSize();
 		}else{
 			/* Si se eligió no recrear los corpus, se levantan los de la corrida anterior (los que se encuentra en el archivo /etc/collection.spec/) */
 			nodo.setColCorpusTotal(CUtil.recuperarCollectionSpec());

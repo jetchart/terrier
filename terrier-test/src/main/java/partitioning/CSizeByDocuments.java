@@ -41,7 +41,7 @@ public class CSizeByDocuments implements IPartitionByDocuments {
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
         		/* Abro el corpus correspondiente */
-        		String corpusPath = colCorpusTotal.get(getIdSmallestDocument(destinationFolderPath, cantidadCorpus, parameters));
+        		String corpusPath = colCorpusTotal.get(getIdSmallestDocument(colCorpusTotal));
         		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);  
         		/* Escribo contenido del archivo en el corpus con formato TREC */
                 contenido.append("<DOC>").append("\n");
@@ -76,17 +76,17 @@ public class CSizeByDocuments implements IPartitionByDocuments {
 	}
 
 	/* Devuelvo el ID del corpus de menor tamaño */
-	private Integer getIdSmallestDocument(String destinationFolderPath, Integer cantidadCorpus, CParameters parameters){
+	private Integer getIdSmallestDocument(List<String> colCorpusTotal){
         Integer i;
         long size = -1;
         Integer idSmallestDocument = 0;
-    	for (i=0;i<cantidadCorpus;i++){
-    		String corpusPath = CUtil.generarPathArchivoCorpus(parameters, destinationFolderPath, i.toString());
-    			File file = new File (corpusPath);
-    			if (file.length() < size || i == 0){
-    				size = file.length();
-    				idSmallestDocument = i;
-    			}
+    	for (i=0;i<colCorpusTotal.size();i++){
+    		String corpusPath = colCorpusTotal.get(i);
+    		File file = new File (corpusPath);
+    		if (file.length() < size || i == 0){
+    			size = file.length();
+    			idSmallestDocument = i;
+    		}
     	}
 		return idSmallestDocument;
 	}

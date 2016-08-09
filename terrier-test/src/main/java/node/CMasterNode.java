@@ -45,13 +45,17 @@ public class CMasterNode extends CNode implements IMasterNode {
 	
 	/**
 	 * Crea los nodos esclavos en base a la cantidad indicada, seteandole a cada uno su host y port 
-	 * correspondiente (esta informacion la saca de {@link INodeConfiguration} configuration.
+	 * correspondiente (esCreo Corpusta informacion la saca de {@link INodeConfiguration} configuration.
 	 * En caso que el Master deba indexar, se creará cantidad-1 de nodos esclavos.
 	 * @param cantidad	Cantidad de nodos esclavos a crear
 	 */
 	/* TODO Acá estaría bueno que se conecte por SSH a cada nodo y ejecute el programa .jar
 	 */
 	public void createSlaveNodes(Integer cantidad){
+		Long inicio = System.currentTimeMillis();
+		logger.info("------------------------------------");
+		logger.info("INICIO LEVANTAR ESCLAVO");
+		logger.info("------------------------------------");
 		nodes = new ArrayList<CClient>();
 		/* Si el Master indexa, entonces reduzco en 1 la cantidad de nodos a crear */
 		if (this.getParameters().getMasterIndexa()){
@@ -72,6 +76,11 @@ public class CMasterNode extends CNode implements IMasterNode {
 			CClient cliente = new CClient(host, port, user, pass, jarPath);
 			nodes.add(cliente);
 		}
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Levantar esclavo tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN LEVANTAR ESCLAVO");
+		logger.info("------------------------------------");
 	}
 	
 	public void createCorpus() {
@@ -86,7 +95,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 			/* TODO se puede mejorar esto */
 			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), null, parameters);
 			this.setColCorpus(colCorpusTotal);
-			this.createIndex(Boolean.TRUE, CRoundRobinByDocuments.class.getName());
+			this.createIndex(CRoundRobinByDocuments.class.getName());
 			colCorpusTotal.clear();
 		}else{
 			this.index = null;
@@ -156,7 +165,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		}
 		/* Indexo yo mismo si así se indica */
 		if (this.getParameters().getMasterIndexa()){
-			createIndex(recrearCorpus, "masterNode");
+			createIndex("masterNode");
 		}
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
@@ -225,6 +234,26 @@ public class CMasterNode extends CNode implements IMasterNode {
 	@Override
 	public void setColCorpusTotal(Collection<String> colCorpusTotal) {
 		this.colCorpusTotal = colCorpusTotal;
+	}
+
+	@Override
+	public void showCorpusSize() {
+		logger.info("------------------------------------");
+		logger.info("COMIENZA MOSTRAR TAMAÑOS DE CORPUS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		Long total = 0L;
+		for (String filePath : colCorpusTotal){
+			Long size = CUtil.getFileSizeInBytes(filePath);
+			total += size;
+			logger.info("Corpus " + filePath + " ocupa " + size + " bytes");
+		}
+		logger.info("Todos los corpus ocupan " + total + " bytes");
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Mostrar tamaños de corpus tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN MOSTRAR TAMAÑOS DE CORPUS");
+		logger.info("------------------------------------");
 	}
 
 }

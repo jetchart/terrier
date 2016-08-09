@@ -2,11 +2,11 @@ package configuration;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
+
+import node.CNode;
 
 import org.apache.log4j.Logger;
 
@@ -44,60 +44,66 @@ public class CNodeConfiguration implements INodeConfiguration {
 			propiedades.load(new FileInputStream(configurationFilePath));
 			/* Obtenemos los parametros definidos en el archivo */
 			this.terrierHome = propiedades.getProperty("terrierHome");
-			this.folderPath = propiedades.getProperty("folderPath");
-			this.nodeType = propiedades.getProperty("nodeType");
+			this.destinationFolderPath = propiedades.getProperty("destinationFolderPath");
 			this.idNode = propiedades.getProperty("idNode");
 			this.port = Integer.valueOf(propiedades.getProperty("port"));
-			this.destinationFolderPath = propiedades.getProperty("destinationFolderPath");
-			/* TODO Sirve esto?? */
-			this.idMasterNode = propiedades.getProperty("idMasterNode");
-			/* Cantidad de nodos disponibles */
-			this.nodesAmount = Integer.valueOf(propiedades.getProperty("nodesAmount"));
-			/* Nodos */
-			for (int i=1;i<nodesAmount; i++){
-				slavesNodes.add(propiedades.getProperty("idSlaveNode_"+i));
+			this.nodeType = propiedades.getProperty("nodeType");
+			if (CNode.ID_MASTER.equals(this.nodeType.toUpperCase())){
+				readMasterConfiguration(propiedades);
+			}else if (CNode.ID_SLAVE.equals(this.nodeType.toUpperCase())){
+				readSlaveConfiguration(propiedades);
+			}else{
+				logger.error("Propiedad \"nodeType\" errónea");
 			}
-			/* SFTP */
-			this.passwordSFTP = propiedades.getProperty("passwordSFTP");
-			this.userSFTP = propiedades.getProperty("userSFTP");
-			this.masterSFTPPort = Integer.valueOf(propiedades.getProperty("masterSFTPPort"));
-			this.masterSFTPHost =  propiedades.getProperty("masterSFTPHost");
 			/* Validar path's leidos en la configuracion */
-			validarRutasExistentes();
-			
-		} catch (FileNotFoundException e) {
-			logger.error("Error, no existe el archivo: " + configurationFilePath);
-		} catch (IOException e) {
-			logger.error("Error, no se puede leer el archivo" + configurationFilePath);
+			validarRutaExistente("terrierHome", this.terrierHome);
+			validarRutaExistente("destinationFolderPath", this.destinationFolderPath);
 		} catch (Exception e) {
-			logger.error("Han ocurrido los siguientes errores al leer el archivo de configuracion:\n" + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * El metodo validarRutasExistentes debe validar que los path's extraidos
-	 * desde el archivo de configuracion sean directorios existentes. En caso contrario
-	 * arroja una excepcion indicando cada path incorrecto.
+	 * Carga las configuraciones propias del Master 
+	 * @param propiedades
+	 * @throws Exception 
+	 */
+	private void readMasterConfiguration(Properties propiedades) throws Exception{
+		this.idMasterNode = propiedades.getProperty("idMasterNode");
+		this.folderPath = propiedades.getProperty("folderPath");
+		/* Cantidad de nodos disponibles */
+		this.nodesAmount = Integer.valueOf(propiedades.getProperty("nodesAmount"));
+		/* Nodos */
+		for (int i=1;i<nodesAmount; i++){
+			slavesNodes.add(propiedades.getProperty("idSlaveNode_"+i));
+		}
+		/* Validar path's leidos en la configuracion */
+		validarRutaExistente("folderPath", this.folderPath);
+	}
+	
+	/**
+	 * Carga las configuraciones propias del Slave 
+	 * @param propiedades
+	 */
+	private void readSlaveConfiguration(Properties propiedades){
+		/* SFTP */
+		this.passwordSFTP = propiedades.getProperty("passwordSFTP");
+		this.userSFTP = propiedades.getProperty("userSFTP");
+		this.masterSFTPPort = Integer.valueOf(propiedades.getProperty("masterSFTPPort"));
+		this.masterSFTPHost =  propiedades.getProperty("masterSFTPHost");
+	}
+
+	/**
+	 * El metodo validarRutasExistentes debe validar que el path recibido 
+	 * sea un directorio existente. En caso contrario lanza una excepcion.
 	 * 
 	 * @throws Exception Lista de path's incorrectos
 	 */
-	private void validarRutasExistentes() throws Exception{
-		String error = "";
-		File f = new File(this.terrierHome);
+	private void validarRutaExistente(String propertieName, String path) throws Exception{
+		File f = new File(path);
 		if (!f.exists())
-			error += "No existe la siguiente carpeta para la propiedad 'terrierHome': " + this.terrierHome + "\n";
-		f = new File(this.folderPath);
-		if (!f.exists())
-			error += "No existe la siguiente carpeta para la propiedad 'folderPath': " + this.folderPath + "\n";
-		f = new File(this.destinationFolderPath);
-		if (!f.exists())
-			error += "No existe la siguiente carpeta para la propiedad 'destinationFolderPath': " + this.destinationFolderPath + "\n";
-		f = new File(this.destinationFolderPath);
-		if (!error.isEmpty()){
-			throw new Exception(error);
-		}
+			throw new Exception("No existe la siguiente carpeta para la propiedad \"" + propertieName + "\": " + path + "\n");
 	}
-
 	public String getTerrierHome() {
 		return this.terrierHome;
 	}

@@ -30,4 +30,6 @@ public interface IMasterNode extends INode, IClient {
 	
 	void setParameters(CParameters parameters);
 
+	void showCorpusSize();
+
 }

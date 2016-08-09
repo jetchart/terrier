@@ -10,7 +10,7 @@ public interface INodeConfiguration {
 //	public static String configurationMasterNodeFilePath = "./src/main/resources/configurationMasterNode.properties";
 //	public static String configurationSlaveNodeFilePath = "./src/main/resources/configurationSlaveNode.properties";
 	
-	public static String indexName = "jmeIndex";
+	public static String prefixIndex = "jmeIndex_";
 	
 	String getIdMasterNode();
 	

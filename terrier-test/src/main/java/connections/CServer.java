@@ -25,10 +25,9 @@ public class CServer {
 	
 	public CServer(Integer port, ISlaveNode slaveNode){
 		this.slaveNode = slaveNode;
-		logger.info("Bienvenido al Servidor!");
-		logger.info("Id: " + slaveNode.getNodeConfiguration().getIdNode());
-		logger.info("Puerto: " + port);
 		iniciarServidor(port);
+		/* El siguiente "System.out.println" es recibido por el Master para confirmar que se levantó el esclavo por SSH correctamente */
+		System.out.println("Esclavo con id " + slaveNode.getNodeConfiguration().getIdNode() + " iniciado");
 	}
 	
 	private void iniciarServidor(Integer port) {
@@ -74,9 +73,6 @@ public class CServer {
 		 logger.info("TERMINÓ CICLO");
 		 logger.info("------------------------------------");
 		 cerrar();
-		 /* Inicio el ciclo de nuevo */
-		 iniciarServidor(slaveNode.getNodeConfiguration().getPort());
-		 listen();
 		 } catch( IOException e ) {
 			 logger.info( e );
 		 }
@@ -121,7 +117,6 @@ public class CServer {
 			miServicio.close();
 			logger.info("El servidor terminó su ejecución correctamente");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

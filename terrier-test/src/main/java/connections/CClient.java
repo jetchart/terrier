@@ -75,19 +75,6 @@ public class CClient{
 		 }
 	}
 	
-	private void cerrar(){
-		 /* Cierro */
-		 try {
-			flujoSalida.close();
-			flujoEntrada.close();
-			miCliente.close();
-			logger.info("El cliente terminó su ejecución correctamente");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 	public Socket getSocket(){
 		return miCliente;
 	}

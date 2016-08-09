@@ -94,19 +94,17 @@ public abstract class CNode implements INode {
 		return this.resultSet;
 	}
 
-	public void createIndex(Boolean recrearCorpus, String sufijoNombreIndice) {
+	public void createIndex(String sufijoNombreIndice) {
 		logger.info("");
 		logger.info("Inicia Indexación");
-		if (recrearCorpus){
-			/* Elimino el indice anterior */
-			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);
-		}
+		String indexName = INodeConfiguration.prefixIndex + sufijoNombreIndice;
+		CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", indexName);
 		Long inicioIndexacion = System.currentTimeMillis();
     	TRECCollection coleccion = null;
     	/* Creo una nueva coleccion */
 		coleccion = new TRECCollection();
 		/* Instancio Indexador */
-		Indexer indexador = new BasicIndexer(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);
+		Indexer indexador = new BasicIndexer(configuration.getTerrierHome() + "var/index/", indexName);
 		/* Indico las colecciones a indexar */
 		org.terrier.indexing.Collection[] col = new org.terrier.indexing.Collection[1];
 		col[0] = coleccion;
@@ -117,7 +115,7 @@ public abstract class CNode implements INode {
 		/* Cierro Coleccion */
 		coleccion.close();
     	/* Guardo el indice creado */
-		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", sufijoNombreIndice);		
+		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", indexName);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
 		logger.info("Indexación del nodo tardó " + finIndexacion + " milisegundos\n");	
 	}

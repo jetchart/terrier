@@ -1,5 +1,3 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -11,10 +9,10 @@ public class mainPruebas {
 	public static void main(String[] args) throws IOException {
 		
         Reader reader = CUtil.getReaderArchivo("/home/javier/pgadmin.log");
-        Integer cantidad = CUtil.getAmountUniqueTokensInReader(reader);
+//        Integer cantidad = CUtil.getAmountUniqueTokensInReader(reader);
         reader.markSupported();
         reader.mark(1);
-        String contenido = CUtil.extractContentInReader(reader);
+//        String contenido = CUtil.extractContentInReader(reader);
 		
 	}
 

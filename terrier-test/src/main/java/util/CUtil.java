@@ -7,8 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Timestamp;
@@ -27,7 +26,7 @@ import org.terrier.matching.ResultSet;
 import org.terrier.structures.Index;
 import org.terrier.structures.MetaIndex;
 
-import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -255,44 +254,40 @@ public class CUtil {
 		logger.info("------------------------------------");
     }
     
-    public static String executeCommandSSH(String host, Integer port, String user, String pass, String command){
-		logger.info("------------------------------------");
-		logger.info("INICIO LEVANTAR ESCLAVO");
-		logger.info("------------------------------------");
-		Long inicio = System.currentTimeMillis();
-        try {
-        	logger.info("Intentando levantar esclavo vía SSH");
-        	logger.info("Host: " + host);
-        	logger.info("Port: " + port);
-        	logger.info("User: " + user);
-        	logger.info("Pass: " + pass);
-        	logger.info("Command: " + command);
-	        JSch jsch = new JSch();
-	        Session session = jsch.getSession(user, host, port);
-	        UserInfo ui = new SUserInfo(pass, null);
-	 
-	        session.setUserInfo(ui);
-	        session.setPassword(pass);
-	        
-			session.connect();
-			Channel channel = session.openChannel("shell");
-			InputStream input = channel.getInputStream();
-			OutputStream ops = channel.getOutputStream();
-			PrintStream ps = new PrintStream(ops, true);
-			channel.connect();
-			ps.println(command);
-			channel.disconnect();
-	        session.disconnect();
-	        logger.info("Esclavo levantado");
+    public static void executeCommandSSH(String host, Integer port, String user, String pass, String command){
+	     try {
+        	logger.info("Intentando levantar esclavo vía SSH:");
+        	logger.info("\tHost: " + host);
+        	logger.info("\tPort: " + port);
+        	logger.info("\tUser: " + user);
+        	logger.info("\tPass: " + pass);
+        	logger.info("\tCommand: " + command);
+            JSch jSSH = new JSch();
+            Session session = jSSH.getSession(user, host, port);
+            UserInfo ui = new SUserInfo(pass, null);
+            session.setUserInfo(ui);
+            session.setPassword(pass);
+            session.connect();
+            ChannelExec channelExec = (ChannelExec)session.openChannel("exec");
+     
+            InputStream in = channelExec.getInputStream();
+
+            channelExec.setCommand(command);
+            channelExec.connect();
+     
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            logger.info("");
+            String linea = null;
+            while ((linea = reader.readLine()) != null) {
+            	logger.info("Respuesta desde SSH " + user + "@" + host + ":" + port + " >>> " + linea);
+            	break;
+            }
+            logger.info("");
+            channelExec.disconnect();
+            session.disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Long fin = System.currentTimeMillis() - inicio;
-		logger.info("Levantar esclavo " + fin + " milisegundos");
-		logger.info("------------------------------------");
-		logger.info("FIN LEVANTAR ESCLAVO");
-		logger.info("------------------------------------");
-		 return null;
     }
     
     /**
@@ -449,5 +444,14 @@ public class CUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Devuelve la cantidad de bytes que ocupa el archivo indicado en el argumento "filePath"
+	 * @param filePath
+	 * @return
+	 */
+	public static Long getFileSizeInBytes(String filePath){
+		return new File (filePath).length();
 	}
 }
