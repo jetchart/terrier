@@ -41,7 +41,7 @@ public interface IMasterNode extends INode, IClient {
 
 	void copyIndexesFromSlaves();
 
-	void mergeIndexes();
+	void mergeIndexes(String indexPath, String indexPrefix, Integer lowest, Integer highest);
 
 	void setIndex(IndexOnDisk index);
 

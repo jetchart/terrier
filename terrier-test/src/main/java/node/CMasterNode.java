@@ -247,7 +247,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 	
 	public void sendOrderToIndex(Boolean recrearCorpus, String methodPartitionName) {
 		logger.info("------------------------------------");
-		logger.info("COMIENZA INDEXACION");
+		logger.info("COMIENZA INDEXACION DE TODOS LOS NODOS");
 		logger.info("------------------------------------");
 		Long inicioIndexacion = System.currentTimeMillis();
 		/* Envio indicacion para indexar a cada nodo */
@@ -265,9 +265,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-		logger.info("Indexación TOTAL tardó " + finIndexacion + " milisegundos");
+		logger.info("Indexación de todos los nodos tardó " + finIndexacion + " milisegundos");
 		logger.info("------------------------------------");
-		logger.info("FIN INDEXACION");
+		logger.info("FIN INDEXACION DE TODOS LOS NODOS");
 		logger.info("------------------------------------");
 	}
 
@@ -372,9 +372,27 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("------------------------------------");
 	}
 	
+	/**
+	 * Realiza un merge de los indices que se encuentren en la carpeta indexPath
+	 * y que concuerden con el prefijo y rango de numeros indicados.
+	 * 
+	 * @param indexPath
+	 * @param indexPrefix
+	 * @param lowest
+	 * @param highest
+	 */
 	@Override
-	public void mergeIndexes(){
-		Indexer.merge(configuration.getTerrierHome() + "var/index/", "jmeIndex", 0, parameters.getCantidadNodos()-1);
+	public void mergeIndexes(String indexPath, String indexPrefix, Integer lowest, Integer highest){
+		logger.info("------------------------------------");
+		logger.info("INICIO MERGE DE INDICES");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		Indexer.merge(indexPath, indexPrefix, lowest, highest);
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Merge de indices tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN MERGE DE INDICES");
+		logger.info("------------------------------------");
 	}
 
 	@Override

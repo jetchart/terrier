@@ -92,7 +92,7 @@ public abstract class CNode implements INode {
 		m.runPostFilters(srq);
 		 /* Devuelvo ResultSet */
 		Long finRecuperacion = System.currentTimeMillis() - inicioRecuperacion;
-		logger.info("Recuperación tardó " + finRecuperacion + " milisegundos\n");	 
+		logger.info("Recuperación tardó " + finRecuperacion + " milisegundos");	 
 		/* Muestro los resultados */
 		this.resultSet = srq.getResultSet();
 //		CUtil.mostrarResultados(resultSet, index, query);
@@ -106,7 +106,7 @@ public abstract class CNode implements INode {
 
 	public void createIndex(String prefix, String sufijoNombreIndice) {
 		logger.info("");
-		logger.info("Inicia Indexación");
+		logger.info("Inicia Indexación del nodo " + configuration.getNodeType() + "_" + configuration.getIdNode());
 		String indexName = prefix + sufijoNombreIndice;
 		CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", indexName);
 		Long inicioIndexacion = System.currentTimeMillis();
@@ -127,7 +127,7 @@ public abstract class CNode implements INode {
     	/* Guardo el indice creado */
 		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", indexName);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-		logger.info("Indexación del nodo tardó " + finIndexacion + " milisegundos\n");	
+		logger.info("Indexación del nodo " + configuration.getNodeType() + "_" + configuration.getIdNode() + " tardó " + finIndexacion + " milisegundos");	
 	}
 
 	public int getId() {
