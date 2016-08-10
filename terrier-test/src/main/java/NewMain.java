@@ -124,7 +124,7 @@ public class NewMain {
 		logger.error("2) Acción --> index / retrieval / all");
 		logger.error("3) Master indexa --> S / N");
 		logger.error("4) Recrear corpus --> S / N");
-		logger.error("5) Metodo particionamiento --> 1,2,3,4");
+		logger.error("5) Metodo particionamiento --> 1,2,3,4 o 5");
 		logger.error("\t1- Particionamiento por Documentos: RoundRobin");
 		logger.error("\t2- Particionamiento por Documentos: Por tamaño (archivos)");
 		logger.error("\t3- Particionamiento por Documentos: Por tamaño (cantidad de tokens unicos)");
