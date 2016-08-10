@@ -3,6 +3,7 @@ package node;
 import java.util.Collection;
 
 import org.terrier.matching.ResultSet;
+import org.terrier.structures.IndexOnDisk;
 
 import configuration.CParameters;
 import connections.CClient;
@@ -37,5 +38,11 @@ public interface IMasterNode extends INode, IClient {
 	void sendOrderToCloseSlaves();
 	
 	void sendOrderToDeleteCorpus();
+
+	void copyIndexesFromSlaves();
+
+	void mergeIndexes();
+
+	void setIndex(IndexOnDisk index);
 
 }

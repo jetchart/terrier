@@ -9,6 +9,7 @@ import node.INode;
 import node.ISlaveNode;
 
 import org.apache.log4j.Logger;
+import org.terrier.structures.Index;
 
 import util.CUtil;
 import configuration.CParameters;
@@ -23,8 +24,13 @@ public class NewMain {
 		
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
-			if (args.length == 12){
-				CParameters parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+			if (args.length == 12 || args.length == 4){
+				CParameters parameters = null;
+				if (args.length == 12){
+				parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+				}else if (args.length == 4){
+					parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3]);
+				}
 				createMaster(parameters);
 			}else{
 				mostrarMensajeParametros();
@@ -53,18 +59,25 @@ public class NewMain {
 		logger.info("---------------------------------------");
 		logger.info("---------- INICIO PARAMETROS ----------");
 		logger.info("---------------------------------------");
-		logger.info("Tipo nodo: " + parameters.getTipoNodo());
-		logger.info("Acción: " + parameters.getAction());
-		logger.info("Master indexa: " + parameters.getMasterIndexa().toString());
-		logger.info("Recrear corpus: " + parameters.getRecrearCorpus().toString());
-		logger.info("Metodo particionamiento: " + parameters.getMetodoParticionamiento().getClass().getName());
-		logger.info("Carpeta colección: " + (parameters.getCarpetaColeccion().trim().isEmpty()?"[Se utiliza el path indicado en la configuración]":parameters.getCarpetaColeccion()));
-		logger.info("Cantidad nodos: " + parameters.getCantidadNodos());
-		logger.info("Metodo de comunicación: " + parameters.getMetodoComunicacion());
-		logger.info("Despertar Esclavos: " + parameters.getWakeUpSlaves());
-		logger.info("Query: " + parameters.getQuery());
-		logger.info("Eliminar corpus: " + parameters.getEliminarCorpus());
-		logger.info("Mergear índices: " + parameters.getMergearIndices());
+		if (CParameters.action_INDEX.equals(parameters.getAction().toUpperCase()) || CParameters.action_ALL.equals(parameters.getAction().toUpperCase())){
+			logger.info("Tipo nodo: " + parameters.getTipoNodo());
+			logger.info("Acción: " + parameters.getAction());
+			logger.info("Master indexa: " + parameters.getMasterIndexa().toString());
+			logger.info("Recrear corpus: " + parameters.getRecrearCorpus().toString());
+			logger.info("Metodo particionamiento: " + parameters.getMetodoParticionamiento().getClass().getName());
+			logger.info("Carpeta colección: " + (parameters.getCarpetaColeccion().trim().isEmpty()?"[Se utiliza el path indicado en la configuración]":parameters.getCarpetaColeccion()));
+			logger.info("Cantidad nodos: " + parameters.getCantidadNodos());
+			logger.info("Metodo de comunicación: " + parameters.getMetodoComunicacion());
+			logger.info("Despertar Esclavos: " + parameters.getWakeUpSlaves());
+			logger.info("Query: " + parameters.getQuery());
+			logger.info("Eliminar corpus: " + parameters.getEliminarCorpus());
+			logger.info("Mergear índices: " + parameters.getMergearIndices());
+		}else if (CParameters.action_RETRIEVAL.equals(parameters.getAction().toUpperCase())){
+			logger.info("Tipo nodo: " + parameters.getTipoNodo());
+			logger.info("Acción: " + parameters.getAction());
+			logger.info("Nombre Indice: " + parameters.getIndexName());
+			logger.info("Query: " + parameters.getQuery());
+		}
 		logger.info("---------------------------------------");
 		logger.info("----------   FIN PARAMETROS  ----------");
 		logger.info("---------------------------------------");
@@ -72,10 +85,6 @@ public class NewMain {
 		
 		/* Creo Nodo Master */
 		IMasterNode nodo = new CMasterNode(parameters);
-		/* Si en los parámetros se especificó una nueva carpeta se sobreescribe la de la configuración */
-		if (!parameters.getCarpetaColeccion().trim().isEmpty()){
-			nodo.getNodeConfiguration().setFolderPath(parameters.getCarpetaColeccion());
-		}
 		nodo.createSlaveNodes(nodo.getParameters().getCantidadNodos());
 		if (parameters.getAction().toUpperCase().equals(CParameters.action_INDEX) || parameters.getAction().toUpperCase().equals(CParameters.action_ALL)){
 			actionIndex(nodo);
@@ -121,8 +130,8 @@ public class NewMain {
 		logger.error("\t3- Particionamiento por Documentos: Por tamaño (cantidad de tokens unicos)");
 		logger.error("\t4- Particionamiento por Terminos: RoundRobin");
 		logger.error("\t5- Particionamiento por Terminos: Por tamaño");
-		logger.error("6) Cantidad nodos --> 1 <= N");
-		logger.error("7) Ruta documentos[Opcional] --> Ruta donde se encuentran los documentos que formarán el corpus (sobreescribe a la property \"folderPath\" de la configuración)");
+		logger.error("6) Ruta documentos[Opcional] --> Ruta donde se encuentran los documentos que formarán el corpus (sobreescribe a la property \"folderPath\" de la configuración)");
+		logger.error("7) Cantidad nodos --> 1 <= N");
 		logger.error("8) Metodo de comunicación: SSH / PATH");
 		logger.error("\t-SSH --> Requiere autenticación SSH");
 		logger.error("\t-PATH --> Requiere que los nodos compartan la memoria");
@@ -135,9 +144,14 @@ public class NewMain {
 		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh S \"\" N S");
 		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh N \"hola como andas\" S S");
 		logger.error("\tjava -jar programa.jar slave");
+		logger.error("\tjava -java -jar programa.jar master retrieval \"jmeIndex\" \"hola como andas\"");
 	}
    
 	private static void actionIndex(IMasterNode nodo){
+		/* Si en los parámetros se especificó una nueva carpeta se sobreescribe la de la configuración */
+		if (!nodo.getParameters().getCarpetaColeccion().trim().isEmpty()){
+			nodo.getNodeConfiguration().setFolderPath(nodo.getParameters().getCarpetaColeccion());
+		}
 		/* Creo los Corpus (la cantidad será nodo.getParameters().getCantidadNodos()) */
 	   	/* Agrego todos los corpus al archivo /etc/collection.spec/ para que se tengan en cuenta en la Indexacion */
 		if (nodo.getParameters().getRecrearCorpus()){
@@ -159,6 +173,11 @@ public class NewMain {
 		if (nodo.getParameters().getEliminarCorpus()){
 			nodo.sendOrderToDeleteCorpus();
 		}
+		/* Copio los indices de los nodos */
+		if (nodo.getParameters().getMergearIndices()){
+			nodo.copyIndexesFromSlaves();
+			nodo.mergeIndexes();
+		}
 	}
 	
 	private static void actionRetrieval(IMasterNode nodo) throws Exception{
@@ -168,10 +187,11 @@ public class NewMain {
 		 * 		3- Indicar a cada esclavo que cada uno levante su indice anterior
 		 * */
 		if (nodo.getParameters().getAction().toUpperCase().equals(CParameters.action_RETRIEVAL)){
-			String lastMasterCorpusPath = CUtil.recuperarCollectionSpec().iterator().next();
-			List<String> col = new ArrayList<String>();
-			col.add(lastMasterCorpusPath);
-			nodo.setColCorpusTotal(col);
+//			String lastMasterCorpusPath = CUtil.recuperarCollectionSpec().iterator().next();
+//			List<String> col = new ArrayList<String>();
+//			col.add(lastMasterCorpusPath);
+//			nodo.setColCorpusTotal(col);
+			nodo.setIndex(Index.createIndex(nodo.getNodeConfiguration().getTerrierHome() +"var/index/", nodo.getParameters().getIndexName()));
 		}
 		/* Se parsea la query */
 		nodo.getParameters().setQuery(CUtil.parseString(nodo.getParameters().getQuery()));

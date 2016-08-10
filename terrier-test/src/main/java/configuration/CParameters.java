@@ -17,6 +17,7 @@ public class CParameters {
 	private String query;
 	private Boolean eliminarCorpus;
 	private Boolean mergearIndices;
+	private String indexName;
 	
 	public final static String action_INDEX = "INDEX";
 	public final static String action_RETRIEVAL = "RETRIEVAL";
@@ -38,6 +39,16 @@ public class CParameters {
 		this.query = query;
 		this.eliminarCorpus = eliminarCorpus.toUpperCase().equals("S");
 		this.mergearIndices = mergearIndices.toUpperCase().equals("S");
+	}
+	
+	public CParameters(String nodeType, String action, String indexName, String query){
+		this.nodeType = nodeType;
+		this.action = action;
+		this.indexName = indexName;
+		this.query = query;
+		this.cantidadNodos = 1;
+		this.masterIndexa = Boolean.TRUE;
+		this.wakeUpSlaves = Boolean.TRUE;
 	}
 	
 	public String getQuery() {
@@ -134,5 +145,13 @@ public class CParameters {
 
 	public void setMergearIndices(Boolean mergearIndices) {
 		this.mergearIndices = mergearIndices;
+	}
+
+	public String getIndexName() {
+		return indexName;
+	}
+
+	public void setIndexName(String indexName) {
+		this.indexName = indexName;
 	}
 }

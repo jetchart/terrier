@@ -13,6 +13,7 @@ import node.ISlaveNode;
 import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
 
+import configuration.INodeConfiguration;
 import util.CUtil;
 
 public class CServer {
@@ -59,6 +60,10 @@ public class CServer {
 				 logger.info(">>>>>>>>>>** "+mensaje+" **<<<<<<<<<");
 				 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
 				 enviarObjeto(slaveNode.getResultSet());
+			 }else if (mensaje.startsWith(CNode.task_INITIALIZE)){
+				 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
+				 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+				 enviar(CNode.task_INITIALIZE + slaveNode.getNodeConfiguration().getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + slaveNode.getNodeConfiguration().getIdNode());
 			 }else{
 				 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
 				flujoSalida= new DataOutputStream(socketServicio.getOutputStream());

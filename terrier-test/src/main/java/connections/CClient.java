@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
+import node.CNode;
+
 import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
 
@@ -23,6 +25,7 @@ public class CClient{
 	private String user;
 	private String pass;
 	private String jarPath;
+	private String indexPath;
 	private String tarea;
 	private String nodoColCorpus;
 	private String query;
@@ -47,7 +50,12 @@ public class CClient{
 		String msg = null;
 		 try {
 			 msg = flujoEntrada.readUTF();
-			 logger.info("El cliente recibió: " + msg);
+			 if (msg.startsWith(CNode.task_INITIALIZE)){
+				 indexPath = msg.substring(CNode.task_INITIALIZE.length());
+				 logger.info("El cliente recibió el indexPath: " + indexPath);
+			 }else{
+				 logger.info("El cliente recibió: " + msg);
+			 }
 		 } catch( IOException e ) {
 		 logger.info( e );
 		 }
@@ -153,5 +161,13 @@ public class CClient{
 
 	public void setJarPath(String jarPath) {
 		this.jarPath = jarPath;
+	}
+
+	public String getIndexPath() {
+		return indexPath;
+	}
+
+	public void setIndexPath(String indexPath) {
+		this.indexPath = indexPath;
 	}
 }

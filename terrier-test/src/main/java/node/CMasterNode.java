@@ -6,6 +6,9 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
+import org.terrier.structures.IndexOnDisk;
+import org.terrier.structures.indexing.Indexer;
+import org.terrier.structures.indexing.classical.BasicIndexer;
 
 import partitioning.CRoundRobinByDocuments;
 import partitioning.IPartitionByTerms;
@@ -257,7 +260,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		}
 		/* Indexo yo mismo si así se indica */
 		if (this.getParameters().getMasterIndexa()){
-			createIndex(INodeConfiguration.prefixIndex, "masterNode");
+			createIndex(INodeConfiguration.prefixIndex, configuration.getIdNode());
 		}
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
@@ -346,6 +349,37 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("------------------------------------");
 		logger.info("FIN MOSTRAR TAMAÑOS DE CORPUS");
 		logger.info("------------------------------------");
+	}
+	
+	@Override
+	public void copyIndexesFromSlaves() {
+		logger.info("------------------------------------");
+		logger.info("INICIO COPIA DE INDICES DESDE ESCLAVOS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		logger.info("Se eligió metodo de comunicación vía SSH");
+		for (CClient cliente : nodes){
+			for (String indexFile : CUtil.indexFiles){
+				String pathOnMaster = configuration.getTerrierHome() + "var/index/" + cliente.getIndexPath().split("/")[cliente.getIndexPath().split("/").length-1] + indexFile;
+				String pathOnSlave = cliente.getIndexPath() + indexFile;
+				CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, cliente.getUser(), cliente.getPass(), cliente.getHost(), 22);
+			}
+		}
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Copia indices tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN COPIA DE INDICES DESDE ESCLAVOS");
+		logger.info("------------------------------------");
+	}
+	
+	@Override
+	public void mergeIndexes(){
+		Indexer.merge(configuration.getTerrierHome() + "var/index/", "jmeIndex", 0, parameters.getCantidadNodos()-1);
+	}
+
+	@Override
+	public void setIndex(IndexOnDisk index) {
+		this.index = index;
 	}
 
 }

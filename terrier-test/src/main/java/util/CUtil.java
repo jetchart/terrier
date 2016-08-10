@@ -38,7 +38,7 @@ import configuration.CParameters;
 public class CUtil {
 	static final Logger logger = Logger.getLogger(CUtil.class);
 	public static String separator = Pattern.quote("*");
-	private static String[] indexFiles = {
+	public final static String[] indexFiles = {
 			".direct.bf",
 			".document.fsarrayfile",
 			".inverted.bf",
@@ -200,17 +200,11 @@ public class CUtil {
     }
     
     public static void deleteIndexFiles(String etcFolder, String prefixName){
-//		logger.info("------------------------------------");
-//		logger.info("INICIO LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
-//		logger.info("------------------------------------");
     	for (String indexFile : indexFiles){
             File fichero = new File(etcFolder + prefixName + indexFile);
             if (fichero.delete())
             	logger.info("Se eliminó el archivo: " + etcFolder + prefixName + indexFile);
     	}
-//		logger.info("------------------------------------");
-//		logger.info("FIN LIMPIEZA DE ARCHIVOS DE INDICES ANTERIORES ");
-//		logger.info("------------------------------------");
     }
     
     public static Boolean existeIndice(String indexPath){
@@ -219,39 +213,23 @@ public class CUtil {
     }
     
     public static void copyFileSFTP(String source, String target, String user, String pass, String host, Integer port){
-		logger.info("------------------------------------");
-		logger.info("INICIO COPIA DE CORPUS DESDE MASTER A SLAVE");
-		logger.info("------------------------------------");
-		Long inicioCopiaCorpus = System.currentTimeMillis();
         try {
-        	logger.info("Se eligió metodo de comunicación vía SSH");
 	        JSch jsch = new JSch();
 	        Session session = jsch.getSession(user, host, port);
 	        UserInfo ui = new SUserInfo(pass, null);
-	 
 	        session.setUserInfo(ui);
 	        session.setPassword(pass);
-	        
 			session.connect();
-	
 	        ChannelSftp sftp = (ChannelSftp)session.openChannel("sftp");
 	        sftp.connect();
-
 	        sftp.get(source, target);
-	        logger.info("Archivo copiado");
-	 
+	        logger.info("Archivo copiado en " + target);
 	        sftp.exit();
 	        sftp.disconnect();
 	        session.disconnect();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Long finCopiaCorpus = System.currentTimeMillis() - inicioCopiaCorpus;
-		logger.info("Copia del corpus tardó " + finCopiaCorpus + " milisegundos");
-		logger.info("------------------------------------");
-		logger.info("FIN COPIA DE CORPUS DESDE MASTER A SLAVE");
-		logger.info("------------------------------------");
     }
     
     public static void executeCommandSSH(String host, Integer port, String user, String pass, String command){
@@ -280,7 +258,7 @@ public class CUtil {
             String linea = null;
             while ((linea = reader.readLine()) != null) {
             	logger.info("Respuesta desde SSH " + user + "@" + host + ":" + port + " >>> " + linea);
-            	break;
+            		break;
             }
             logger.info("");
             channelExec.disconnect();

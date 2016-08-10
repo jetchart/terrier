@@ -32,10 +32,10 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				setColCorpus(array, "PATH");
 				break;
 			case task_CREATE_INDEX:
-				this.createIndex(INodeConfiguration.prefixIndex, "slaveNode_"+this.configuration.getIdNode());
+				this.createIndex(INodeConfiguration.prefixIndex, this.configuration.getIdNode());
 		        break;
 			case task_CLEAN_INDEXES:
-				CUtil.deleteIndexFiles(INodeConfiguration.prefixIndex, "slaveNode_"+this.configuration.getIdNode());
+				CUtil.deleteIndexFiles(INodeConfiguration.prefixIndex, this.configuration.getIdNode());
 		        break;
 			case task_DELETE_CORPUS:
 				this.eliminarCorpus(colCorpus);
@@ -70,7 +70,7 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 			corpusPathOnSlave = configuration.getDestinationFolderPath()+nombreCorpusOnMaster;
 			logger.info("corpusPathOnMaster: " + corpusPathOnMaster);
 			logger.info("corpusPathOnSlave: " + corpusPathOnSlave);
-			CUtil.copyFileSFTP(corpusPathOnMaster, corpusPathOnSlave, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
+			this.copiarCorpusDesdeMaster(corpusPathOnMaster, corpusPathOnSlave, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
 		}
 		/* Si el método de comunicacion via PATH utiliza el archivo desde el mismo path que el master */
 		else if (CParameters.metodoComunicacion_PATH.equals(metodoComunicacion)){
@@ -79,5 +79,20 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 		}
 		col.add(corpusPathOnSlave);
 		this.setColCorpus(col);
+	}
+
+	@Override
+	public void copiarCorpusDesdeMaster(String corpusPathOnMaster,String corpusPathOnSlave, String userSFTP, String passwordSFTP,String masterSFTPHost, Integer masterSFTPPort) {
+		logger.info("------------------------------------");
+		logger.info("INICIO COPIA DE CORPUS DESDE MASTER A SLAVE");
+		logger.info("------------------------------------");
+		Long inicioCopiaCorpus = System.currentTimeMillis();
+		logger.info("Se eligió metodo de comunicación vía SSH");
+		CUtil.copyFileSFTP(corpusPathOnMaster, corpusPathOnSlave, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
+		Long finCopiaCorpus = System.currentTimeMillis() - inicioCopiaCorpus;
+		logger.info("Copia del corpus tardó " + finCopiaCorpus + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN COPIA DE CORPUS DESDE MASTER A SLAVE");
+		logger.info("------------------------------------");
 	}
 }
