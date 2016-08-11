@@ -52,7 +52,7 @@ public class CClient{
 			 msg = flujoEntrada.readUTF();
 			 if (msg.startsWith(CNode.task_INITIALIZE)){
 				 indexPath = msg.substring(CNode.task_INITIALIZE.length());
-				 logger.info("El cliente recibió el indexPath: " + indexPath);
+				 logger.info("El cliente recibió del nodo " + this.host + ":" + this.port + " el indexPath: " + indexPath);
 			 }else{
 				 logger.info("El cliente recibió: " + msg);
 			 }
@@ -67,7 +67,7 @@ public class CClient{
 		 try {
 			 objetoEntrada= new ObjectInputStream(miCliente.getInputStream());
 			 resultSet = (ResultSet) objetoEntrada.readObject();
-			 logger.info("El cliente recibió: objeto ResultSet");
+			 logger.info("El cliente recibió del nodo " + this.host + ":" + this.port + ": objeto ResultSet");
 		 } catch( IOException e ) {
 		 logger.info( e );
 		 }
@@ -77,7 +77,7 @@ public class CClient{
 	public void enviar(String mensaje){
 		 try {
 		 flujoSalida.writeUTF(mensaje);
-		 logger.info("El Cliente envió al Nodo " + this.port + " el mensaje: " + mensaje);
+		 logger.info("El Cliente envió al Nodo " + this.host + ":" + this.port + " el mensaje: " + mensaje);
 		 } catch( IOException e ) {
 		 logger.info( e );
 		 }

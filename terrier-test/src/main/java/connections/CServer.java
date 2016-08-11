@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
 
 import configuration.INodeConfiguration;
-import util.CUtil;
 
 public class CServer {
 

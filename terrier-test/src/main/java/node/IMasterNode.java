@@ -33,7 +33,7 @@ public interface IMasterNode extends INode, IClient {
 
 	void showCorpusSize();
 
-	void sendOrderToCleanIndexes(String methodPartitionName);
+	void sendOrderToCleanIndexes(Boolean cleanIndexMaster);
 
 	void sendOrderToCloseSlaves();
 	

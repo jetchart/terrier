@@ -33,9 +33,10 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				break;
 			case task_CREATE_INDEX:
 				this.createIndex(INodeConfiguration.prefixIndex, this.configuration.getIdNode());
+				this.copiarIndexProperties(Boolean.FALSE);
 		        break;
 			case task_CLEAN_INDEXES:
-				CUtil.deleteIndexFiles(INodeConfiguration.prefixIndex, this.configuration.getIdNode());
+				CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndex + this.configuration.getIdNode());
 		        break;
 			case task_DELETE_CORPUS:
 				this.eliminarCorpus(colCorpus);

@@ -36,4 +36,6 @@ public interface INode extends Remote {
 	void setResultSet(ResultSet resultSet);
 	
 	void eliminarCorpus(Collection<String> colPaths);
+
+	void copiarIndexProperties(Boolean isMergeIndex);
 }

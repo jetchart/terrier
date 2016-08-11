@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.indexing.Indexer;
-import org.terrier.structures.indexing.classical.BasicIndexer;
 
 import partitioning.CRoundRobinByDocuments;
 import partitioning.IPartitionByTerms;
@@ -171,9 +170,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 	
 	@Override
-	public void sendOrderToCleanIndexes(String methodPartitionName) {
+	public void sendOrderToCleanIndexes(Boolean cleanIndexMaster) {
 		logger.info("------------------------------------");
-		logger.info("COMIENZA LIMPIEZA INDICES ANTERIORES");
+		logger.info("COMIENZA LIMPIEZA INDICES");
 		logger.info("------------------------------------");
 		Long inicio = System.currentTimeMillis();
 		/* Envio indicacion para indexar a cada nodo */
@@ -184,16 +183,18 @@ public class CMasterNode extends CNode implements IMasterNode {
 			hilo.start();
 			hilos.add(hilo);
 		}
-		/* Limpio el Master solo si tiene que indexar */
-		if (this.getParameters().getMasterIndexa()){
-			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndex + "masterNode");
+		/* Limpio el Master solo si se indica y además tiene que indexar */
+		if (cleanIndexMaster){
+			if (this.getParameters().getMasterIndexa()){
+				CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndex + "masterNode");
+			}
 		}
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
 		Long fin = System.currentTimeMillis() - inicio;
 		logger.info("Limpieza de indices TOTAL tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
-		logger.info("FIN LIMPIEZA INDICES ANTERIORES");
+		logger.info("FIN LIMPIEZA INDICES");
 		logger.info("------------------------------------");
 	}
 	
@@ -261,6 +262,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Indexo yo mismo si así se indica */
 		if (this.getParameters().getMasterIndexa()){
 			createIndex(INodeConfiguration.prefixIndex, configuration.getIdNode());
+			copiarIndexProperties(Boolean.FALSE);
 		}
 		/* Espero a que todos los nodos terminen */
 		esperar(hilos);
@@ -354,21 +356,25 @@ public class CMasterNode extends CNode implements IMasterNode {
 	@Override
 	public void copyIndexesFromSlaves() {
 		logger.info("------------------------------------");
-		logger.info("INICIO COPIA DE INDICES DESDE ESCLAVOS");
+		logger.info("INICIO COPIA DE INDICES DE ESCLAVOS");
 		logger.info("------------------------------------");
 		Long inicio = System.currentTimeMillis();
-		logger.info("Se eligió metodo de comunicación vía SSH");
 		for (CClient cliente : nodes){
 			for (String indexFile : CUtil.indexFiles){
 				String pathOnMaster = configuration.getTerrierHome() + "var/index/" + cliente.getIndexPath().split("/")[cliente.getIndexPath().split("/").length-1] + indexFile;
 				String pathOnSlave = cliente.getIndexPath() + indexFile;
-				CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, cliente.getUser(), cliente.getPass(), cliente.getHost(), 22);
+				if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
+					CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, cliente.getUser(), cliente.getPass(), cliente.getHost(), 22);
+				}else if (CParameters.metodoComunicacion_PATH.equals(parameters.getMetodoComunicacion())){
+					CUtil.copyFile(pathOnSlave, pathOnMaster);
+				}
+				
 			}
 		}
 		Long fin = System.currentTimeMillis() - inicio;
-		logger.info("Copia indices tardó " + fin + " milisegundos");
+		logger.info("Copia indices de esclavos tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
-		logger.info("FIN COPIA DE INDICES DESDE ESCLAVOS");
+		logger.info("FIN COPIA DE INDICES DE ESCLAVOS");
 		logger.info("------------------------------------");
 	}
 	
@@ -389,6 +395,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Long inicio = System.currentTimeMillis();
 		Indexer.merge(indexPath, indexPrefix, lowest, highest);
 		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Se creó índice mergeado con el prefijo \"" + indexPrefix + "\" en la carpeta " + indexPath);
 		logger.info("Merge de indices tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
 		logger.info("FIN MERGE DE INDICES");

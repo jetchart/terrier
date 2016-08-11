@@ -163,4 +163,23 @@ public abstract class CNode implements INode {
 		logger.info("FIN ELIMINACIÓN CORPUS");
 		logger.info("------------------------------------");
 	}
+	
+	@Override
+	public void copiarIndexProperties(Boolean isMergeIndex){
+		logger.info("------------------------------------");
+		logger.info("INICIO COPIAR ARCHIVO PROPERTIES DEL INDICE");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		String merge = isMergeIndex?"merge_":"";
+		String source = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + configuration.getIdNode() + ".properties";
+		String target = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + configuration.getIdNode() + "_" + merge + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+		logger.info(source);
+		logger.info(target);
+		CUtil.copyFile(source, target);
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Copiar archivo properties del indice tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN COPIAR ARCHIVO PROPERTIES DEL INDICE");
+		logger.info("------------------------------------");
+	}
 }

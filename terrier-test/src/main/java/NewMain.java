@@ -166,7 +166,7 @@ public class NewMain {
 		/* Envío los corpus a los nodos */
 		nodo.sendCorpusToNodes();
 		/* Envio orden para limpiar indices anteriores */
-		nodo.sendOrderToCleanIndexes(nodo.getParameters().getMetodoParticionamiento().getClass().getName());
+		nodo.sendOrderToCleanIndexes(Boolean.TRUE);
 		logger.info("----------------------------------------------------------------------->");
 		logger.info("                   INICIO PROCESO INDEXACION COMPLETO                  >");
 		logger.info("----------------------------------------------------------------------->");
@@ -176,7 +176,9 @@ public class NewMain {
 		/* Copio los indices de los nodos y realizo un merge */
 		if (nodo.getParameters().getMergearIndices()){
 			nodo.copyIndexesFromSlaves();
-			nodo.mergeIndexes(nodo.getNodeConfiguration().getTerrierHome() + "var/index/", "jmeIndex", 0, nodo.getParameters().getCantidadNodos()-1);
+			Integer minIndex = nodo.getParameters().getMasterIndexa()?0:1;
+			Integer maxIndex = minIndex==0?nodo.getParameters().getCantidadNodos()-1:nodo.getParameters().getCantidadNodos();
+			nodo.mergeIndexes(nodo.getNodeConfiguration().getTerrierHome() + "var/index/", "jmeIndex", minIndex, maxIndex);
 		}
 		Long fin = System.currentTimeMillis() - inicio;
 		logger.info("Proceso de indexación completo tardó " + fin + " milisegundos");
@@ -186,6 +188,12 @@ public class NewMain {
 		/* Eliminar corpus al terminar */
 		if (nodo.getParameters().getEliminarCorpus()){
 			nodo.sendOrderToDeleteCorpus();
+		}
+		/* Si se mergearon los índices envio orden para eliminarlos en los esclavos */
+		if (nodo.getParameters().getMergearIndices()){
+			nodo.copiarIndexProperties(Boolean.TRUE);
+			/* Indico FALSE ya que el índice del master se elimina en el proceso de MERGE */
+			nodo.sendOrderToCleanIndexes(Boolean.FALSE);
 		}
 	}
 	

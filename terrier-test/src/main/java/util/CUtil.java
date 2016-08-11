@@ -2,7 +2,9 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -186,15 +188,20 @@ public class CUtil {
 		 /* Imprimo resultados */
 		 logger.info(docIds.length +" documentos para la query: " + query);
 		 for (int id : docIds){
-			 if (index != null){
-				 /* Obtengo el MetaIndex para acceder a los metadatos */
-				 MetaIndex meta = index.getMetaIndex();
-				 /* A partir del id obtengo el DOCNO */
-				 String docPath = meta.getItem("DOCPATH", id);
-				 logger.info("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);				 
-			 }else{
-				 logger.info("\t "+ ++posicion + "- DOCNO: " + id + " con score: " + scores[posicion-1]);
-			 }
+			 /* TODO Desactivo esto junto con la escritura del tag <DOCPATH> en los 
+			  * corpus, ya que ocupará demasiado espacio y no creo que sea necesario.
+			  * Además también deberá activarse las lineas de TrecDocTags.propertytags, 
+			  * indexer.meta.forward.keys y indexer.meta.forward.keylens en el terrier.properties */
+//			 if (index != null){
+//				 /* Obtengo el MetaIndex para acceder a los metadatos */
+//				 MetaIndex meta = index.getMetaIndex();
+//				 /* A partir del id obtengo el DOCNO */
+//				 String docPath = meta.getItem("DOCPATH", id);
+//				 logger.info("\t "+ ++posicion + "- Documento: " + docPath + " con score: " + scores[posicion-1]);				 
+//			 }else{
+//				 logger.info("\t "+ ++posicion + "- DOCNO: " + id + " con score: " + scores[posicion-1]);
+//			 }
+			 logger.info("\t "+ ++posicion + "- DOCNO: " + id + " con score: " + scores[posicion-1]);
 
 		 }
     }
@@ -223,7 +230,7 @@ public class CUtil {
 	        ChannelSftp sftp = (ChannelSftp)session.openChannel("sftp");
 	        sftp.connect();
 	        sftp.get(source, target);
-	        logger.info("Archivo copiado en " + target);
+	        logger.info("Archivo copiado vía SSH en " + target);
 	        sftp.exit();
 	        sftp.disconnect();
 	        session.disconnect();
@@ -439,4 +446,32 @@ public class CUtil {
 	public static void deleteFile(String filePath) {
 		new File(filePath).delete();
 	}
+	
+	/**
+	 * El método copyFile debe copiar el archivo sourceFile en destinationFile
+	 * @param sourceFile
+	 * @param destinationFile
+	 * @return 
+	 */
+	public static void copyFile(String sourceFile, String destinationFile) {
+		try {
+			File inFile = new File(sourceFile);
+			File outFile = new File(destinationFile);
+
+			FileInputStream in = new FileInputStream(inFile);
+			FileOutputStream out = new FileOutputStream(outFile);
+
+			int c;
+			while( (c = in.read() ) != -1)
+				out.write(c);
+
+			in.close();
+			out.close();
+			
+			logger.info("Archivo copiado vía PATH en " + destinationFile);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

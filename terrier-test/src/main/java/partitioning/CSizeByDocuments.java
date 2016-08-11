@@ -47,7 +47,7 @@ public class CSizeByDocuments implements IPartitionByDocuments {
                 contenido.append("<DOC>").append("\n");
                 contenido.append("<DOCNO>"+ docno++ +"</DOCNO>").append("\n");
                 /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
-                contenido.append("<DOCPATH>" + filePath + "</DOCPATH>").append("\n");
+//                contenido.append("<DOCPATH>" + filePath + "</DOCPATH>").append("\n");
                 contenido.append("<TEXT>").append("\n");
                 /* Obtengo contenido del archivo sin tags */
                 contenido.append(CUtil.leerArchivo(filePath)).append("\n");
