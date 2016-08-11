@@ -171,9 +171,9 @@ public abstract class CNode implements INode {
 		logger.info("------------------------------------");
 		Long inicio = System.currentTimeMillis();
 		String merge = isMergeIndex?"merge_":"";
-		String nodeId = isMergeIndex?"":configuration.getIdNode();
-		String source = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + nodeId + ".properties";
-		String target = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + nodeId + "_" + merge + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+		String fileName = isMergeIndex?INodeConfiguration.prefixIndex.replace("_", ""): INodeConfiguration.prefixIndex + configuration.getIdNode();
+		String source = configuration.getTerrierHome() + "var/index/" + fileName + ".properties";
+		String target = configuration.getTerrierHome() + "var/index/" + fileName + "_" + merge + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
 		logger.info(source);
 		logger.info(target);
 		CUtil.copyFile(source, target);
