@@ -368,7 +368,14 @@ public class CMasterNode extends CNode implements IMasterNode {
 				}else if (CParameters.metodoComunicacion_PATH.equals(parameters.getMetodoComunicacion())){
 					CUtil.copyFile(pathOnSlave, pathOnMaster);
 				}
-				
+			}
+			/* Copio también el .properties de la corrida de los esclavos */
+			String pathOnMaster = configuration.getTerrierHome() + "var/index/" + cliente.getIndexPath().split("/")[cliente.getIndexPath().split("/").length-1] + "_" + cliente.getNodoColCorpus().split("/")[ cliente.getNodoColCorpus().split("/").length-1] + ".properties";
+			String pathOnSlave = cliente.getIndexPath() + "_" + cliente.getNodoColCorpus().split("/")[cliente.getNodoColCorpus().split("/").length-1] + ".properties";
+			if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
+				CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, cliente.getUser(), cliente.getPass(), cliente.getHost(), 22);
+			}else if (CParameters.metodoComunicacion_PATH.equals(parameters.getMetodoComunicacion())){
+				CUtil.copyFile(pathOnSlave, pathOnMaster);
 			}
 		}
 		Long fin = System.currentTimeMillis() - inicio;
