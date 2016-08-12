@@ -369,14 +369,6 @@ public class CMasterNode extends CNode implements IMasterNode {
 					CUtil.copyFile(pathOnSlave, pathOnMaster);
 				}
 			}
-			/* Copio también el .properties de la corrida de los esclavos */
-			String pathOnMaster = configuration.getTerrierHome() + "var/index/" + cliente.getIndexPath().split("/")[cliente.getIndexPath().split("/").length-1] + "_" + cliente.getNodoColCorpus().split("/")[ cliente.getNodoColCorpus().split("/").length-1] + ".properties";
-			String pathOnSlave = cliente.getIndexPath() + "_" + cliente.getNodoColCorpus().split("/")[cliente.getNodoColCorpus().split("/").length-1] + ".properties";
-			if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
-				CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, cliente.getUser(), cliente.getPass(), cliente.getHost(), 22);
-			}else if (CParameters.metodoComunicacion_PATH.equals(parameters.getMetodoComunicacion())){
-				CUtil.copyFile(pathOnSlave, pathOnMaster);
-			}
 		}
 		Long fin = System.currentTimeMillis() - inicio;
 		logger.info("Copia indices de esclavos tardó " + fin + " milisegundos");
@@ -385,6 +377,38 @@ public class CMasterNode extends CNode implements IMasterNode {
 		logger.info("------------------------------------");
 	}
 	
+	@Override
+	public void copyPropertiesFileFromSlaves() {
+		logger.info("------------------------------------");
+		logger.info("INICIO COPIA DE ARCHIVO PROPERTIES DE ESCLAVOS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		for (CClient cliente : nodes){
+			/* Copio el .properties de la corrida de los esclavos */
+			String pathOnMaster = INodeConfiguration.logIndexPath + cliente.getIndexPath().split("/")[cliente.getIndexPath().split("/").length-1] + "_" + cliente.getNodoColCorpus().split("/")[ cliente.getNodoColCorpus().split("/").length-1] + ".properties";
+			/* El String comentado va a buscar el .properties con el nombre de la corrida */
+			String pathOnSlave = cliente.getIndexPath() + "_" + cliente.getNodoColCorpus().split("/")[cliente.getNodoColCorpus().split("/").length-1] + ".properties";
+//			String pathOnSlave = cliente.getIndexPath() + "_" + ".properties";
+			if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
+				CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, cliente.getUser(), cliente.getPass(), cliente.getHost(), 22);
+			}else if (CParameters.metodoComunicacion_PATH.equals(parameters.getMetodoComunicacion())){
+				CUtil.copyFile(pathOnSlave, pathOnMaster);
+			}
+		}
+		/* Copio el .properties del master tambien (ya que está en la carpeta de terrier */
+		String pathOnMasterTarget = INodeConfiguration.logIndexPath + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+		/* El String comentado va a buscar el .properties con el nombre de la corrida */
+		String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+//		String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + ".properties";
+		logger.info("pathOnMasterTarget: " + pathOnMasterTarget);
+		logger.info("pathOnMasterSource: " + pathOnMasterSource);
+		CUtil.copyFile(pathOnMasterSource, pathOnMasterTarget);
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Copia archivo properties de esclavos tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN COPIA DE ARCHIVO PROPERTIES DE ESCLAVOS");
+		logger.info("------------------------------------");
+	}
 	/**
 	 * Realiza un merge de los indices que se encuentren en la carpeta indexPath
 	 * y que concuerden con el prefijo y rango de numeros indicados.

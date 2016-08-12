@@ -189,6 +189,8 @@ public class NewMain {
 		if (nodo.getParameters().getEliminarCorpus()){
 			nodo.sendOrderToDeleteCorpus();
 		}
+		/* Copio en el master los archivos .properties de los indices de los esclavos (para analizar los indices) */
+		nodo.copyPropertiesFileFromSlaves();
 		/* Si se mergearon los índices envio orden para eliminarlos en los esclavos */
 		if (nodo.getParameters().getMergearIndices()){
 			nodo.copiarIndexProperties(Boolean.TRUE);

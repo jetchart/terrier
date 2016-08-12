@@ -12,6 +12,7 @@ public interface INodeConfiguration {
 	
 	public static String prefixIndex = "jmeIndex_";
 	public static String prefixIndexNoProcess = "noProcess_";
+	public static String logIndexPath = "./log/index/";
 	
 	String getIdMasterNode();
 	

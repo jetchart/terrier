@@ -45,4 +45,6 @@ public interface IMasterNode extends INode, IClient {
 
 	void setIndex(IndexOnDisk index);
 
+	void copyPropertiesFileFromSlaves();
+
 }
