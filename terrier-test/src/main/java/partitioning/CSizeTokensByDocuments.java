@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 
-import configuration.CParameters;
 import util.CUtil;
+import configuration.CParameters;
 
 public class CSizeTokensByDocuments implements IPartitionByDocuments {
 
@@ -21,7 +21,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
 	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
-    	Map<Integer,Integer> tokensByCorpus;
+    	Map<Integer,Integer> tokensByCorpus = null;
     	Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try
         {
@@ -87,6 +87,8 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /* Muestro info sobre los corpus */
+        this.showCorpusInfo(tokensByCorpus);
 		return colCorpusTotal;
 	}
 
@@ -122,5 +124,20 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
 			}
 		}
 		return idCorpus;
+	}
+
+	private void showCorpusInfo(Map<Integer, Integer> tokensByCorpus){
+		logger.info("------------------------------------");
+		logger.info("INICIO MOSTRAR INFO CORPUS");
+		logger.info("------------------------------------");
+		logger.info("Criterio de elección de corpus: Cantidad tokens únicos");
+		for (Entry<Integer, Integer> entry : tokensByCorpus.entrySet()){
+			Integer valor = entry.getValue();
+			Integer idCorpus = entry.getKey();
+			logger.info("Corpus " + idCorpus + " tiene " + valor + " tokens únicos");
+		}
+		logger.info("------------------------------------");
+		logger.info("FIN MOSTRAR INFO CORPUS");
+		logger.info("------------------------------------");
 	}
 }

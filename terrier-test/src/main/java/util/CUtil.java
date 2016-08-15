@@ -168,6 +168,8 @@ public class CUtil {
     }
     
 	public static String parseString(String cadena){
+		if (1==1)
+			return cadena;
     	Document doc = Jsoup.parse(cadena);
     	cadena = doc.text().replaceAll("\\p{Cntrl}", "");
     	cadena = doc.text().replaceAll("/[^A-Za-z0-9 ]/", "");

@@ -75,6 +75,8 @@ public class CSizeByTerms implements IPartitionByTerms {
 	        // TODO Auto-generated catch block
 	        e.printStackTrace();
 	    }
+        /* Muestro info sobre los corpus */
+        this.showCorpusInfo(mapNodeDocTerm, cantidadCorpus);
 		return colCorpusTotal;
 	}
 
@@ -137,4 +139,20 @@ public class CSizeByTerms implements IPartitionByTerms {
 		return nodeId;
 	}
 
+	private void showCorpusInfo(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, Integer cantidadCorpus){
+		logger.info("------------------------------------");
+		logger.info("INICIO MOSTRAR INFO CORPUS");
+		logger.info("------------------------------------");
+		logger.info("Criterio de elección de corpus: Tamaño de posting lists");
+		for (int id : mapNodeDocTerm.keySet()){
+			Long tamanioPostingLists=0L;
+			for (int docId : mapNodeDocTerm.get(id).keySet()){
+				tamanioPostingLists+= mapNodeDocTerm.get(id).get(docId).size();
+			}
+    		logger.info("Corpus " + id + " tiene " + mapNodeDocTerm.get(id).size() + " posting lists y un total de " + tamanioPostingLists + " tokens en total");
+		}
+		logger.info("------------------------------------");
+		logger.info("FIN MOSTRAR INFO CORPUS");
+		logger.info("------------------------------------");
+	}
 }

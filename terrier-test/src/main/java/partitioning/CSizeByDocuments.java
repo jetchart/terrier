@@ -72,10 +72,16 @@ public class CSizeByDocuments implements IPartitionByDocuments {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /* Muestro info sobre los corpus */
+        this.showCorpusInfo(colCorpusTotal);
 		return colCorpusTotal;
 	}
 
-	/* Devuelvo el ID del corpus de menor tamaño */
+	/**
+	 * Devuelve el ID del corpus de menor tamaño
+	 * @param colCorpusTotal
+	 * @return
+	 */
 	private Integer getIdSmallestDocument(List<String> colCorpusTotal){
         Integer i;
         long size = -1;
@@ -89,5 +95,21 @@ public class CSizeByDocuments implements IPartitionByDocuments {
     		}
     	}
 		return idSmallestDocument;
+	}
+	
+	private void showCorpusInfo(List<String> colCorpusTotal){
+		logger.info("------------------------------------");
+		logger.info("INICIO MOSTRAR INFO CORPUS");
+		logger.info("------------------------------------");
+        Integer i;
+        logger.info("Criterio de elección de corpus: Tamaño corpus");
+    	for (i=0;i<colCorpusTotal.size();i++){
+    		String corpusPath = colCorpusTotal.get(i);
+    		File file = new File (corpusPath);
+    		logger.info("Corpus " + corpusPath + " tiene un tamaño de: " + file.length() + " bytes");
+    	}
+		logger.info("------------------------------------");
+		logger.info("FIN MOSTRAR INFO CORPUS");
+		logger.info("------------------------------------");
 	}
 }
