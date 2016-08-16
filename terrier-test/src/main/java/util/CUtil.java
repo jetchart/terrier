@@ -168,8 +168,6 @@ public class CUtil {
     }
     
 	public static String parseString(String cadena){
-		if (1==1)
-			return cadena;
     	Document doc = Jsoup.parse(cadena);
     	cadena = doc.text().replaceAll("\\p{Cntrl}", "");
     	cadena = doc.text().replaceAll("/[^A-Za-z0-9 ]/", "");
@@ -289,7 +287,7 @@ public class CUtil {
 		Collection<String> col = new ArrayList<String>();
 		Integer i;
 		for (i=0;i<cantidadNodos;i++){
-			String corpusPath = CUtil.generarPathArchivoCorpus(parameters, path, i.toString());
+			String corpusPath = CUtil.generarPathArchivoCorpus(parameters, metodoParticionamiento, path, i.toString());
 			FileWriter fichero = new FileWriter(corpusPath, Boolean.FALSE);
 			PrintWriter pw = new PrintWriter(fichero);
 			pw.close();
@@ -370,8 +368,8 @@ public class CUtil {
 	 * @param cantidadNodos
 	 * @return
 	 */
-	public static String generarPathArchivoCorpus(CParameters parameters, String path, String nodeId){
-		return path + "corpus" + nodeId + "_" + parameters.getMetodoParticionamiento().getClass().getName() + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + parameters.getWakeUpSlaves() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
+	public static String generarPathArchivoCorpus(CParameters parameters, String metodoParticionamiento, String path, String nodeId){
+		return path + "corpus" + nodeId + "_" + metodoParticionamiento + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + parameters.getWakeUpSlaves() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
 	}
 	
 	/**

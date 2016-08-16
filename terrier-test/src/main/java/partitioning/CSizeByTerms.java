@@ -149,7 +149,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 			for (int docId : mapNodeDocTerm.get(id).keySet()){
 				tamanioPostingLists+= mapNodeDocTerm.get(id).get(docId).size();
 			}
-    		logger.info("Corpus " + id + " tiene " + mapNodeDocTerm.get(id).size() + " posting lists y un total de " + tamanioPostingLists + " tokens en total");
+    		logger.info("Corpus " + id + " tiene " + mapNodeDocTerm.get(id).size() + " documentos y un total de " + tamanioPostingLists + " tokens");
 		}
 		logger.info("------------------------------------");
 		logger.info("FIN MOSTRAR INFO CORPUS");
