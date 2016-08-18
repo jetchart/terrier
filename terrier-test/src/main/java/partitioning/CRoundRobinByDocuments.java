@@ -15,7 +15,6 @@ import util.CUtil;
 public class CRoundRobinByDocuments implements IPartitionByDocuments {
 
 	static final Logger logger = Logger.getLogger(CRoundRobinByDocuments.class);
-	static Long cantidadDocumentosAntesCierre = 10000L;
 	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
@@ -42,7 +41,7 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
         	}
             /* Inicializo DOCNO */
             Long docno = Long.valueOf(0);
-            Long i = 0L;
+            Long tamanioBuffer = 0L;
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
         		Long resto = docno % cantidadCorpus;
@@ -60,9 +59,10 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
                 contenido.append("</TEXT>").append("\n");
                 contenido.append("</DOC>").append("\n");
                 mapaCorpusContenido.put(corpusPath, contenido);
+                tamanioBuffer += contenido.length();
                 /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
-                if (i++ > cantidadDocumentosAntesCierre){
-                	i = 0L;
+                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
+                	tamanioBuffer = 0L;
                 	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
                 	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
                 	/* Inicializo el mapa con la ruta de los corpus vacios */
@@ -71,7 +71,7 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
                 	}
                 }
         	}
-        	if (i > 0){
+        	if (tamanioBuffer > 0){
 	        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
 	        	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
         	}

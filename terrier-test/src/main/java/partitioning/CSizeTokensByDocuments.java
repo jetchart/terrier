@@ -17,7 +17,6 @@ import configuration.CParameters;
 public class CSizeTokensByDocuments implements IPartitionByDocuments {
 
 	static final Logger logger = Logger.getLogger(CSizeTokensByDocuments.class);
-	static Long cantidadDocumentosAntesCierre = 1000L;
 	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
@@ -41,7 +40,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
         		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
         	}
             Long docno = Long.valueOf(0);
-            Long i = 0L;
+            Long tamanioBuffer = 0L;
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
         		/* Se obtiene el id del corpus con menos tokens unicos */
@@ -69,9 +68,10 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
                 contenido.append("</TEXT>").append("\n");
                 contenido.append("</DOC>").append("\n");
                 mapaCorpusContenido.put(corpusPath, contenido);
+                tamanioBuffer += contenido.length();
                 /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
-                if (i++ > cantidadDocumentosAntesCierre){
-                	i = 0L;
+                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
+                	tamanioBuffer = 0L;
                 	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
                 	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
                 	/* Inicializo el mapa con la ruta de los corpus vacios */
@@ -80,7 +80,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
                 	}
                 }
         	}
-        	if (i > 0){
+        	if (tamanioBuffer > 0){
 	        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
 	        	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
         	}
