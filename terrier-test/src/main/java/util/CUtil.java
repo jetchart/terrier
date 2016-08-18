@@ -26,7 +26,6 @@ import org.jsoup.nodes.Document;
 import org.terrier.indexing.tokenisation.Tokeniser;
 import org.terrier.matching.ResultSet;
 import org.terrier.structures.Index;
-import org.terrier.structures.MetaIndex;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -168,6 +167,10 @@ public class CUtil {
     }
     
 	public static String parseString(String cadena){
+		if (1!=1){
+//			return cadena;
+			return Jsoup.parse(cadena).text();
+		}
     	Document doc = Jsoup.parse(cadena);
     	cadena = doc.text().replaceAll("\\p{Cntrl}", "");
     	cadena = doc.text().replaceAll("/[^A-Za-z0-9 ]/", "");
@@ -175,7 +178,7 @@ public class CUtil {
     	//Normalizamos en la forma NFD (Canonical decomposition)
     	cadena = Normalizer.normalize(cadena, Normalizer.Form.NFD);
     	//Reemplazamos los acentos con una una expresión regular de Bloque Unicode
-    	return cadena.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    	return cadena.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").replaceAll(",", "").toLowerCase();
     }
 	
     public static void mostrarResultados(ResultSet rs, Index index, String query) throws Exception{

@@ -1,6 +1,7 @@
 package node;
 
 import java.util.Collection;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.terrier.indexing.TRECCollection;
@@ -8,6 +9,8 @@ import org.terrier.matching.ResultSet;
 import org.terrier.querying.Manager;
 import org.terrier.querying.SearchRequest;
 import org.terrier.structures.Index;
+import org.terrier.structures.Lexicon;
+import org.terrier.structures.LexiconEntry;
 import org.terrier.structures.indexing.Indexer;
 import org.terrier.structures.indexing.classical.BasicIndexer;
 
@@ -124,12 +127,23 @@ public abstract class CNode implements INode {
 		indexador.createInvertedIndex();
 		/* Cierro Coleccion */
 		coleccion.close();
-    	/* Guardo el indice creado */
+    	/* Levanto el índice creado */
 		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", indexName);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
-		logger.info("Indexación del nodo " + configuration.getNodeType() + "_" + configuration.getIdNode() + " tardó " + finIndexacion + " milisegundos");	
+		logger.info("Indexación del nodo " + configuration.getNodeType() + "_" + configuration.getIdNode() + " tardó " + finIndexacion + " milisegundos");
+		mostrarTerminosIndice(this.index);
 	}
 
+	private void mostrarTerminosIndice(Index index) {
+		Lexicon<String> mapLexicon = index.getLexicon();
+		Long terminos = 0L;
+		for (Entry<String, LexiconEntry> lexicon : mapLexicon){
+			terminos++;
+			logger.info(lexicon.getKey().toLowerCase());
+		}
+		logger.info("CANTIDAD TERMINOS: " + terminos);
+	}
+	
 	public int getId() {
 		return this.id;
 	}

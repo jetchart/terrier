@@ -105,12 +105,12 @@ public class CMasterNode extends CNode implements IMasterNode {
 			this.setColCorpus(colCorpusTotal);
 			this.createIndex(INodeConfiguration.prefixIndexNoProcess, CRoundRobinByDocuments.class.getName());
 			/* TODO Eliminar siempre o solo cuando se indica? */
-//			if (getParameters().getEliminarCorpus()){
+			if (getParameters().getEliminarCorpus()){
 				colCorpusTotalByTerms = new ArrayList<String>();
 				colCorpusTotalByTerms.addAll(colCorpusTotal);
 				eliminarCorpus(colCorpusTotalByTerms);
 				colCorpusTotalByTerms.clear();
-//			}
+			}
 			colCorpusTotal.clear();
 		}else{
 			this.index = null;

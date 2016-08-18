@@ -15,7 +15,7 @@ import util.CUtil;
 public class CRoundRobinByDocuments implements IPartitionByDocuments {
 
 	static final Logger logger = Logger.getLogger(CRoundRobinByDocuments.class);
-	static Long cantidadDocumentosAntesCierre = 1000L;
+	static Long cantidadDocumentosAntesCierre = 10000L;
 	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
