@@ -139,7 +139,7 @@ public abstract class CNode implements INode {
 		Long terminos = 0L;
 		for (Entry<String, LexiconEntry> lexicon : mapLexicon){
 			terminos++;
-			logger.info(lexicon.getKey().toLowerCase());
+//			logger.info(lexicon.getKey().toLowerCase());
 		}
 		logger.info("CANTIDAD TERMINOS: " + terminos);
 	}

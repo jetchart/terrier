@@ -178,7 +178,7 @@ public class CUtil {
     	//Normalizamos en la forma NFD (Canonical decomposition)
     	cadena = Normalizer.normalize(cadena, Normalizer.Form.NFD);
     	//Reemplazamos los acentos con una una expresión regular de Bloque Unicode
-    	return cadena.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").replaceAll(",", "").toLowerCase();
+    	return cadena.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
     }
 	
     public static void mostrarResultados(ResultSet rs, Index index, String query) throws Exception{
