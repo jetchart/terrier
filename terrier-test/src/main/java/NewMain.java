@@ -1,6 +1,4 @@
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import node.CMasterNode;
 import node.CSlaveNode;
@@ -36,11 +34,8 @@ public class NewMain {
 				mostrarMensajeParametros();
 			}
 		}else if (opcion!=null && INode.ID_SLAVE.equals(opcion.toUpperCase())){
-			if (args.length == 1){
-				/* TODO creo que habría que sacar esto */
-				/* Si se especificó un puerto lo utilizo, sino lo extraigo de configuration.properties */
-				Integer port = null;
-				createSlave(port);
+			if (args.length == 2){
+				createSlave(((String)args[1]).toLowerCase().equals("cycle"));
 			}else{
 				mostrarMensajeParametros();
 			}
@@ -106,15 +101,13 @@ public class NewMain {
 		}
 	}
 
-	private static void createSlave(Integer port){
+	private static void createSlave(Boolean cycle){
 		/* Creo Nodo Esclavo */
 		ISlaveNode slaveNode = new CSlaveNode(INode.ID_SLAVE);
 		/* Creo Servidor */
-		if (port == null){
-			port = slaveNode.getNodeConfiguration().getPort();
-		}
+		Integer port = slaveNode.getNodeConfiguration().getPort();
 		CServer server = new CServer(port,slaveNode);
-		server.listen();
+		server.listen(cycle);
 	}
 	
 	private static void mostrarMensajeParametros(){

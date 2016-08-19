@@ -79,7 +79,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 				pass = nodo.split(":")[3];
 				jarPath = nodo.split(":")[4];
 				String jarName = nodo.split(":")[5];
-				CUtil.executeCommandSSH(host, 22, user, pass, "cd " + jarPath + "; java -jar " + jarName + " slave");
+				CUtil.executeCommandSSH(host, 22, user, pass, "cd " + jarPath + "; java -jar " + jarName + " slave noCycle");
 			}
 			CClient cliente = new CClient(host, port, user, pass, jarPath);
 			nodes.add(cliente);

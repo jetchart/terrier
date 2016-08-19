@@ -45,38 +45,46 @@ public class CServer {
 		this.slaveNode = slaveNode;
 	}
 	
-	public void listen(){
+	public void listen(Boolean cycle){
 		 logger.info("------------------------------------");
 		 logger.info("COMIENZA NUEVO CICLO");
 		 logger.info("------------------------------------");
+		 if (cycle){
+			 logger.info("Se eligió el comportamiento \"cycle\" por lo tanto se realizará este ciclo hasta que se cierre manualmente");
+		 }else{
+			 logger.info("Se eligió el comportamiento \"noCycle\" por lo tanto el master se encarga de levantar y destruir el esclavo");
+		 }
 		 socketServicio = null;
 		 try {
-		 socketServicio = miServicio.accept();
-		 String mensaje;
-		 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-		 while ((mensaje = recibir()) != null){
-			 if (mensaje.startsWith(CNode.task_RETRIEVAL)){
-				 logger.info(">>>>>>>>>>** "+mensaje+" **<<<<<<<<<");
-				 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
-				 enviarObjeto(slaveNode.getResultSet());
-			 }else if (mensaje.startsWith(CNode.task_INITIALIZE)){
-				 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
-				 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-				 enviar(CNode.task_INITIALIZE + slaveNode.getNodeConfiguration().getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + slaveNode.getNodeConfiguration().getIdNode());
-			 }else{
-				 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
-				flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-			 	enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio: " + mensaje);
-			 }
-			 if (CNode.task_CLOSE.equals(mensaje)){
-				break; 
-			 }
+			 socketServicio = miServicio.accept();
+			 String mensaje;
 			 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
-		 }
-		 logger.info("------------------------------------");
-		 logger.info("TERMINÓ CICLO");
-		 logger.info("------------------------------------");
-		 cerrar();
+			 while ((mensaje = recibir()) != null){
+				 if (mensaje.startsWith(CNode.task_RETRIEVAL)){
+					 logger.info(">>>>>>>>>>** "+mensaje+" **<<<<<<<<<");
+					 objetoSalida= new ObjectOutputStream(socketServicio.getOutputStream());
+					 enviarObjeto(slaveNode.getResultSet());
+				 }else if (mensaje.startsWith(CNode.task_INITIALIZE)){
+					 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
+					 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+					 enviar(CNode.task_INITIALIZE + slaveNode.getNodeConfiguration().getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + slaveNode.getNodeConfiguration().getIdNode());
+				 }else{
+					 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
+					flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
+				 	enviar("Nodo " + slaveNode.getNodeConfiguration().getIdNode() + " recibio: " + mensaje);
+				 }
+				 if (CNode.task_CLOSE.equals(mensaje)){
+					break; 
+				 }
+				 flujoEntrada= new DataInputStream( socketServicio.getInputStream());
+			 }
+			 logger.info("------------------------------------");
+			 logger.info("TERMINÓ CICLO");
+			 logger.info("------------------------------------");
+			 if (cycle){
+				 listen(cycle);
+			 }
+			 cerrar();
 		 } catch( IOException e ) {
 			 logger.info( e );
 		 }
