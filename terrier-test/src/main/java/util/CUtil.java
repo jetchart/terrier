@@ -372,7 +372,7 @@ public class CUtil {
 	 * @return
 	 */
 	public static String generarPathArchivoCorpus(CParameters parameters, String metodoParticionamiento, String path, String nodeId){
-		return path + "corpus" + nodeId + "_" + metodoParticionamiento + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + parameters.getWakeUpSlaves() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
+		return path + "corpus" + nodeId + "_" + parameters.getRunName() + "_" + metodoParticionamiento + "_" + parameters.getCantidadNodos() + "_" + parameters.getMasterIndexa() + "_" + parameters.getMetodoComunicacion() + "_" + parameters.getWakeUpSlaves() + "_" + (new Timestamp(System.currentTimeMillis()).toString().replace(" ", "_")) + ".txt";
 	}
 	
 	/**

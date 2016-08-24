@@ -18,6 +18,7 @@ public class CParameters {
 	private Boolean eliminarCorpus;
 	private Boolean mergearIndices;
 	private String indexName;
+	private String runName;
 	
 	public final static String action_INDEX = "INDEX";
 	public final static String action_RETRIEVAL = "RETRIEVAL";
@@ -26,7 +27,7 @@ public class CParameters {
 	public final static String metodoComunicacion_SSH = "SSH";
 	public final static String metodoComunicacion_PATH = "PATH";
 	
-	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String wakeUpSlaves, String query, String eliminarCorpus, String mergearIndices){
+	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String wakeUpSlaves, String query, String eliminarCorpus, String mergearIndices, String runName){
 		this.nodeType = nodeType;
 		this.action = action;
 		this.masterIndexa = masterIndexa.toUpperCase().equals("S");
@@ -39,9 +40,10 @@ public class CParameters {
 		this.query = query;
 		this.eliminarCorpus = eliminarCorpus.toUpperCase().equals("S");
 		this.mergearIndices = mergearIndices.toUpperCase().equals("S");
+		this.runName = runName.toLowerCase();
 	}
 	
-	public CParameters(String nodeType, String action, String indexName, String query){
+	public CParameters(String nodeType, String action, String indexName, String query, String runName){
 		this.nodeType = nodeType;
 		this.action = action;
 		this.indexName = indexName;
@@ -49,6 +51,7 @@ public class CParameters {
 		this.cantidadNodos = 1;
 		this.masterIndexa = Boolean.TRUE;
 		this.wakeUpSlaves = Boolean.TRUE;
+		this.runName = runName.toLowerCase();
 	}
 	
 	public String getQuery() {
@@ -153,5 +156,13 @@ public class CParameters {
 
 	public void setIndexName(String indexName) {
 		this.indexName = indexName;
+	}
+
+	public String getRunName() {
+		return runName;
+	}
+
+	public void setRunName(String runName) {
+		this.runName = runName;
 	}
 }

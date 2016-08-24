@@ -22,12 +22,12 @@ public class NewMain {
 		
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
-			if (args.length == 12 || args.length == 4){
+			if (args.length == 13 || args.length == 5){
 				CParameters parameters = null;
-				if (args.length == 12){
-				parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
-				}else if (args.length == 4){
-					parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3]);
+				if (args.length == 13){
+				parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+				}else if (args.length == 5){
+					parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3], args[4]);
 				}
 				createMaster(parameters);
 			}else{
@@ -67,6 +67,7 @@ public class NewMain {
 			logger.info("Query: " + parameters.getQuery());
 			logger.info("Eliminar corpus: " + parameters.getEliminarCorpus());
 			logger.info("Mergear índices: " + parameters.getMergearIndices());
+			logger.info("Nombre corrida: " + parameters.getRunName());
 		}else if (CParameters.action_RETRIEVAL.equals(parameters.getAction().toUpperCase())){
 			logger.info("Tipo nodo: " + parameters.getTipoNodo());
 			logger.info("Acción: " + parameters.getAction());
@@ -132,10 +133,11 @@ public class NewMain {
 		logger.error("10) Query[Opcional] --> \"texto entre comillas\"");
 		logger.error("11) Eliminar corpus --> S / N");
 		logger.error("12) Mergear indices --> S / N");
+		logger.error("13) Nombre corrida --> corrida1 ");
 		logger.error("");
 		logger.error("EJEMPLOS:");
-		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh S \"\" N S");
-		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh N \"hola como andas\" S S");
+		logger.error("\tjava -jar programa.jar master index S S 1 \"/home/jetchart/TERRIER_JAVA/master/coleccion/\" 2 ssh S \"\" N S corrida1");
+		logger.error("\tjava -jar programa.jar master all S S 1 \"\" 2 ssh N \"hola como andas\" S S corrida2");
 		logger.error("\tjava -jar programa.jar slave");
 		logger.error("\tjava -java -jar programa.jar master retrieval \"jmeIndex\" \"hola como andas\"");
 	}
