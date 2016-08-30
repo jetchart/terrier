@@ -95,13 +95,13 @@ public class CSizeByTerms implements IPartitionByTerms {
 		            pw.append("<DOCNO>"+ docId +"</DOCNO>\n");
 		            /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
 //		            pw.append("<DOCPATH>" + mapDocDocPath.get(docId) + "</DOCPATH>\n");
-		            pw.append("<TEXT>\n");
+//		            pw.append("<TEXT>\n");
 		            /* Terminos */
 		            for (String term : mapNodeDocTerm.get(nodeId).get(docId)){
 		            	pw.append(term).append(" ");
 		            }
-		            pw.append("\n</TEXT>\n");
-		            pw.append("</DOC>\n");
+//		            pw.append("\n</TEXT>\n");
+		            pw.append("\n</DOC>\n");
 		            pw.append("\n");  
 		            pw.close();
 				}

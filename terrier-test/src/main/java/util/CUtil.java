@@ -167,9 +167,9 @@ public class CUtil {
     }
     
 	public static String parseString(String cadena){
-		if (1!=1){
-//			return cadena;
-			return Jsoup.parse(cadena).text();
+		if (1==1){
+			return cadena;
+//			return Jsoup.parse(cadena).text();
 		}
     	Document doc = Jsoup.parse(cadena);
     	cadena = doc.text().replaceAll("\\p{Cntrl}", "");
@@ -354,6 +354,22 @@ public class CUtil {
 		return tokensUnicos.size();
 	}
 	
+	/**
+	 * Obtiene la cantidad de tokens unicos (sin repeticiones) existentes en el {@link Reader} recibido
+	 * @param reader		Reader con el contenido del archivo
+	 * @return				Cantidad de tokens unicos
+	 * @throws IOException
+	 */
+	public static Integer getAmountUniqueTokensInStringBuffer(StringBuffer stringBuffer) throws IOException{
+		String[] tokens = stringBuffer.toString().split(" ");
+		Collection<String> tokensUnicos = new ArrayList<String>();
+		for (String token : tokens){
+			if (!tokensUnicos.contains(token)){
+				tokensUnicos.add(token);
+			}
+		}
+		return tokensUnicos.size();
+	}
 	/**
 	 * Arma el path completo del corpus a crear en base a los parámetros recibidos, con el fin 
 	 * de diferenciar los corpus entre corridas y que no queden cacheados.

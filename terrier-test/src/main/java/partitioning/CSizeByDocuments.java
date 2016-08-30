@@ -1,6 +1,8 @@
 package partitioning;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,33 +39,51 @@ public class CSizeByDocuments implements IPartitionByDocuments {
         	}
             Long docno = Long.valueOf(0);
             Long tamanioBuffer = 0L;
+    	    FileReader f;
+    	    BufferedReader b;
+    	    String cadena;
+    	    StringBuffer retorno = new StringBuffer();
             /* Se recorren los archivos del folder */
         	for (String filePath : filesPath){
-        		/* Abro el corpus correspondiente */
-        		String corpusPath = colCorpusTotal.get(getIdSmallestDocument(colCorpusTotal));
-        		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);  
-        		/* Escribo contenido del archivo en el corpus con formato TREC */
-                contenido.append("<DOC>").append("\n");
-                contenido.append("<DOCNO>"+ docno++ +"</DOCNO>").append("\n");
-                /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
-//                contenido.append("<DOCPATH>" + filePath + "</DOCPATH>").append("\n");
-                contenido.append("<TEXT>").append("\n");
-                /* Obtengo contenido del archivo sin tags */
-                contenido.append(CUtil.leerArchivo(filePath)).append("\n");
-                contenido.append("</TEXT>").append("\n");
-                contenido.append("</DOC>").append("\n");
-                mapaCorpusContenido.put(corpusPath, contenido);
-                tamanioBuffer += contenido.length();
-                /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
-                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
-                	tamanioBuffer = 0L;
-                	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
-                	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
-                	/* Inicializo el mapa con la ruta de los corpus vacios */
-                	for (String pathCorpus : colCorpusTotal){
-                		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
-                	}
-                }
+				f = new FileReader(filePath);
+			    b = new BufferedReader(f);
+			    while((cadena = b.readLine())!=null) {
+			    	if (!cadena.startsWith("<DOCNO>") && !cadena.startsWith("<DOC>")){
+				    	if (cadena.equals("</DOC>")){
+				    		/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
+				    		/* Abro el corpus correspondiente */
+			        		String corpusPath = colCorpusTotal.get(getIdSmallestDocument(colCorpusTotal));
+			        		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);  
+			        		/* Escribo contenido del archivo en el corpus con formato TREC */
+			                contenido.append("<DOC>").append("\n");
+			                contenido.append("<DOCNO>"+ docno++ +"</DOCNO>").append("\n");
+			                /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
+//			                contenido.append("<DOCPATH>" + filePath + "</DOCPATH>").append("\n");
+//			                contenido.append("<TEXT>").append("\n");
+			                /* Obtengo contenido del archivo sin tags */
+			                contenido.append(retorno).append("\n");
+//			                contenido.append("</TEXT>").append("\n");
+			                contenido.append("</DOC>").append("\n");
+			                mapaCorpusContenido.put(corpusPath, contenido);
+			                tamanioBuffer += contenido.length();
+			                /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
+			                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
+			                	tamanioBuffer = 0L;
+			                	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
+			                	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
+			                	/* Inicializo el mapa con la ruta de los corpus vacios */
+			                	for (String pathCorpus : colCorpusTotal){
+			                		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
+			                	}
+			                }
+				    	    /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+				    		retorno = new StringBuffer();
+				    	}else{
+				    		retorno.append(cadena).append(" ");
+				    	}
+			    	}
+			    }
+        		
         	}
         	if (tamanioBuffer > 0){
 	        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
