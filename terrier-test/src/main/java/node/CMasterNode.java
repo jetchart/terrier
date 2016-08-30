@@ -395,14 +395,16 @@ public class CMasterNode extends CNode implements IMasterNode {
 				CUtil.copyFile(pathOnSlave, pathOnMaster);
 			}
 		}
-		/* Copio el .properties del master tambien (ya que está en la carpeta de terrier */
-		String pathOnMasterTarget = INodeConfiguration.logIndexPath + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
-		/* El String comentado va a buscar el .properties con el nombre de la corrida */
-		String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
-//		String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + ".properties";
-		logger.info("pathOnMasterTarget: " + pathOnMasterTarget);
-		logger.info("pathOnMasterSource: " + pathOnMasterSource);
-		CUtil.copyFile(pathOnMasterSource, pathOnMasterTarget);
+		/* Copio el .properties del master tambien (ya que está en la carpeta de terrier) */
+		if (parameters.getMasterIndexa()){
+			String pathOnMasterTarget = INodeConfiguration.logIndexPath + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+			/* El String comentado va a buscar el .properties con el nombre de la corrida */
+			String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+	//		String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + ".properties";
+			logger.info("pathOnMasterTarget: " + pathOnMasterTarget);
+			logger.info("pathOnMasterSource: " + pathOnMasterSource);
+			CUtil.copyFile(pathOnMasterSource, pathOnMasterTarget);
+		}
 		Long fin = System.currentTimeMillis() - inicio;
 		logger.info("Copia archivo properties de esclavos tardó " + fin + " milisegundos");
 		logger.info("------------------------------------");
