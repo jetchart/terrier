@@ -53,7 +53,7 @@ public class CSizeTokensByDocuments implements IPartitionByDocuments {
 			    b = new BufferedReader(f);
 			    while((cadena = b.readLine())!=null) {
 			    	if (!cadena.startsWith("<DOCNO>") && !cadena.startsWith("<DOC>")){
-				    	if (cadena.equals("</DOC>")){
+				    	if (cadena.equals("</DOC>") && !retorno.toString().trim().isEmpty()){
 				    		/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 				    		/* Se obtiene el id del corpus con menos tokens unicos */
 			        		Integer corpusId = getIdCorpusSmallestTokens(tokensByCorpus);

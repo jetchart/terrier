@@ -49,7 +49,7 @@ public class CSizeByDocuments implements IPartitionByDocuments {
 			    b = new BufferedReader(f);
 			    while((cadena = b.readLine())!=null) {
 			    	if (!cadena.startsWith("<DOCNO>") && !cadena.startsWith("<DOC>")){
-				    	if (cadena.equals("</DOC>")){
+				    	if (cadena.equals("</DOC>") && !retorno.toString().trim().isEmpty()){
 				    		/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 				    		/* Abro el corpus correspondiente */
 			        		String corpusPath = colCorpusTotal.get(getIdSmallestDocument(colCorpusTotal));

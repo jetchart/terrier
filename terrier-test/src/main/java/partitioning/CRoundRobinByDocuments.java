@@ -54,7 +54,7 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
 			    b = new BufferedReader(f);
 			    while((cadena = b.readLine())!=null) {
 			    	if (!cadena.startsWith("<DOCNO>") && !cadena.startsWith("<DOC>")){
-				    	if (cadena.equals("</DOC>")){
+				    	if (cadena.equals("</DOC>") && !retorno.toString().trim().isEmpty()){
 				    		/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 				    		Long resto = docno % cantidadCorpus;
 			        		/* Abro el corpus correspondiente */
