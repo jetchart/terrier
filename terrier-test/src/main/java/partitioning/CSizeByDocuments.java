@@ -48,7 +48,7 @@ public class CSizeByDocuments implements IPartitionByDocuments {
 				f = new FileReader(filePath);
 			    b = new BufferedReader(f);
 			    while((cadena = b.readLine())!=null) {
-			    	if (!cadena.startsWith("<DOCNO>") && !cadena.startsWith("<DOC>")){
+			    	if (!cadena.replace("\t", "").startsWith("<DOCNO>") && !cadena.startsWith("<DOC>")){
 				    	if (cadena.equals("</DOC>") && !retorno.toString().trim().isEmpty()){
 				    		/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> */
 				    		/* Abro el corpus correspondiente */
