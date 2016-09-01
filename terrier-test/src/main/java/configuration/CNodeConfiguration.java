@@ -74,7 +74,7 @@ public class CNodeConfiguration implements INodeConfiguration {
 		/* Cantidad de nodos disponibles */
 		this.nodesAmount = Integer.valueOf(propiedades.getProperty("nodesAmount"));
 		/* Nodos */
-		for (int i=1;i<nodesAmount; i++){
+		for (int i=1;i<=nodesAmount; i++){
 			slavesNodes.add(propiedades.getProperty("idSlaveNode_"+i));
 		}
 		/* Validar path's leidos en la configuracion */
