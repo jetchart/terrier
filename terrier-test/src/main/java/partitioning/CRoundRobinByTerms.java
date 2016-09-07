@@ -80,34 +80,54 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 	}
 
 	public void writeDoc(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, Map<Integer,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
-        PrintWriter pw = null;
-        try {
+        Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
+        try{
+        	/* Inicializo el mapa con la ruta de los corpus vacios */
+        	for (String pathCorpus : colCorpusTotal){
+        		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
+        	}
+        	Long tamanioBuffer = 0L;
         	for (Integer nodeId : mapNodeDocTerm.keySet()){
+        		StringBuffer contenido = new StringBuffer();
 				for (int docId : mapNodeDocTerm.get(nodeId).keySet()){
-		   			/* Abro el corpus correspondiente */
-					String corpusPath = colCorpusTotal.get(Integer.valueOf(nodeId.toString()));
-		    	    FileOutputStream fileOutputStream;
-					fileOutputStream = new FileOutputStream(new File(corpusPath), Boolean.TRUE);
-		            pw = new PrintWriter(fileOutputStream);     
 		    		/* Escribo contenido del archivo en el corpus con formato TREC */
-		            pw.append("<DOC>\n");
-		            pw.append("<DOCNO>"+ docId +"</DOCNO>\n");
+		            contenido.append("<DOC>\n");
+		            contenido.append("<DOCNO>"+ docId +"</DOCNO>\n");
 		            /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
 //		            pw.append("<DOCPATH>" + mapDocDocPath.get(docId) + "</DOCPATH>\n");
 //		            pw.append("<TEXT>\n");
 		            /* Terminos */
 		            for (String term : mapNodeDocTerm.get(nodeId).get(docId)){
-		            	pw.append(term).append(" ");
+		            	contenido.append(term).append(" ");
 		            }
 //		            pw.append("\n</TEXT>\n");
-		            pw.append("\n</DOC>\n");
-		            pw.append("\n");  
-		            pw.close();
+		            contenido.append("\n</DOC>\n");
+		            contenido.append("\n");
+		            /* Obtengo el path del corpus actual */
+		            String corpusPath = colCorpusTotal.get(Integer.valueOf(nodeId.toString()));
+		            /* Escribo contenido en el buffer del corpus actual */
+	                mapaCorpusContenido.put(corpusPath, contenido);
+	                /* Guardo el tamaño del contenido */
+	                tamanioBuffer += contenido.length();
+	                /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
+	                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
+	                	tamanioBuffer = 0L;
+	                	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
+	                	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
+	                	/* Inicializo el mapa con la ruta de los corpus vacios */
+	                	for (String pathCorpus : colCorpusTotal){
+	                		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
+	                	}
+	                }
 				}
+	        	if (tamanioBuffer > 0){
+		        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
+		        	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
+	        	}
         	}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+        }catch(Exception e){
+        	e.printStackTrace();
+        }
 	}
 	
 	private void showCorpusInfo(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm){
