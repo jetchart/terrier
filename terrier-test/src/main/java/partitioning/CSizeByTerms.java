@@ -119,12 +119,13 @@ public class CSizeByTerms implements IPartitionByTerms {
 	                	for (String pathCorpus : colCorpusTotal){
 	                		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
 	                	}
+	                	contenido = new StringBuffer();
 	                }
 				}
-	        	if (tamanioBuffer > 0){
-		        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
-		        	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
-	        	}
+        	}
+        	if (tamanioBuffer > 0){
+	        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
+	        	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
         	}
         }catch(Exception e){
         	e.printStackTrace();
