@@ -101,7 +101,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms){
 			/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
 			/* TODO se puede mejorar esto */
-			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), this.getParameters().getCantidadNodos(), null, parameters);
+			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), 1, null, parameters);
 			this.setColCorpus(colCorpusTotal);
 			this.createIndex(INodeConfiguration.prefixIndexNoProcess, CRoundRobinByDocuments.class.getName());
 			/* TODO Eliminar siempre o solo cuando se indica? */
