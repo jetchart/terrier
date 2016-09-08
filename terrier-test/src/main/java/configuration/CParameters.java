@@ -18,6 +18,7 @@ public class CParameters {
 	private Boolean eliminarCorpus;
 	private Boolean mergearIndices;
 	private String indexName;
+	private String previousIndexName;
 	private String runName;
 	
 	public final static String action_INDEX = "INDEX";
@@ -27,7 +28,7 @@ public class CParameters {
 	public final static String metodoComunicacion_SSH = "SSH";
 	public final static String metodoComunicacion_PATH = "PATH";
 	
-	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String wakeUpSlaves, String query, String eliminarCorpus, String mergearIndices, String runName){
+	public CParameters(String nodeType, String action, String masterIndexa, String recrearCorpus, String metodoParticionamiento, String carpetaColeccion, String cantidadNodos, String metodoComunicacion, String wakeUpSlaves, String query, String eliminarCorpus, String mergearIndices, String previousIndexName, String runName){
 		this.nodeType = nodeType;
 		this.action = action;
 		this.masterIndexa = masterIndexa.toUpperCase().equals("S");
@@ -40,6 +41,7 @@ public class CParameters {
 		this.query = query;
 		this.eliminarCorpus = eliminarCorpus.toUpperCase().equals("S");
 		this.mergearIndices = mergearIndices.toUpperCase().equals("S");
+		this.previousIndexName = previousIndexName.trim();
 		this.runName = runName.toLowerCase();
 	}
 	
@@ -165,4 +167,13 @@ public class CParameters {
 	public void setRunName(String runName) {
 		this.runName = runName;
 	}
+
+	public String getPreviousIndexName() {
+		return previousIndexName;
+	}
+
+	public void setPreviousIndexName(String previousIndexName) {
+		this.previousIndexName = previousIndexName;
+	}
+
 }

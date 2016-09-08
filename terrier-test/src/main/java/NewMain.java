@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import node.CMasterNode;
 import node.CSlaveNode;
@@ -22,10 +24,10 @@ public class NewMain {
 		
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
-			if (args.length == 13 || args.length == 5){
+			if (args.length == 14 || args.length == 5){
 				CParameters parameters = null;
-				if (args.length == 13){
-				parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+				if (args.length == 14){
+				parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3],args[4],args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
 				}else if (args.length == 5){
 					parameters = new CParameters(INode.ID_MASTER,args[1],args[2],args[3], args[4]);
 				}
@@ -67,6 +69,7 @@ public class NewMain {
 			logger.info("Query: " + parameters.getQuery());
 			logger.info("Eliminar corpus: " + parameters.getEliminarCorpus());
 			logger.info("Mergear índices: " + parameters.getMergearIndices());
+			logger.info("Nombre índice previo: " + parameters.getPreviousIndexName());
 			logger.info("Nombre corrida: " + parameters.getRunName());
 		}else if (CParameters.action_RETRIEVAL.equals(parameters.getAction().toUpperCase())){
 			logger.info("Tipo nodo: " + parameters.getTipoNodo());
@@ -133,6 +136,7 @@ public class NewMain {
 		logger.error("10) Query[Opcional] --> \"texto entre comillas\"");
 		logger.error("11) Eliminar corpus --> S / N");
 		logger.error("12) Mergear indices --> S / N");
+		logger.error("14) Nombre índice previo --> 'noProcess_partitioning.CRoundRobinByDocuments' ");
 		logger.error("13) Nombre corrida --> corrida1 ");
 		logger.error("");
 		logger.error("EJEMPLOS:");
@@ -170,6 +174,13 @@ public class NewMain {
 		nodo.sendOrderToIndex(nodo.getParameters().getRecrearCorpus(), nodo.getParameters().getMetodoParticionamiento().getClass().getName());
 		/* Copio los indices de los nodos y realizo un merge */
 		if (nodo.getParameters().getMergearIndices()){
+			/* Si se deben mergear los indices, pero el master no indexa va a tener la coleccion de corpus vacia. Por lo tanto
+			 * le agrego el primer elemento, para poder crear el archivo .properties del merge */
+			if (!nodo.getParameters().getMasterIndexa()){
+				Collection<String> col = new ArrayList<String>();
+				col.add(nodo.getColCorpusTotal().iterator().next());
+				nodo.setColCorpus(col);
+			}
 			nodo.copyIndexesFromSlaves();
 			Integer minIndex = nodo.getParameters().getMasterIndexa()?0:1;
 			Integer maxIndex = minIndex==0?nodo.getParameters().getCantidadNodos()-1:nodo.getParameters().getCantidadNodos();

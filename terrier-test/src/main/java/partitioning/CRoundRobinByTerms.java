@@ -30,9 +30,9 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
         /* */
-        Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm = new HashMap<Integer, Map<Integer, Collection<String>>>();
+        Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
         /* Doc y su docPath */
-        Map<Integer,String> mapDocDocPath = new HashMap<Integer,String>();
+        Map<Long,String> mapDocDocPath = new HashMap<Long,String>();
         try{
         	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
@@ -41,9 +41,9 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			MetaIndex meta = index.getMetaIndex();
 			/* Obtengo mapa? */
 			Lexicon<String> mapLexicon = index.getLexicon();
-			int contador = cantidadCorpus;
+			Long contador = Long.valueOf(cantidadCorpus);
 			for (Entry<String, LexiconEntry> lexicon : mapLexicon){
-				int nodeId = contador++ % cantidadCorpus;
+				Long nodeId = contador++ % cantidadCorpus;
 //			    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
 			    PostingIndex<?> postingIndex = index.getInvertedIndex();
 		        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
@@ -52,21 +52,23 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			            iterablePosting.next();
 			            /* Si no existe relacion para el Nodo en cuestion la creo */
 			            if (mapNodeDocTerm.get(nodeId) == null){
-			            	mapNodeDocTerm.put(nodeId, new HashMap<Integer,Collection<String>>());
+			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Collection<String>>());
 			            }
 			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
-			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(iterablePosting.getId()) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(iterablePosting.getId());
+			            Long postingListId = Long.valueOf(iterablePosting.getId());
+			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(postingListId);
 			            /* Agrego el termino a la lista de terminos */
 			            int i;
 			            for (i=0;i<iterablePosting.getFrequency();i++){
 			            	termList.add(lexicon.getKey());
 			            }
+			            
 			            /* Guardo la relacion Doc y sus terminos */
-			            mapNodeDocTerm.get(nodeId).put(iterablePosting.getId(),termList);
-			            /* Guardo la relacion Doc y su docPath */
-			            if (mapDocDocPath.get(iterablePosting.getId()) == null){
-			            	mapDocDocPath.put(iterablePosting.getId(), meta.getItem("DOCPATH", iterablePosting.getId()));
-			            }
+			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
+//			            /* Guardo la relacion Doc y su docPath */
+//			            if (mapDocDocPath.get(postingListId) == null){
+//			            	mapDocDocPath.put(postingListId, meta.getItem("DOCPATH", iterablePosting.getId()));
+//			            }
 			        }
 			}
 			/* Escribo los corpus */
@@ -79,17 +81,17 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 		return colCorpusTotal;
 	}
 
-	public void writeDoc(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm, Map<Integer,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
-        Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
+	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
+		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{
         	/* Inicializo el mapa con la ruta de los corpus vacios */
         	for (String pathCorpus : colCorpusTotal){
         		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
         	}
         	Long tamanioBuffer = 0L;
-        	for (Integer nodeId : mapNodeDocTerm.keySet()){
+        	for (Long nodeId : mapNodeDocTerm.keySet()){
         		StringBuffer contenido = new StringBuffer();
-				for (int docId : mapNodeDocTerm.get(nodeId).keySet()){
+				for (Long docId : mapNodeDocTerm.get(nodeId).keySet()){
 		    		/* Escribo contenido del archivo en el corpus con formato TREC */
 		            contenido.append("<DOC>\n");
 		            contenido.append("<DOCNO>"+ docId +"</DOCNO>\n");
@@ -131,14 +133,14 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
         }
 	}
 	
-	private void showCorpusInfo(Map<Integer, Map<Integer, Collection<String>>> mapNodeDocTerm){
+	private void showCorpusInfo(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm){
 		logger.info("------------------------------------");
 		logger.info("INICIO MOSTRAR INFO CORPUS");
 		logger.info("------------------------------------");
 		logger.info("Criterio de elección de corpus: Cantidad de posting lists");
-		for (int id : mapNodeDocTerm.keySet()){
+		for (Long id : mapNodeDocTerm.keySet()){
 			Long tamanioPostingLists=0L;
-			for (int docId : mapNodeDocTerm.get(id).keySet()){
+			for (Long docId : mapNodeDocTerm.get(id).keySet()){
 				tamanioPostingLists+= mapNodeDocTerm.get(id).get(docId).size();
 			}
     		logger.info("Corpus " + id + " tiene " + mapNodeDocTerm.get(id).size() + " documentos y un total de " + tamanioPostingLists + " tokens");

@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.terrier.matching.ResultSet;
+import org.terrier.structures.Index;
 import org.terrier.structures.IndexOnDisk;
 import org.terrier.structures.indexing.Indexer;
 
@@ -99,19 +100,25 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Si el metodo de particion es por terminos, necesitamos primero
 		 * tener el indice, para obtener los terminos y dividirlos */
 		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms){
-			/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
-			/* TODO se puede mejorar esto */
-			colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), 1, null, parameters);
-			this.setColCorpus(colCorpusTotal);
-			this.createIndex(INodeConfiguration.prefixIndexNoProcess, CRoundRobinByDocuments.class.getName());
-			/* TODO Eliminar siempre o solo cuando se indica? */
-			if (getParameters().getEliminarCorpus()){
-				colCorpusTotalByTerms = new ArrayList<String>();
-				colCorpusTotalByTerms.addAll(colCorpusTotal);
-				eliminarCorpus(colCorpusTotalByTerms);
-				colCorpusTotalByTerms.clear();
+			/* Si se indicó un índice previo, se lo levanta (esto sirve para no tener que crear el índice de nuevo) */
+			if (!this.getParameters().getPreviousIndexName().isEmpty()){
+				/* Levanto el índice indicado en los parámetros */
+				this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/previousIndex/", this.getParameters().getPreviousIndexName());
+			}else{
+				/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
+				/* TODO se puede mejorar esto */
+				colCorpusTotal = new CRoundRobinByDocuments().createCorpus(configuration.getFolderPath(), configuration.getDestinationFolderPath(), 1, null, parameters);
+				this.setColCorpus(colCorpusTotal);
+				this.createIndex(INodeConfiguration.prefixIndexNoProcess, CRoundRobinByDocuments.class.getName());
+				/* TODO Eliminar siempre o solo cuando se indica? */
+				if (getParameters().getEliminarCorpus()){
+					colCorpusTotalByTerms = new ArrayList<String>();
+					colCorpusTotalByTerms.addAll(colCorpusTotal);
+					eliminarCorpus(colCorpusTotalByTerms);
+					colCorpusTotalByTerms.clear();
+				}
+				colCorpusTotal.clear();
 			}
-			colCorpusTotal.clear();
 		}else{
 			this.index = null;
 		}
@@ -119,7 +126,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Guardo backup del collection.spec */
 		CUtil.guardarCollectionAnterior(colCorpusTotal);
 		/* Si el metodo es particionado por términos, elimino el indice parcial porque ya fue utilizado */
-		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms){
+		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms && this.getParameters().getPreviousIndexName().isEmpty()){
 			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndexNoProcess + CRoundRobinByDocuments.class.getName());
 		}
 		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
