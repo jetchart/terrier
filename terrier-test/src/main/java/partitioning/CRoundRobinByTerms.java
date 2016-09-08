@@ -30,7 +30,7 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
         /* */
-        Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
+        Map<Long, Map<Long, Map<String,Integer>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Map<String,Integer>>>();
         /* Doc y su docPath */
         Map<Long,String> mapDocDocPath = new HashMap<Long,String>();
         try{
@@ -52,17 +52,19 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			            iterablePosting.next();
 			            /* Si no existe relacion para el Nodo en cuestion la creo */
 			            if (mapNodeDocTerm.get(nodeId) == null){
-			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Collection<String>>());
+			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String,Integer>>());
 			            }
 			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
 			            Long postingListId = Long.valueOf(iterablePosting.getId());
-			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(postingListId);
-			            /* Agrego el termino a la lista de terminos */
-			            int i;
-			            for (i=0;i<iterablePosting.getFrequency();i++){
-			            	termList.add(lexicon.getKey());
+			            Map<String,Integer> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String,Integer>() : mapNodeDocTerm.get(nodeId).get(postingListId);
+			            /* termList --> termino, frecuencia */
+			            /* Si termList no existe, le indico la frecuencia actual*/
+			            if (termList.get(lexicon.getKey()) == null){
+			            	termList.put(lexicon.getKey(),iterablePosting.getFrequency());
+			            }else{
+			            	/* Si termList SI existe, le sumo la frecuencia actual a las ya existentes */
+			            	termList.put(lexicon.getKey(),termList.get(lexicon.getKey())+iterablePosting.getFrequency());
 			            }
-			            
 			            /* Guardo la relacion Doc y sus terminos */
 			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
 //			            /* Guardo la relacion Doc y su docPath */
@@ -74,14 +76,14 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			/* Escribo los corpus */
 			writeDoc(mapNodeDocTerm, mapDocDocPath, cantidadCorpus, destinationFolderPath, colCorpusTotal);
 			/* Mostrar info de corpus */
-			showCorpusInfo(mapNodeDocTerm);
+//			showCorpusInfo(mapNodeDocTerm);
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	    }
 		return colCorpusTotal;
 	}
 
-	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
+	public void writeDoc(Map<Long, Map<Long, Map<String,Integer>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
 		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{
         	/* Inicializo el mapa con la ruta de los corpus vacios */
@@ -99,8 +101,11 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 //		            pw.append("<DOCPATH>" + mapDocDocPath.get(docId) + "</DOCPATH>\n");
 //		            pw.append("<TEXT>\n");
 		            /* Terminos */
-		            for (String term : mapNodeDocTerm.get(nodeId).get(docId)){
-		            	contenido.append(term).append(" ");
+		            for (String term : mapNodeDocTerm.get(nodeId).get(docId).keySet()){
+		            	Integer freq = mapNodeDocTerm.get(nodeId).get(docId).get(term);
+		            	for (int i=0;i<freq;i++){
+		            		contenido.append(term).append(" ");
+		            	}
 		            }
 //		            pw.append("\n</TEXT>\n");
 		            contenido.append("\n</DOC>\n");

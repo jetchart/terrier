@@ -26,7 +26,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
         /* */
-        Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
+		Map<Long, Map<Long, Map<String,Integer>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Map<String,Integer>>>();
         /* Doc y su docPath */
         Map<Long,String> mapDocDocPath = new HashMap<Long,String>();
         try{
@@ -48,15 +48,18 @@ public class CSizeByTerms implements IPartitionByTerms {
 			            iterablePosting.next();
 			            /* Si no existe relacion para el Nodo en cuestion la creo */
 			            if (mapNodeDocTerm.get(nodeId) == null){
-			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Collection<String>>());
+			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String,Integer>>());
 			            }
 			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
 			            Long postingListId = Long.valueOf(iterablePosting.getId());
-			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(postingListId);
-			            /* Agrego el termino a la lista de terminos */
-			            int i;
-			            for (i=0;i<iterablePosting.getFrequency();i++){
-			            	termList.add(lexicon.getKey());
+			            Map<String,Integer> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String,Integer>() : mapNodeDocTerm.get(nodeId).get(postingListId);
+			            /* termList --> termino, frecuencia */
+			            /* Si termList no existe, le indico la frecuencia actual*/
+			            if (termList.get(lexicon.getKey()) == null){
+			            	termList.put(lexicon.getKey(),iterablePosting.getFrequency());
+			            }else{
+			            	/* Si termList SI existe, le sumo la frecuencia actual a las ya existentes */
+			            	termList.put(lexicon.getKey(),termList.get(lexicon.getKey())+iterablePosting.getFrequency());
 			            }
 //			            /* Guardo la relacion Doc y sus terminos */
 			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
@@ -73,11 +76,11 @@ public class CSizeByTerms implements IPartitionByTerms {
 	        e.printStackTrace();
 	    }
         /* Muestro info sobre los corpus */
-        this.showCorpusInfo(mapNodeDocTerm, cantidadCorpus);
+//        this.showCorpusInfo(mapNodeDocTerm, cantidadCorpus);
 		return colCorpusTotal;
 	}
 
-	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
+	public void writeDoc(Map<Long, Map<Long, Map<String,Integer>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
 		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{
         	/* Inicializo el mapa con la ruta de los corpus vacios */
@@ -95,8 +98,11 @@ public class CSizeByTerms implements IPartitionByTerms {
 //		            pw.append("<DOCPATH>" + mapDocDocPath.get(docId) + "</DOCPATH>\n");
 //		            pw.append("<TEXT>\n");
 		            /* Terminos */
-		            for (String term : mapNodeDocTerm.get(nodeId).get(docId)){
-		            	contenido.append(term).append(" ");
+		            for (String term : mapNodeDocTerm.get(nodeId).get(docId).keySet()){
+		            	Integer freq = mapNodeDocTerm.get(nodeId).get(docId).get(term);
+		            	for (int i=0;i<freq;i++){
+		            		contenido.append(term).append(" ");
+		            	}
 		            }
 //		            pw.append("\n</TEXT>\n");
 		            contenido.append("\n</DOC>\n");
@@ -135,7 +141,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 	 * @param tokensByCorpus
 	 * @return
 	 */
-	private Long getNodeId(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Integer cantidadCorpus){
+	private Long getNodeId(Map<Long, Map<Long, Map<String, Integer>>> mapNodeDocTerm, Integer cantidadCorpus){
 		Long nodeId=0L;
 		Long min= -1L;
 		/* Si aún no se utilizó algún nodo, se lo asigno a él */
@@ -146,7 +152,9 @@ public class CSizeByTerms implements IPartitionByTerms {
 		for (Long id : mapNodeDocTerm.keySet()){
 			Long minAux=0L;
 			for (Long docId : mapNodeDocTerm.get(id).keySet()){
-				minAux+= mapNodeDocTerm.get(id).get(docId).size();
+				for (String term : mapNodeDocTerm.get(id).get(docId).keySet()){
+					minAux+= mapNodeDocTerm.get(id).get(docId).get(term);
+				}
 			}
 			if (minAux < min || min == -1L){
 				min = minAux;
