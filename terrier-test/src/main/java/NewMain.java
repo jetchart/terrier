@@ -21,7 +21,6 @@ public class NewMain {
 	static final Logger logger = Logger.getLogger(NewMain.class);
 	
 	public static void main(String[] args) throws IOException {
-		
 		String opcion = args.length>0?args[0]:null;
 		if (opcion!=null && INode.ID_MASTER.equals(opcion.toUpperCase())){
 			if (args.length == 14 || args.length == 5){
