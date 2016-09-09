@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
+import org.terrier.structures.MetaIndex;
 import org.terrier.structures.PostingIndex;
 import org.terrier.structures.postings.IterablePosting;
 
@@ -25,149 +26,63 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
         /* */
-        Map<Long, Map<String,Long>> mapNodeDocTerm = new HashMap<Long, Map<String,Long>>();
+        Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
         /* Doc y su docPath */
         Map<Long,String> mapDocDocPath = new HashMap<Long,String>();
         try{
         	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
         	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByTerms.class.getName(), cantidadCorpus, parameters));
+			/* Obtengo metaIndex (para leer el docPath) */
+			MetaIndex meta = index.getMetaIndex();
 			/* Obtengo mapa? */
 			Lexicon<String> mapLexicon = index.getLexicon();
 			Long contador = Long.valueOf(cantidadCorpus);
-			logger.info("numberOfEntries: " + mapLexicon.numberOfEntries());
-			// Get current size of heap in bytes
-			long heapSize = Runtime.getRuntime().totalMemory();
-			logger.info("heapSize " + heapSize);
-			// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
-			// Any attempt will result in an OutOfMemoryException.
-			long heapMaxSize = Runtime.getRuntime().maxMemory();
-			logger.info("heapMaxSize " + heapMaxSize);
-			// Get amount of free memory within the heap in bytes. This size will increase
-			// after garbage collection and decrease as new objects are created.
-			long heapFreeSize = Runtime.getRuntime().freeMemory();
-			logger.info("heapFreeSize " + heapFreeSize);
-			Long nodeId = 0L;
-				for (Entry<String, LexiconEntry> lexicon : mapLexicon){
-					Long nodeIdCalculado = contador++ % cantidadCorpus;
-	//			    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
-				    PostingIndex<?> postingIndex = index.getInvertedIndex();
-			        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
-			        if (nodeId == nodeIdCalculado){
-				        while (!iterablePosting.endOfPostings()){
-				        	/* Leo siguiente postingList */
-				            iterablePosting.next();
-				            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
-				            Long postingListId = Long.valueOf(iterablePosting.getId());
-				            Map<String,Long> termList = mapNodeDocTerm.get(postingListId) == null? new HashMap<String,Long>() : mapNodeDocTerm.get(postingListId);
-				            /* termList --> termino, frecuencia */
-				            /* Si termList no existe, le indico la frecuencia actual*/
-				            if (termList.get(lexicon.getKey()) == null){
-				            	termList.put(lexicon.getKey(),Long.valueOf(iterablePosting.getFrequency()));
-				            }else{
-				            	/* Si termList SI existe, le sumo la frecuencia actual a las ya existentes */
-				            	termList.put(lexicon.getKey(),termList.get(lexicon.getKey())+iterablePosting.getFrequency());
-				            }
-				            /* Guardo la relacion Doc y sus terminos */
-				            mapNodeDocTerm.put(postingListId,termList);
-				        }
+			Long cantidadProcesada = 0L;
+			for (Entry<String, LexiconEntry> lexicon : mapLexicon){
+				Long nodeId = contador++ % cantidadCorpus;
+//			    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
+			    PostingIndex<?> postingIndex = index.getInvertedIndex();
+		        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
+			        while (!iterablePosting.endOfPostings()){
+			        	cantidadProcesada++;
+			        	/* Leo siguiente postingList */
+			            iterablePosting.next();
+			            /* Si no existe relacion para el Nodo en cuestion la creo */
+			            if (mapNodeDocTerm.get(nodeId) == null){
+			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Collection<String>>());
+			            }
+			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
+			            Long postingListId = Long.valueOf(iterablePosting.getId());
+			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(postingListId);
+			            /* Agrego el termino a la lista de terminos */
+			            int i;
+			            for (i=0;i<iterablePosting.getFrequency();i++){
+			            	termList.add(lexicon.getKey());
+			            }
+			            /* Guardo la relacion Doc y sus terminos */
+			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
+			            if (cantidadProcesada > IPartitionByTerms.cantidadMaximaTokensAntesCierre){
+			    			/* Escribo los corpus */
+			    			writeDoc(mapNodeDocTerm, mapDocDocPath, cantidadCorpus, destinationFolderPath, colCorpusTotal);
+			    			cantidadProcesada = 0L;
+			    			mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
+			            }
 			        }
-				}
+			}
+			if (cantidadProcesada > 0){
 				/* Escribo los corpus */
-				writeDoc1(nodeId, mapNodeDocTerm, mapDocDocPath, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-				mapNodeDocTerm = new HashMap<Long, Map<String,Long>>();
-				
-				Runtime garbage = Runtime.getRuntime();
-				logger.info("LIMPIO MEMORIA");
-		        garbage.gc();
-		        
-				nodeId = 1L;
-				for (Entry<String, LexiconEntry> lexicon : mapLexicon){
-					Long nodeIdCalculado = contador++ % cantidadCorpus;
-	//			    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
-				    PostingIndex<?> postingIndex = index.getInvertedIndex();
-			        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
-			        if (nodeId == nodeIdCalculado){
-				        while (!iterablePosting.endOfPostings()){
-				        	/* Leo siguiente postingList */
-				            iterablePosting.next();
-				            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
-				            Long postingListId = Long.valueOf(iterablePosting.getId());
-				            Map<String,Long> termList = mapNodeDocTerm.get(postingListId) == null? new HashMap<String,Long>() : mapNodeDocTerm.get(postingListId);
-				            /* termList --> termino, frecuencia */
-				            /* Si termList no existe, le indico la frecuencia actual*/
-				            if (termList.get(lexicon.getKey()) == null){
-				            	termList.put(lexicon.getKey(),Long.valueOf(iterablePosting.getFrequency()));
-				            }else{
-				            	/* Si termList SI existe, le sumo la frecuencia actual a las ya existentes */
-				            	termList.put(lexicon.getKey(),termList.get(lexicon.getKey())+iterablePosting.getFrequency());
-				            }
-				            /* Guardo la relacion Doc y sus terminos */
-				            mapNodeDocTerm.put(postingListId,termList);
-				        }
-			        }
-				}
-				/* Escribo los corpus */
-				writeDoc1(nodeId, mapNodeDocTerm, mapDocDocPath, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-				mapNodeDocTerm = new HashMap<Long, Map<String,Long>>();
+				writeDoc(mapNodeDocTerm, mapDocDocPath, cantidadCorpus, destinationFolderPath, colCorpusTotal);
+			}
 			/* Mostrar info de corpus */
-//			showCorpusInfo(mapNodeDocTerm);
+			showCorpusInfo(mapNodeDocTerm);
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	    }
 		return colCorpusTotal;
 	}
 
-	public void writeDoc1(Long nodeId, Map<Long, Map<String,Long>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
-		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
-        try{
-//       		mapaCorpusContenido.put(colCorpusTotal.get(nodeId.intValue()), new StringBuffer());
-        	Long tamanioBuffer = 0L;
-        		StringBuffer contenido = new StringBuffer();
-				for (Long docId : mapNodeDocTerm.keySet()){
-		    		/* Escribo contenido del archivo en el corpus con formato TREC */
-		            contenido.append("<DOC>\n");
-		            contenido.append("<DOCNO>"+ docId +"</DOCNO>\n");
-		            /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
-//		            pw.append("<DOCPATH>" + mapDocDocPath.get(docId) + "</DOCPATH>\n");
-//		            pw.append("<TEXT>\n");
-		            /* Terminos */
-		            for (String term : mapNodeDocTerm.get(docId).keySet()){
-		            	Long freq = mapNodeDocTerm.get(docId).get(term);
-		            	for (Long i=0L;i<freq;i++){
-		            		contenido.append(term).append(" ");
-		            	}
-		            }
-//		            pw.append("\n</TEXT>\n");
-		            contenido.append("\n</DOC>\n");
-		            contenido.append("\n");
-		            /* Obtengo el path del corpus actual */
-		            String corpusPath = colCorpusTotal.get(Integer.valueOf(nodeId.toString()));
-		            /* Escribo contenido en el buffer del corpus actual */
-	                mapaCorpusContenido.put(corpusPath, contenido);
-	                /* Guardo el tamaño del contenido */
-	                tamanioBuffer += contenido.length();
-	                /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
-	                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
-	                	tamanioBuffer = 0L;
-	                	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
-	                	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
-	                	/* Inicializo el mapa con la ruta de los corpus vacios */
-	                	mapaCorpusContenido = new HashMap<String, StringBuffer>();
-	                	mapaCorpusContenido.put(colCorpusTotal.get(nodeId.intValue()), new StringBuffer());
-	                	contenido = new StringBuffer();
-	                }
-				}
-        	if (tamanioBuffer > 0){
-	        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
-	        	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
-        	}
-        }catch(Exception e){
-        	e.printStackTrace();
-        }
-	}
-	
-	public void writeDoc(Map<Long, Map<Long, Map<String,Integer>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
+	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
 		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{
         	/* Inicializo el mapa con la ruta de los corpus vacios */
@@ -185,11 +100,8 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 //		            pw.append("<DOCPATH>" + mapDocDocPath.get(docId) + "</DOCPATH>\n");
 //		            pw.append("<TEXT>\n");
 		            /* Terminos */
-		            for (String term : mapNodeDocTerm.get(nodeId).get(docId).keySet()){
-		            	Integer freq = mapNodeDocTerm.get(nodeId).get(docId).get(term);
-		            	for (Long i=0L;i<freq;i++){
-		            		contenido.append(term).append(" ");
-		            	}
+		            for (String term : mapNodeDocTerm.get(nodeId).get(docId)){
+		            	contenido.append(term).append(" ");
 		            }
 //		            pw.append("\n</TEXT>\n");
 		            contenido.append("\n</DOC>\n");
