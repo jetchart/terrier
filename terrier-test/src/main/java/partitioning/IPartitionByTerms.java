@@ -6,8 +6,8 @@ import java.util.Map;
 
 public interface IPartitionByTerms extends IPartitionMethod {
 	
-	public static final Long cantidadMaximaTokensAntesCierre = 500000000L; 
+	public static final Long cantidadMaximaTokensAntesCierre = 100000000L; 
 	
-	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal);
+	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal);
 	
 }

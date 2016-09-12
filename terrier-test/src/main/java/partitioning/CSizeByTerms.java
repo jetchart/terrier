@@ -25,19 +25,16 @@ public class CSizeByTerms implements IPartitionByTerms {
 	
 	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
 		List<String> colCorpusTotal = new ArrayList<String>();
-        /* */
         Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
         Map<Long, Long> nodeBalance = new HashMap<Long, Long>();
         for (Long i=0L;i<cantidadCorpus;i++){
         	nodeBalance.put(i, 0L);
         }
-        /* Doc y su docPath */
-        Map<Long,String> mapDocDocPath = new HashMap<Long,String>();
         try{
         	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
         	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
         	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByTerms.class.getName(), cantidadCorpus, parameters));
-			/* Obtengo mapa? */
+			/* Obtengo mapa lexicon */
 			Lexicon<String> mapLexicon = index.getLexicon();
 			Long cantidadProcesada = 0L;
 			for (Entry<String, LexiconEntry> lexicon : mapLexicon){
@@ -67,7 +64,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
 			            if (cantidadProcesada > IPartitionByTerms.cantidadMaximaTokensAntesCierre){
 			    			/* Escribo los corpus */
-			    			writeDoc(mapNodeDocTerm, mapDocDocPath, cantidadCorpus, destinationFolderPath, colCorpusTotal);
+			    			writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
 			    			cantidadProcesada = 0L;
 			    			mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
 			            }
@@ -75,7 +72,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 			}
 			if (cantidadProcesada > 0){
 				/* Escribo los corpus */
-				writeDoc(mapNodeDocTerm, mapDocDocPath, cantidadCorpus, destinationFolderPath, colCorpusTotal);
+				writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
 			}
 			/* Mostrar info de corpus */
 			showCorpusInfo(mapNodeDocTerm);
@@ -85,7 +82,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 		return colCorpusTotal;
 	}
 
-	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Map<Long,String> mapDocDocPath, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
+	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
 		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{
         	/* Inicializo el mapa con la ruta de los corpus vacios */
