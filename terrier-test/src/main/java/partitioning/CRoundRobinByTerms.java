@@ -44,7 +44,7 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 
 	private Long generateCorpus(Index index, Integer cantidadCorpus, Long terminoDesde, String destinationFolderPath, List<String> colCorpusTotal) throws IOException {
 		/* Map<NodeId, Map<DocId, Collection<Terminos>>> */
-        Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
+        Map<Long, Map<Long,Map<String, Long>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Map<String, Long>>>();
 		/* Obtengo mapa de lexicon */
 		Lexicon<String> mapLexicon = index.getLexicon();
 		Long contador = 0L;
@@ -62,16 +62,15 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 			            iterablePosting.next();
 			            /* Si no existe relacion para el Nodo en cuestion la creo */
 			            if (mapNodeDocTerm.get(nodeId) == null){
-			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Collection<String>>());
+			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String, Long>>());
 			            }
 			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
 			            Long postingListId = Long.valueOf(iterablePosting.getId());
-			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(postingListId);
-			            /* Agrego el termino a la lista de terminos */
-			            if (termList.size() < 100000){
-				            for (int i=0;i<iterablePosting.getFrequency();i++){
-				            	termList.add(lexicon.getKey());
-				            }
+			            Map<String, Long> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String, Long>() : mapNodeDocTerm.get(nodeId).get(postingListId);
+			            if (termList.get(lexicon.getKey()) != null){
+			            	termList.put(lexicon.getKey(), termList.get(lexicon.getKey()) + iterablePosting.getFrequency());
+			            }else{
+			            	termList.put(lexicon.getKey(), Long.valueOf(iterablePosting.getFrequency()));
 			            }
 			            /* Guardo la relacion Doc y sus terminos */
 			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
@@ -90,7 +89,7 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 		return contador;
 	}
 
-	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
+	public void writeDoc(Map<Long, Map<Long, Map<String, Long>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
 		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{
         	/* Inicializo el mapa con la ruta de los corpus vacios */
@@ -105,8 +104,11 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 		            contenido.append("<DOC>\n");
 		            contenido.append("<DOCNO>"+ docId +"</DOCNO>\n");
 		            /* Terminos */
-		            for (String term : mapNodeDocTerm.get(nodeId).get(docId)){
-		            	contenido.append(term).append(" ");
+		            for (String term : mapNodeDocTerm.get(nodeId).get(docId).keySet()){
+		            	Long freq =  mapNodeDocTerm.get(nodeId).get(docId).get(term);
+		            	for (Long i=0L;i<freq;i++){
+		            		contenido.append(term).append(" ");
+		            	}
 		            }
 		            contenido.append("\n</DOC>\n");
 		            contenido.append("\n");
