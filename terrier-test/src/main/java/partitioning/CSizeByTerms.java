@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import org.terrier.structures.Index;
 import org.terrier.structures.Lexicon;
 import org.terrier.structures.LexiconEntry;
-import org.terrier.structures.MetaIndex;
 import org.terrier.structures.PostingIndex;
 import org.terrier.structures.postings.IterablePosting;
 
@@ -22,24 +21,44 @@ import configuration.CParameters;
 public class CSizeByTerms implements IPartitionByTerms {
 
 	static final Logger logger = Logger.getLogger(CSizeByTerms.class);
-	
-	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
-		List<String> colCorpusTotal = new ArrayList<String>();
-        Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
-        Map<Long, Long> nodeBalance = new HashMap<Long, Long>();
-        for (Long i=0L;i<cantidadCorpus;i++){
-        	nodeBalance.put(i, 0L);
-        }
-        try{
-        	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
-        	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByTerms.class.getName(), cantidadCorpus, parameters));
-			/* Obtengo mapa lexicon */
-			Lexicon<String> mapLexicon = index.getLexicon();
-			Long cantidadProcesada = 0L;
-			for (Entry<String, LexiconEntry> lexicon : mapLexicon){
+	        
+    	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
+    		List<String> colCorpusTotal = new ArrayList<String>();
+            /* Terminos en documentos para cada Nodo */
+            try{
+            	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
+            	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
+            	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByTerms.class.getName(), cantidadCorpus, parameters));
+            	Long terminosProcesados = 0L;
+            	Long cantidadTotalTerminos = (long) index.getLexicon().numberOfEntries();
+            	/* Almacena el balance de carga de cada nodo */
+            	Map<Long, Long> nodeBalance = new HashMap<Long, Long>();
+                for (Long i=0L;i<cantidadCorpus;i++){
+                	nodeBalance.put(i, 0L);
+                }
+            	while (terminosProcesados < cantidadTotalTerminos){
+            		terminosProcesados = generateCorpus(index, cantidadCorpus, terminosProcesados, destinationFolderPath, colCorpusTotal, nodeBalance);
+            	}
+    			/* Mostrar info de corpus */
+//    			showCorpusInfo(mapNodeDocTerm);
+    	    } catch (IOException e) {
+    	        e.printStackTrace();
+    	    }
+    		return colCorpusTotal;
+    	}
+
+	private Long generateCorpus(Index index, Integer cantidadCorpus, Long terminoDesde, String destinationFolderPath, List<String> colCorpusTotal, Map<Long, Long> nodeBalance) throws IOException {
+		/* Map<NodeId, Map<DocId, Collection<Terminos>>> */
+        Map<Long, Map<Long,Map<String, Long>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Map<String, Long>>>();
+		/* Obtengo mapa de lexicon */
+		Lexicon<String> mapLexicon = index.getLexicon();
+		Long contador = 0L;
+		Long cantidadProcesada = 0L;
+		for (Entry<String, LexiconEntry> lexicon : mapLexicon){
+			contador++;
+			if (contador >= terminoDesde){
 				Long nodeId = getNodeMin(nodeBalance);
-//			    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
+	//		    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
 			    PostingIndex<?> postingIndex = index.getInvertedIndex();
 		        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
 			        while (!iterablePosting.endOfPostings()){
@@ -48,15 +67,15 @@ public class CSizeByTerms implements IPartitionByTerms {
 			            iterablePosting.next();
 			            /* Si no existe relacion para el Nodo en cuestion la creo */
 			            if (mapNodeDocTerm.get(nodeId) == null){
-			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Collection<String>>());
+			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String, Long>>());
 			            }
 			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
 			            Long postingListId = Long.valueOf(iterablePosting.getId());
-			            Collection<String> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new ArrayList<String>() : mapNodeDocTerm.get(nodeId).get(postingListId);
-			            /* Agrego el termino a la lista de terminos */
-			            int i;
-			            for (i=0;i<iterablePosting.getFrequency();i++){
-			            	termList.add(lexicon.getKey());
+			            Map<String, Long> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String, Long>() : mapNodeDocTerm.get(nodeId).get(postingListId);
+			            if (termList.get(lexicon.getKey()) != null){
+			            	termList.put(lexicon.getKey(), termList.get(lexicon.getKey()) + iterablePosting.getFrequency());
+			            }else{
+			            	termList.put(lexicon.getKey(), Long.valueOf(iterablePosting.getFrequency()));
 			            }
 			            /* Balance */
 			            nodeBalance.put(nodeId, Long.valueOf(iterablePosting.getFrequency()));
@@ -65,24 +84,19 @@ public class CSizeByTerms implements IPartitionByTerms {
 			            if (cantidadProcesada > IPartitionByTerms.cantidadMaximaTokensAntesCierre){
 			    			/* Escribo los corpus */
 			    			writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-			    			cantidadProcesada = 0L;
-			    			mapNodeDocTerm = new HashMap<Long, Map<Long, Collection<String>>>();
+			    			return contador;
 			            }
 			        }
-			}
-			if (cantidadProcesada > 0){
-				/* Escribo los corpus */
-				writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-			}
-			/* Mostrar info de corpus */
-			showCorpusInfo(mapNodeDocTerm);
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-		return colCorpusTotal;
+				}
+		}
+		if (cantidadProcesada > 0){
+			/* Escribo los corpus */
+			writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
+		}
+		return contador;
 	}
-
-	public void writeDoc(Map<Long, Map<Long, Collection<String>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
+	
+	public void writeDoc(Map<Long, Map<Long, Map<String, Long>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
 		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{
         	/* Inicializo el mapa con la ruta de los corpus vacios */
@@ -97,8 +111,11 @@ public class CSizeByTerms implements IPartitionByTerms {
 		            contenido.append("<DOC>\n");
 		            contenido.append("<DOCNO>"+ docId +"</DOCNO>\n");
 		            /* Terminos */
-		            for (String term : mapNodeDocTerm.get(nodeId).get(docId)){
-		            	contenido.append(term).append(" ");
+		            for (String term : mapNodeDocTerm.get(nodeId).get(docId).keySet()){
+		            	Long freq =  mapNodeDocTerm.get(nodeId).get(docId).get(term);
+		            	for (Long i=0L;i<freq;i++){
+		            		contenido.append(term).append(" ");
+		            	}
 		            }
 		            contenido.append("\n</DOC>\n");
 		            contenido.append("\n");
@@ -111,7 +128,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 	                /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
 	                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
 	                	tamanioBuffer = 0L;
-	                	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
+	                	/* Guardo el contenido de todos los corpus en los archivos haciendo un append si ya existe */
 	                	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
 	                	/* Inicializo el mapa con la ruta de los corpus vacios */
 	                	for (String pathCorpus : colCorpusTotal){
@@ -122,7 +139,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 				}
         	}
         	if (tamanioBuffer > 0){
-	        	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
+	        	/* Guardo el contenido de todos los corpus en los archivos haciendo un append si ya existe */
 	        	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
         	}
         }catch(Exception e){
