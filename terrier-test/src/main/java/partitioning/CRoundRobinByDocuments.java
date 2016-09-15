@@ -59,29 +59,33 @@ public class CRoundRobinByDocuments implements IPartitionByDocuments {
 				    		Long resto = docno % cantidadCorpus;
 			        		/* Abro el corpus correspondiente */
 			        		String corpusPath = colCorpusTotal.get(Integer.valueOf(resto.toString()));
-			        		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);         			
-			        		/* Escribo contenido del archivo en el corpus con formato TREC */
-			                contenido.append("<DOC>").append("\n");
-			                contenido.append("<DOCNO>"+ docno++ +"</DOCNO>").append("\n");
-			                /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
-//			                contenido.append("<DOCPATH>" + filePath + "</DOCPATH>").append("\n");
-//			                contenido.append("<TEXT>").append("\n");
-			                /* Obtengo contenido del archivo sin tags */
-			                contenido.append(retorno).append("\n");
-//			                contenido.append("</TEXT>").append("\n");
-			                contenido.append("</DOC>").append("\n");
-			                mapaCorpusContenido.put(corpusPath, contenido);
-			                tamanioBuffer += contenido.length();
-			                /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
-			                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
-			                	tamanioBuffer = 0L;
-			                	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
-			                	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
-			                	/* Inicializo el mapa con la ruta de los corpus vacios */
-			                	for (String pathCorpus : colCorpusTotal){
-			                		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
-			                	}
-			                }
+			        		StringBuffer contenido = mapaCorpusContenido.get(corpusPath);   
+			        		if (CUtil.hasTerms(retorno)){
+				        		/* Escribo contenido del archivo en el corpus con formato TREC */
+				                contenido.append("<DOC>").append("\n");
+				                contenido.append("<DOCNO>"+ docno++ +"</DOCNO>").append("\n");
+				                /* TODO ¡REVISAR SI LA CANTIDAD MAXIMA DE CARACTERES PARA EL DOCPATH ALCANZA BIEN! */
+	//			                contenido.append("<DOCPATH>" + filePath + "</DOCPATH>").append("\n");
+	//			                contenido.append("<TEXT>").append("\n");
+				                /* Obtengo contenido del archivo sin tags */
+				                contenido.append(retorno).append("\n");
+	//			                contenido.append("</TEXT>").append("\n");
+				                contenido.append("</DOC>").append("\n");
+				                mapaCorpusContenido.put(corpusPath, contenido);
+				                tamanioBuffer += contenido.length();
+				                /* Si ya se procesaron mas de la cantidad de archivos permitidas, se impactan */
+				                if (tamanioBuffer > IPartitionByDocuments.tamanioMaximoAntesCierre){
+				                	tamanioBuffer = 0L;
+				                	/* Guardo el contenido de todos los corpus en los archivos sobreescribiendo si ya existe */
+				                	CUtil.crearCorpusConDocumentos(mapaCorpusContenido, Boolean.TRUE);
+				                	/* Inicializo el mapa con la ruta de los corpus vacios */
+				                	for (String pathCorpus : colCorpusTotal){
+				                		mapaCorpusContenido.put(pathCorpus, new StringBuffer());
+				                	}
+				                }
+			        		}else{
+			        			logger.info("Se ignora el documento " + (docno+1) + " por no tener términos válidos");
+			        		}
 			                /* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
 				    		retorno = new StringBuffer();
 				    	}else{

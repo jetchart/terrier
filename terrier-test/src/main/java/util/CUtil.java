@@ -492,5 +492,15 @@ public class CUtil {
 			e.printStackTrace();
 		}
 	}
+	
+	public static Boolean hasTerms(StringBuffer buffer){
+		String[] terminos = buffer.toString().split(" ");
+		for (String t : terminos){
+			if (!t.isEmpty() && !t.matches(".*[0-9].*") && t.length()<20){
+				return Boolean.TRUE;
+			}
+		}
+		return Boolean.FALSE;
+	}
 
 }

@@ -18,12 +18,24 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import util.CUtil;
+
 
 public class mainPruebas {
 
 	static final Logger logger = Logger.getLogger(mainPruebas.class);
 	
 	public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
+		
+		
+		StringBuffer cadena = new StringBuffer();
+		cadena.append("  442769 a 432345  ");
+		
+		if (cadena != null){
+			System.out.println(CUtil.hasTerms(cadena));
+			return;
+		}
+		
 		
 		/* ACLARACION */
 		/* Si al corpus source le faltan las etiquetas de <ROOT></ROOT> utilizar el siguiente script:
