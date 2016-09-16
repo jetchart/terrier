@@ -27,7 +27,7 @@ public class mainPruebas {
 	
 	public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
 		
-		
+		System.out.println(2 % 2);
 		StringBuffer cadena = new StringBuffer();
 		cadena.append("  442769 a 432345  ");
 		
