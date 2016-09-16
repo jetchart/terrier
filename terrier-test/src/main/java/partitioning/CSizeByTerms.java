@@ -52,17 +52,16 @@ public class CSizeByTerms implements IPartitionByTerms {
         Map<Long, Map<Long,Map<String, Long>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Map<String, Long>>>();
 		/* Obtengo mapa de lexicon */
 		Lexicon<String> mapLexicon = index.getLexicon();
-		Long contador = 0L;
+		Long contador = terminoDesde;
 		Long cantidadProcesada = 0L;
 		for (Entry<String, LexiconEntry> lexicon : mapLexicon){
-			contador++;
 			if (contador >= terminoDesde){
 				Long nodeId = getNodeMin(nodeBalance);
+				contador++;
 	//		    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
 			    PostingIndex<?> postingIndex = index.getInvertedIndex();
 		        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
 			        while (!iterablePosting.endOfPostings()){
-			        	cantidadProcesada++;
 			        	/* Leo siguiente postingList */
 			            iterablePosting.next();
 			            /* Si no existe relacion para el Nodo en cuestion la creo */
@@ -79,6 +78,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 			            }
 			            /* Balance */
 			            nodeBalance.put(nodeId, Long.valueOf(iterablePosting.getFrequency()));
+			            cantidadProcesada += iterablePosting.getFrequency();
 			            /* Guardo la relacion Doc y sus terminos */
 			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
 			            if (cantidadProcesada > IPartitionByTerms.cantidadMaximaTokensAntesCierre){
