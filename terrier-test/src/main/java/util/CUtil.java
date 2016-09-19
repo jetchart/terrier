@@ -166,6 +166,30 @@ public class CUtil {
     	return colFilesPath;
     }
     
+	/**
+	 * Obtiene todos los archivos a partir de un directorio raiz (si recursive=True 
+	 * navega tambien sobre subdirectorios) que empiecen con el prefijo indicado
+	 * 
+	 * @param prefix			Prefijo
+	 * @param colFilesPath		Almacena los archivos encontrados (se requiere cuando recursive=TRUE, ya que irá acumulando los archivos)
+	 * @param rootFolder		Ruta desde donde se inicia la búsqueda de archivos
+	 * @param recursive 		Si es TRUE, busca tambien dentro de los subdirectorios
+	 * @return
+	 */
+	public static java.util.Collection<String> getFilesFromFolderByPrefix(String prefix, java.util.Collection<String> colFilesPath, String rootFolder, Boolean recursive){
+    	File f = new File(rootFolder);
+    	File[] ficheros = f.listFiles();
+    	for (File file : ficheros){
+
+    		if (recursive && file.isDirectory()){
+    			getFilesFromFolder(colFilesPath, file.getAbsolutePath(), recursive);
+    		}else if(file.getName().startsWith(prefix)){
+    			colFilesPath.add(file.getAbsolutePath());
+    		}
+    	}
+    	return colFilesPath;
+    }
+	
 	public static String parseString(String cadena){
 		if (1==1){
 			return cadena;
@@ -464,6 +488,19 @@ public class CUtil {
 	 */
 	public static void deleteFile(String filePath) {
 		new File(filePath).delete();
+	}
+	
+	/**
+	 * Elimina el archivo que se encuentra en el path recibido por parametro
+	 * @param corpusPath
+	 */
+	public static void deleteFolderFiles(String filePath) {
+		File folder = new File(filePath);
+		File[] files = folder.listFiles();
+		for (int i=0;i<files.length;i++){
+			deleteFile(files[i].getAbsolutePath());
+		}
+		
 	}
 	
 	/**
