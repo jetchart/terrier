@@ -29,6 +29,9 @@ public class Hilo extends Thread{
 		}else if (CNode.task_CLOSE.equals(cliente.getTarea())){
 			cliente.enviar(CNode.task_CLOSE);
 			cliente.recibir();
+		}else if (CNode.task_COPY_INDEX.equals(cliente.getTarea().split("_")[0])){
+			cliente.enviar(cliente.getTarea());
+			cliente.recibir();
 		}else if (CNode.task_RETRIEVAL.equals(cliente.getTarea())){
 			cliente.enviar(CNode.task_RETRIEVAL + CUtil.separator + cliente.getQuery());
 			try {

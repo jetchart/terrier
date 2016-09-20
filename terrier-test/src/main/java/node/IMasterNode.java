@@ -47,4 +47,6 @@ public interface IMasterNode extends INode, IClient {
 
 	void copyPropertiesFileFromSlaves();
 
+	void sendOrderToGetIndexSlaves();
+
 }

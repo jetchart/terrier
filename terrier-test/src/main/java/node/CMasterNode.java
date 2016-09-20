@@ -206,6 +206,29 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 	
 	@Override
+	public void sendOrderToGetIndexSlaves() {
+		logger.info("------------------------------------");
+		logger.info("COMIENZA COPIA DE INDICES DE ESCLAVOS");
+		logger.info("------------------------------------");
+		Long inicio = System.currentTimeMillis();
+		/* Envio indicacion para que los nodos copien los indices en la carpeta del Master indexar */
+		Collection<Hilo> hilos = new ArrayList<Hilo>();
+		for (CClient cliente : nodes){
+			cliente.setTarea(task_COPY_INDEX + "_" + parameters.getMetodoComunicacion() + CUtil.separator + configuration.getTerrierHome()+"var/index/");
+			Hilo hilo = new Hilo(cliente);
+			hilo.start();
+			hilos.add(hilo);
+		}
+		/* Espero a que todos los nodos terminen */
+		esperar(hilos);
+		Long fin = System.currentTimeMillis() - inicio;
+		logger.info("Copia de indices de esclavos TOTAL tardó " + fin + " milisegundos");
+		logger.info("------------------------------------");
+		logger.info("FIN COPIA DE INDICES DE ESCLAVOS");
+		logger.info("------------------------------------");
+	}
+	
+	@Override
 	public void sendOrderToCloseSlaves() {
 		logger.info("------------------------------------");
 		logger.info("COMIENZA CIERRE DE ESCLAVOS");
@@ -361,6 +384,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 	}
 	
 	@Override
+	@Deprecated
 	public void copyIndexesFromSlaves() {
 		logger.info("------------------------------------");
 		logger.info("INICIO COPIA DE INDICES DE ESCLAVOS");

@@ -41,6 +41,12 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 			case task_DELETE_CORPUS:
 				this.eliminarCorpus(colCorpus);
 		        break;
+			case task_COPY_INDEX + "_PATH":
+				this.copyIndexToMaster(array[1], "PATH");
+		        break;
+			case task_COPY_INDEX + "_SSH":
+				this.copyIndexToMaster(array[1], "SSH");
+		        break;
 			case task_RETRIEVAL:
 				try {
 					this.retrieval(array[1]);
@@ -48,6 +54,20 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 					e.printStackTrace();
 				}
 		        break;
+		}
+	}
+
+	private void copyIndexToMaster(String indexMasterPath, String metodoComunicacion) {
+		for (String indexFile : CUtil.indexFiles){
+			String pathOnSlave = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + this.getId() + indexFile;
+			String pathOnMaster = indexMasterPath + INodeConfiguration.prefixIndex + this.getId() + indexFile;
+			logger.info("pathOnSlave: " + pathOnSlave);
+			logger.info("pathOnMaster: " + pathOnMaster);
+			if (CParameters.metodoComunicacion_SSH.equals(metodoComunicacion)){
+				CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, configuration.getUserSFTP(), configuration.getPasswordSFTP(), configuration.getMasterSFTPHost(), configuration.getMasterSFTPPort());
+			}else if (CParameters.metodoComunicacion_PATH.equals(metodoComunicacion)){
+				CUtil.copyFile(pathOnSlave, pathOnMaster);
+			}
 		}
 	}
 

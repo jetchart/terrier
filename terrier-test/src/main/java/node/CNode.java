@@ -40,6 +40,7 @@ public abstract class CNode implements INode {
 	public static final String task_DELETE_CORPUS = "deleteCorpus";
 	public static final String task_CLOSE = "close";
 	public static final String task_RETRIEVAL = "retrieval";
+	public static final String task_COPY_INDEX = "copyIndex";
 
 
 	public CNode(String nodeType){

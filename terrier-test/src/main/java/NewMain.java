@@ -180,7 +180,8 @@ public class NewMain {
 				col.add(nodo.getColCorpusTotal().iterator().next());
 				nodo.setColCorpus(col);
 			}
-			nodo.copyIndexesFromSlaves();
+//			nodo.copyIndexesFromSlaves();
+			nodo.sendOrderToGetIndexSlaves();
 			Integer minIndex = nodo.getParameters().getMasterIndexa()?0:1;
 			Integer maxIndex = minIndex==0?nodo.getParameters().getCantidadNodos()-1:nodo.getParameters().getCantidadNodos();
 			nodo.mergeIndexes(nodo.getNodeConfiguration().getTerrierHome() + "var/index/", "jmeIndex", minIndex, maxIndex);
