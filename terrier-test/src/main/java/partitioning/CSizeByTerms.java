@@ -22,80 +22,78 @@ public class CSizeByTerms implements IPartitionByTerms {
 
 	static final Logger logger = Logger.getLogger(CSizeByTerms.class);
 	        
-    	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
-    		List<String> colCorpusTotal = new ArrayList<String>();
-            /* Terminos en documentos para cada Nodo */
-            try{
-            	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
-            	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
-            	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByTerms.class.getName(), cantidadCorpus, parameters));
-            	Long terminosProcesados = 0L;
-            	Long cantidadTotalTerminos = (long) index.getLexicon().numberOfEntries();
-            	/* Almacena el balance de carga de cada nodo */
-            	Map<Long, Long> nodeBalance = new HashMap<Long, Long>();
-                for (Long i=0L;i<cantidadCorpus;i++){
-                	nodeBalance.put(i, 0L);
-                }
-            	while (terminosProcesados < cantidadTotalTerminos){
-            		terminosProcesados = generateCorpus(index, cantidadCorpus, terminosProcesados, destinationFolderPath, colCorpusTotal, nodeBalance);
-            	}
-    			/* Mostrar info de corpus */
-//    			showCorpusInfo(mapNodeDocTerm);
-    	    } catch (IOException e) {
-    	        e.printStackTrace();
-    	    }
-    		return colCorpusTotal;
-    	}
+	public Collection<String> createCorpus(String folderPath, String destinationFolderPath, Integer cantidadCorpus, Index index, CParameters parameters) {
+		List<String> colCorpusTotal = new ArrayList<String>();
+        /* Terminos en documentos para cada Nodo */
+        try{
+        	logger.info("Metodo de particion: " + CRoundRobinByTerms.class.getName());
+        	/* Se crean los corpus vacios, y se agregan a la coleccion de corpus total */
+        	colCorpusTotal.addAll(CUtil.crearCorpusVacios(destinationFolderPath, CRoundRobinByTerms.class.getName(), cantidadCorpus, parameters));
+        	Long contador = 0L;
+        	Long documentosProcesados = 0L;
+        	Long cantidadTotalDocumentos = (long) index.getDocumentIndex().getNumberOfDocuments();
+        	logger.info("Total documentos: " + cantidadTotalDocumentos);
+        	/* Almacena el balance de carga de cada nodo */
+        	Map<Long, Long> nodeBalance = new HashMap<Long, Long>();
+            for (Long i=0L;i<cantidadCorpus;i++){
+            	nodeBalance.put(i, 0L);
+            }
+        	while (documentosProcesados < cantidadTotalDocumentos){
+        		documentosProcesados = generateCorpus(contador, index, cantidadCorpus, documentosProcesados, destinationFolderPath, colCorpusTotal, nodeBalance);
+        		logger.info("Documentos procesados: " + documentosProcesados);
+        	}
+			/* Mostrar info de corpus */
+//			showCorpusInfo(mapNodeDocTerm);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+		return colCorpusTotal;
+	}
 
-	private Long generateCorpus(Index index, Integer cantidadCorpus, Long terminoDesde, String destinationFolderPath, List<String> colCorpusTotal, Map<Long, Long> nodeBalance) throws IOException {
+	private Long generateCorpus(Long contador, Index index, Integer cantidadCorpus, Long documentoDesde, String destinationFolderPath, List<String> colCorpusTotal, Map<Long, Long> nodeBalance) throws IOException {
 		/* Map<NodeId, Map<DocId, Collection<Terminos>>> */
         Map<Long, Map<Long,Map<String, Long>>> mapNodeDocTerm = new HashMap<Long, Map<Long, Map<String, Long>>>();
 		/* Obtengo mapa de lexicon */
 		Lexicon<String> mapLexicon = index.getLexicon();
-		Long contador = terminoDesde;
 		Long cantidadProcesada = 0L;
 		PostingIndex<?> postingIndex = index.getInvertedIndex();
 		for (Entry<String, LexiconEntry> lexicon : mapLexicon){
-			if (contador >= terminoDesde){
-				Long nodeId = getNodeMin(nodeBalance);
-				contador++;
-	//		    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
-		        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
-			        while (!iterablePosting.endOfPostings()){
-			        	/* Leo siguiente postingList */
-			            iterablePosting.next();
-			            /* Si no existe relacion para el Nodo en cuestion la creo */
-			            if (mapNodeDocTerm.get(nodeId) == null){
-			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String, Long>>());
-			            }
-			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
-			            Long postingListId = Long.valueOf(iterablePosting.getId());
-			            Map<String, Long> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String, Long>() : mapNodeDocTerm.get(nodeId).get(postingListId);
-			            if (termList.get(lexicon.getKey()) != null){
-			            	termList.put(lexicon.getKey(), termList.get(lexicon.getKey()) + iterablePosting.getFrequency());
-			            }else{
-			            	termList.put(lexicon.getKey(), Long.valueOf(iterablePosting.getFrequency()));
-			            }
-			            /* Balance */
-			            nodeBalance.put(nodeId, Long.valueOf(iterablePosting.getFrequency()));
-			            cantidadProcesada += iterablePosting.getFrequency();
-			            /* Guardo la relacion Doc y sus terminos */
-			            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
-			            if (cantidadProcesada > IPartitionByTerms.cantidadMaximaTokensAntesCierre){
-			    			/* Escribo los corpus */
-			    			writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-			    			return contador;
-			            }
-			        }
-				}
+			Long nodeId = getNodeMin(nodeBalance);
+			if (nodeId.equals(0L)){
+				contador = 0L;
+			}
+			contador++;
+	//		logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
+		    IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
+			while (!iterablePosting.endOfPostings()){
+				/* Leo siguiente postingList */
+				iterablePosting.next();
+			    /* Si no existe relacion para el Nodo en cuestion la creo */
+			    if (mapNodeDocTerm.get(nodeId) == null){
+			    	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String, Long>>());
+			    }
+			    /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
+			    Long postingListId = Long.valueOf(iterablePosting.getId());
+			    if (documentoDesde <= postingListId && postingListId < documentoDesde+IPartitionByTerms.cantidadMaximaDocumentosAProcesar){
+			    	Map<String, Long> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String, Long>() : mapNodeDocTerm.get(nodeId).get(postingListId);
+			    	if (termList.get(lexicon.getKey()) != null){
+			    		termList.put(lexicon.getKey(), termList.get(lexicon.getKey()) + iterablePosting.getFrequency());
+			    	}else{
+			    		termList.put(lexicon.getKey(), Long.valueOf(iterablePosting.getFrequency()));
+			    	}
+			    	/* Balance */
+			    	nodeBalance.put(nodeId, Long.valueOf(iterablePosting.getFrequency()));
+			    	/* Guardo la relacion Doc y sus terminos */
+			    	mapNodeDocTerm.get(nodeId).put(postingListId,termList);
+			    	cantidadProcesada += iterablePosting.getFrequency();
+			    }
+			}
 		}
-		if (cantidadProcesada > 0){
-			/* Escribo los corpus */
-			writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-		}
-		return contador;
+		/* Escribo los corpus */
+		writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
+		return documentoDesde+IPartitionByTerms.cantidadMaximaDocumentosAProcesar;
 	}
-	
+
 	public void writeDoc(Map<Long, Map<Long, Map<String, Long>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
 		Map<String, StringBuffer> mapaCorpusContenido = new HashMap<String, StringBuffer>();
         try{

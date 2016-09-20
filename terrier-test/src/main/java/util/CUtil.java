@@ -533,7 +533,7 @@ public class CUtil {
 	public static Boolean hasTerms(StringBuffer buffer){
 		String[] terminos = buffer.toString().split(" ");
 		for (String t : terminos){
-			if (!t.isEmpty() && !t.matches(".*[0-9].*") && t.length()<20){
+			if (!t.isEmpty() && t.length()<20){
 				return Boolean.TRUE;
 			}
 		}

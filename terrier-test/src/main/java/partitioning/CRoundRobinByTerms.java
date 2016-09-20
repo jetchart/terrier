@@ -51,50 +51,40 @@ public class CRoundRobinByTerms implements IPartitionByTerms {
 		/* Obtengo mapa de lexicon */
 		Lexicon<String> mapLexicon = index.getLexicon();
 		Long cantidadProcesada = 0L;
-		Long cantidadDocumentosAProcesar = 500000L;
 		PostingIndex<?> postingIndex = index.getInvertedIndex();
 		for (Entry<String, LexiconEntry> lexicon : mapLexicon){
-//			if (contador >= terminoDesde){
-				Long nodeId = contador % cantidadCorpus;
-				if (nodeId.equals(0L)){
-					contador = 0L;
-				}
-				contador++;
-	//		    logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
-		        IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
-			        while (!iterablePosting.endOfPostings()){
-			        	/* Leo siguiente postingList */
-			            iterablePosting.next();
-			            /* Si no existe relacion para el Nodo en cuestion la creo */
-			            if (mapNodeDocTerm.get(nodeId) == null){
-			            	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String, Long>>());
-			            }
-			            /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
-			            Long postingListId = Long.valueOf(iterablePosting.getId());
-			            if (documentoDesde <= postingListId && postingListId < documentoDesde+cantidadDocumentosAProcesar){
-				            Map<String, Long> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String, Long>() : mapNodeDocTerm.get(nodeId).get(postingListId);
-				            if (termList.get(lexicon.getKey()) != null){
-				            	termList.put(lexicon.getKey(), termList.get(lexicon.getKey()) + iterablePosting.getFrequency());
-				            }else{
-				            	termList.put(lexicon.getKey(), Long.valueOf(iterablePosting.getFrequency()));
-				            }
-				            /* Guardo la relacion Doc y sus terminos */
-				            mapNodeDocTerm.get(nodeId).put(postingListId,termList);
-				            cantidadProcesada += iterablePosting.getFrequency();
-//				            if (cantidadProcesada > IPartitionByTerms.cantidadMaximaTokensAntesCierre){
-//				    			/* Escribo los corpus */
-//				    			writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-//				    			return contador;
-//				            }
-			            }
-			        }
-//				}
+			Long nodeId = contador % cantidadCorpus;
+			if (nodeId.equals(0L)){
+				contador = 0L;
+			}
+			contador++;
+	//		logger.info("Término " + lexicon.getKey() + " Frecuencia (cant de docs): " + lexicon.getValue().getDocumentFrequency());
+		    IterablePosting iterablePosting = postingIndex.getPostings(lexicon.getValue());
+			while (!iterablePosting.endOfPostings()){
+				/* Leo siguiente postingList */
+				iterablePosting.next();
+				/* Si no existe relacion para el Nodo en cuestion la creo */
+				if (mapNodeDocTerm.get(nodeId) == null){
+			       	mapNodeDocTerm.put(nodeId, new HashMap<Long,Map<String, Long>>());
+			    }
+			    /* Si para un Doc no existe lista de terminos la creo, sino devuelvo la existente */
+			    Long postingListId = Long.valueOf(iterablePosting.getId());
+			    if (documentoDesde <= postingListId && postingListId < documentoDesde+IPartitionByTerms.cantidadMaximaDocumentosAProcesar){
+			    	Map<String, Long> termList = mapNodeDocTerm.get(nodeId).get(postingListId) == null? new HashMap<String, Long>() : mapNodeDocTerm.get(nodeId).get(postingListId);
+				    if (termList.get(lexicon.getKey()) != null){
+				      	termList.put(lexicon.getKey(), termList.get(lexicon.getKey()) + iterablePosting.getFrequency());
+				    }else{
+				       	termList.put(lexicon.getKey(), Long.valueOf(iterablePosting.getFrequency()));
+				    }
+				    /* Guardo la relacion Doc y sus terminos */
+				    mapNodeDocTerm.get(nodeId).put(postingListId,termList);
+				    cantidadProcesada += iterablePosting.getFrequency();
+			    }
+			}
 		}
-//		if (cantidadProcesada > 0){
-			/* Escribo los corpus */
-			writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
-//		}
-		return documentoDesde+cantidadDocumentosAProcesar;
+		/* Escribo los corpus */
+		writeDoc(mapNodeDocTerm, cantidadCorpus, destinationFolderPath, colCorpusTotal);
+		return documentoDesde+IPartitionByTerms.cantidadMaximaDocumentosAProcesar;
 	}
 
 	public void writeDoc(Map<Long, Map<Long, Map<String, Long>>> mapNodeDocTerm, Integer cantidadCorpus, String destinationFolderPath, List<String> colCorpusTotal) {
