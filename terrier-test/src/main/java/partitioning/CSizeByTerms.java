@@ -82,7 +82,7 @@ public class CSizeByTerms implements IPartitionByTerms {
 			    		termList.put(lexicon.getKey(), Long.valueOf(iterablePosting.getFrequency()));
 			    	}
 			    	/* Balance */
-			    	nodeBalance.put(nodeId, Long.valueOf(iterablePosting.getFrequency()));
+			    	nodeBalance.put(nodeId, nodeBalance.get(nodeId) + Long.valueOf(iterablePosting.getFrequency()));
 			    	/* Guardo la relacion Doc y sus terminos */
 			    	mapNodeDocTerm.get(nodeId).put(postingListId,termList);
 			    	cantidadProcesada += iterablePosting.getFrequency();
