@@ -160,8 +160,8 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Agrego corpus a cada slave node */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			/* Le envío la orden para inicializar, junto con el método de comunicación (via Path o por SCP) */
-			cliente.setTarea(task_INITIALIZE + "_" + parameters.getMetodoComunicacion());
+			/* Le envío la orden para inicializar, junto con el método de comunicación (via Path o por SSH) y la carpeta donde esta el índice del Master (esta carpeta solo se usa si es comunicacion via PATH */
+			cliente.setTarea(task_INITIALIZE + "_" + parameters.getMetodoComunicacion() + CUtil.separator + configuration.getIndexPath());
 			cliente.setNodoColCorpus((String) iterator.next());
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();

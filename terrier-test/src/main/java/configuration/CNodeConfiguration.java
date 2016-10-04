@@ -49,7 +49,7 @@ public class CNodeConfiguration implements INodeConfiguration {
 			this.idNode = propiedades.getProperty("idNode");
 			this.port = Integer.valueOf(propiedades.getProperty("port"));
 			this.nodeType = propiedades.getProperty("nodeType");
-			this.indexPath = propiedades.getProperty("indexPath");
+			this.indexPath = terrierHome +"var/index/";
 			if (CNode.ID_MASTER.equals(this.nodeType.toUpperCase())){
 				readMasterConfiguration(propiedades);
 			}else if (CNode.ID_SLAVE.equals(this.nodeType.toUpperCase())){

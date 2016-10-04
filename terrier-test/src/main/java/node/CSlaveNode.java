@@ -27,11 +27,12 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 		switch (array[0]) {
 			case task_INITIALIZE + "_SSH":
 				setColCorpus(array, "SSH");
-				/* Si la comunicación es por SSH, se deberán transferir los índices al momento de mergear, en
-				 * cambio si es PATH, directamente se crearán los índices de los nodos en la carpeta del Master */
-				configuration.setIndexPath(configuration.getTerrierHome() +"var/index/");
 				break;
 			case task_INITIALIZE + "_PATH":
+				/* Si la comunicación es por SSH, se deberán transferir los índices al momento de mergear, en
+				 * cambio si es PATH, directamente se crearán los índices de los nodos en la carpeta del Master */
+				String indexPath = array[1];
+				configuration.setIndexPath(indexPath);
 				setColCorpus(array, "PATH");
 				break;
 			case task_CREATE_INDEX:
@@ -85,7 +86,7 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 	private void setColCorpus(String[] array, String metodoComunicacion){
 		/* Agrego el path de la porcion de corpus que se le asignó */
 		Collection<String> col = new ArrayList<String>();
-		String corpusPathOnMaster = array[1];
+		String corpusPathOnMaster = array[2];
 		String corpusPathOnSlave = null;
 		/* Si el método de comunicacion via SSH copia el archivo del master en el slave utilizando SFTP */
 		if (CParameters.metodoComunicacion_SSH.equals(metodoComunicacion)){
