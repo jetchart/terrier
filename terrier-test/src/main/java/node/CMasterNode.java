@@ -103,7 +103,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 			/* Si se indicó un índice previo, se lo levanta (esto sirve para no tener que crear el índice de nuevo) */
 			if (!this.getParameters().getPreviousIndexName().isEmpty()){
 				/* Levanto el índice indicado en los parámetros */
-				this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/previousIndex/", this.getParameters().getPreviousIndexName());
+				this.index = Index.createIndex(configuration.getIndexPath(), this.getParameters().getPreviousIndexName());
 			}else{
 				/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
 				/* TODO se puede mejorar esto */
@@ -127,7 +127,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		CUtil.guardarCollectionAnterior(colCorpusTotal);
 		/* Si el metodo es particionado por términos, elimino el indice parcial porque ya fue utilizado */
 		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms && this.getParameters().getPreviousIndexName().isEmpty()){
-			CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndexNoProcess + CRoundRobinByDocuments.class.getName());
+			CUtil.deleteIndexFiles(configuration.getIndexPath(), INodeConfiguration.prefixIndexNoProcess + CRoundRobinByDocuments.class.getName());
 		}
 		Long finCreacionCorpus = System.currentTimeMillis() - inicioCreacionCorpus;
 		logger.info("Creación Corpus tardó " + finCreacionCorpus + " milisegundos");
@@ -193,7 +193,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Limpio el Master solo si se indica y además tiene que indexar */
 		if (cleanIndexMaster){
 			if (this.getParameters().getMasterIndexa()){
-				CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndex + "masterNode");
+				CUtil.deleteIndexFiles(configuration.getIndexPath(), INodeConfiguration.prefixIndex + "masterNode");
 			}
 		}
 		/* Espero a que todos los nodos terminen */
@@ -214,7 +214,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		/* Envio indicacion para que los nodos copien los indices en la carpeta del Master indexar */
 		Collection<Hilo> hilos = new ArrayList<Hilo>();
 		for (CClient cliente : nodes){
-			cliente.setTarea(task_COPY_INDEX + "_" + parameters.getMetodoComunicacion() + CUtil.separator + configuration.getTerrierHome()+"var/index/");
+			cliente.setTarea(task_COPY_INDEX + "_" + parameters.getMetodoComunicacion() + CUtil.separator + configuration.getIndexPath());
 			Hilo hilo = new Hilo(cliente);
 			hilo.start();
 			hilos.add(hilo);
@@ -392,7 +392,7 @@ public class CMasterNode extends CNode implements IMasterNode {
 		Long inicio = System.currentTimeMillis();
 		for (CClient cliente : nodes){
 			for (String indexFile : CUtil.indexFiles){
-				String pathOnMaster = configuration.getTerrierHome() + "var/index/" + cliente.getIndexPath().split("/")[cliente.getIndexPath().split("/").length-1] + indexFile;
+				String pathOnMaster = configuration.getIndexPath() + cliente.getIndexPath().split("/")[cliente.getIndexPath().split("/").length-1] + indexFile;
 				String pathOnSlave = cliente.getIndexPath() + indexFile;
 				if (CParameters.metodoComunicacion_SSH.equals(parameters.getMetodoComunicacion())){
 					CUtil.copyFileSFTP(pathOnSlave, pathOnMaster, cliente.getUser(), cliente.getPass(), cliente.getHost(), 22);
@@ -430,8 +430,8 @@ public class CMasterNode extends CNode implements IMasterNode {
 		if (parameters.getMasterIndexa()){
 			String pathOnMasterTarget = INodeConfiguration.logIndexPath + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
 			/* El String comentado va a buscar el .properties con el nombre de la corrida */
-			String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
-	//		String pathOnMasterSource = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + ".properties";
+			String pathOnMasterSource = configuration.getIndexPath() + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + "_" + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+	//		String pathOnMasterSource = configuration.getIndexPath() + INodeConfiguration.prefixIndex + getNodeConfiguration().getIdNode() + ".properties";
 			logger.info("pathOnMasterTarget: " + pathOnMasterTarget);
 			logger.info("pathOnMasterSource: " + pathOnMasterSource);
 			CUtil.copyFile(pathOnMasterSource, pathOnMasterTarget);

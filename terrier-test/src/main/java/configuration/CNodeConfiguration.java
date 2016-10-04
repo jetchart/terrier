@@ -20,6 +20,7 @@ public class CNodeConfiguration implements INodeConfiguration {
 	String terrierHome;
 	String folderPath;
 	String destinationFolderPath;
+	String indexPath;
 	String idMasterNode;
 	Collection<String> slavesNodes = new ArrayList<String>();
 	Integer nodesAmount;
@@ -48,6 +49,7 @@ public class CNodeConfiguration implements INodeConfiguration {
 			this.idNode = propiedades.getProperty("idNode");
 			this.port = Integer.valueOf(propiedades.getProperty("port"));
 			this.nodeType = propiedades.getProperty("nodeType");
+			this.indexPath = propiedades.getProperty("indexPath");
 			if (CNode.ID_MASTER.equals(this.nodeType.toUpperCase())){
 				readMasterConfiguration(propiedades);
 			}else if (CNode.ID_SLAVE.equals(this.nodeType.toUpperCase())){
@@ -164,5 +166,13 @@ public class CNodeConfiguration implements INodeConfiguration {
 	@Override
 	public void setFolderPath(String folderPath){
 		this.folderPath = folderPath;
+	}
+
+	public String getIndexPath() {
+		return indexPath;
+	}
+
+	public void setIndexPath(String indexPath) {
+		this.indexPath = indexPath;
 	}
 }

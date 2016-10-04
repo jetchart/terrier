@@ -67,7 +67,7 @@ public class CServer {
 				 }else if (mensaje.startsWith(CNode.task_INITIALIZE)){
 					 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
 					 flujoSalida= new DataOutputStream(socketServicio.getOutputStream());
-					 enviar(CNode.task_INITIALIZE + slaveNode.getNodeConfiguration().getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + slaveNode.getNodeConfiguration().getIdNode());
+					 enviar(CNode.task_INITIALIZE + slaveNode.getNodeConfiguration().getIndexPath() + INodeConfiguration.prefixIndex + slaveNode.getNodeConfiguration().getIdNode());
 				 }else{
 					 logger.info(">>>>>>>>>> "+mensaje+" <<<<<<<<<");
 					flujoSalida= new DataOutputStream(socketServicio.getOutputStream());

@@ -22,6 +22,8 @@ public interface INodeConfiguration {
 	
 	String getFolderPath();
 	
+	String getIndexPath();
+	
 	void setFolderPath(String folderPath);
 	
 	String getDestinationFolderPath();
@@ -37,4 +39,6 @@ public interface INodeConfiguration {
 	Integer getMasterSFTPPort();
 	String getUserSFTP();
 	String getPasswordSFTP();
+
+	void setIndexPath(String string);
 }

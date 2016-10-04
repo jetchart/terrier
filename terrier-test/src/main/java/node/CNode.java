@@ -112,13 +112,13 @@ public abstract class CNode implements INode {
 		logger.info("");
 		logger.info("Inicia Indexación del nodo " + configuration.getNodeType() + "_" + configuration.getIdNode());
 		String indexName = prefix + sufijoNombreIndice;
-		CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", indexName);
+		CUtil.deleteIndexFiles(configuration.getIndexPath(), indexName);
 		Long inicioIndexacion = System.currentTimeMillis();
     	TRECCollection coleccion = null;
     	/* Creo una nueva coleccion */
 		coleccion = new TRECCollection();
 		/* Instancio Indexador */
-		Indexer indexador = new BasicIndexer(configuration.getTerrierHome() + "var/index/", indexName);
+		Indexer indexador = new BasicIndexer(configuration.getIndexPath(), indexName);
 		/* Indico las colecciones a indexar */
 		org.terrier.indexing.Collection[] col = new org.terrier.indexing.Collection[1];
 		col[0] = coleccion;
@@ -129,7 +129,7 @@ public abstract class CNode implements INode {
 		/* Cierro Coleccion */
 		coleccion.close();
     	/* Levanto el índice creado */
-		this.index = Index.createIndex(configuration.getTerrierHome() +"var/index/", indexName);		
+		this.index = Index.createIndex(configuration.getIndexPath(), indexName);		
 		Long finIndexacion = System.currentTimeMillis() - inicioIndexacion;
 		logger.info("Indexación del nodo " + configuration.getNodeType() + "_" + configuration.getIdNode() + " tardó " + finIndexacion + " milisegundos");
 		mostrarTerminosIndice(this.index);
@@ -187,10 +187,10 @@ public abstract class CNode implements INode {
 		Long inicio = System.currentTimeMillis();
 		String merge = isMergeIndex?"merge_":"";
 		String fileName = (isMergeIndex?INodeConfiguration.prefixIndex.replace("_", ""): INodeConfiguration.prefixIndex + configuration.getIdNode());
-		String source = configuration.getTerrierHome() + "var/index/" + fileName + ".properties";
+		String source = configuration.getIndexPath() + fileName + ".properties";
 		/* El String comentado va a buscar el .properties con el nombre de la corrida */
-		String target = (isMergeIndex? INodeConfiguration.logIndexPath : configuration.getTerrierHome() + "var/index/") + fileName + "_" + merge + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
-//		String target = (isMergeIndex? INodeConfiguration.logIndexPath : configuration.getTerrierHome() + "var/index/") + fileName + "_" + merge + ".properties";
+		String target = (isMergeIndex? INodeConfiguration.logIndexPath : configuration.getIndexPath()) + fileName + "_" + merge + colCorpus.iterator().next().split("/")[colCorpus.iterator().next().split("/").length-1] + ".properties";
+//		String target = (isMergeIndex? INodeConfiguration.logIndexPath : configuration.getIndexPath()) + fileName + "_" + merge + ".properties";
 		logger.info(source);
 		logger.info(target);
 		CUtil.copyFile(source, target);

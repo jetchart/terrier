@@ -27,6 +27,9 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 		switch (array[0]) {
 			case task_INITIALIZE + "_SSH":
 				setColCorpus(array, "SSH");
+				/* Si la comunicación es por SSH, se deberán transferir los índices al momento de mergear, en
+				 * cambio si es PATH, directamente se crearán los índices de los nodos en la carpeta del Master */
+				configuration.setIndexPath(configuration.getTerrierHome() +"var/index/");
 				break;
 			case task_INITIALIZE + "_PATH":
 				setColCorpus(array, "PATH");
@@ -36,7 +39,7 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 				this.copiarIndexProperties(Boolean.FALSE);
 		        break;
 			case task_CLEAN_INDEXES:
-				CUtil.deleteIndexFiles(configuration.getTerrierHome() +"var/index/", INodeConfiguration.prefixIndex + this.configuration.getIdNode());
+				CUtil.deleteIndexFiles(configuration.getIndexPath(), INodeConfiguration.prefixIndex + this.configuration.getIdNode());
 		        break;
 			case task_DELETE_CORPUS:
 				this.eliminarCorpus(colCorpus);
@@ -59,7 +62,7 @@ public class CSlaveNode extends CNode implements ISlaveNode {
 
 	private void copyIndexToMaster(String indexMasterPath, String metodoComunicacion) {
 		for (String indexFile : CUtil.indexFiles){
-			String pathOnSlave = configuration.getTerrierHome() + "var/index/" + INodeConfiguration.prefixIndex + this.getId() + indexFile;
+			String pathOnSlave = configuration.getIndexPath() + INodeConfiguration.prefixIndex + this.getId() + indexFile;
 			String pathOnMaster = indexMasterPath + INodeConfiguration.prefixIndex + this.getId() + indexFile;
 			logger.info("pathOnSlave: " + pathOnSlave);
 			logger.info("pathOnMaster: " + pathOnMaster);

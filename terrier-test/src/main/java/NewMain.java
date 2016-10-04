@@ -181,10 +181,14 @@ public class NewMain {
 				nodo.setColCorpus(col);
 			}
 //			nodo.copyIndexesFromSlaves();
-			nodo.sendOrderToGetIndexSlaves();
+			if (nodo.getParameters().getMetodoComunicacion().equals(CParameters.metodoComunicacion_SSH)){
+				nodo.sendOrderToGetIndexSlaves();
+			}else{
+				logger.info("No se realiza copia de índices ya que se eligió comunicación via PATH y todos los índices se encuentran en la misma carpeta");
+			}
 			Integer minIndex = nodo.getParameters().getMasterIndexa()?0:1;
 			Integer maxIndex = minIndex==0?nodo.getParameters().getCantidadNodos()-1:nodo.getParameters().getCantidadNodos();
-			nodo.mergeIndexes(nodo.getNodeConfiguration().getTerrierHome() + "var/index/", "jmeIndex", minIndex, maxIndex);
+			nodo.mergeIndexes(nodo.getNodeConfiguration().getIndexPath(), "jmeIndex", minIndex, maxIndex);
 		}
 		Long fin = System.currentTimeMillis() - inicio;
 		logger.info("Proceso de indexación completo tardó " + fin + " milisegundos");
@@ -216,7 +220,7 @@ public class NewMain {
 //			List<String> col = new ArrayList<String>();
 //			col.add(lastMasterCorpusPath);
 //			nodo.setColCorpusTotal(col);
-			nodo.setIndex(Index.createIndex(nodo.getNodeConfiguration().getTerrierHome() +"var/index/", nodo.getParameters().getIndexName()));
+			nodo.setIndex(Index.createIndex(nodo.getNodeConfiguration().getIndexPath(), nodo.getParameters().getIndexName()));
 		}
 		/* Se parsea la query */
 		nodo.getParameters().setQuery(CUtil.parseString(nodo.getParameters().getQuery()));
