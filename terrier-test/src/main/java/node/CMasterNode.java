@@ -102,8 +102,9 @@ public class CMasterNode extends CNode implements IMasterNode {
 		if (this.getParameters().getMetodoParticionamiento() instanceof IPartitionByTerms){
 			/* Si se indicó un índice previo, se lo levanta (esto sirve para no tener que crear el índice de nuevo) */
 			if (!this.getParameters().getPreviousIndexName().isEmpty()){
+				logger.info("Se levanta índice ya creado de: " + configuration.getIndexPath() + "previousIndex/" + this.getParameters().getPreviousIndexName());
 				/* Levanto el índice indicado en los parámetros */
-				this.index = Index.createIndex(configuration.getIndexPath(), this.getParameters().getPreviousIndexName());
+				this.index = Index.createIndex(configuration.getIndexPath() + "previousIndex/", this.getParameters().getPreviousIndexName());
 			}else{
 				/* Utilizamos el metodo RoundRobin por documentos para crear el corpus */
 				/* TODO se puede mejorar esto */
